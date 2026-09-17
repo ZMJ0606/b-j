@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1e3a8a">
+<script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
+<title>TOEIC 每日闯关 · 波&娇</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#f2f5fa;--ink:#111827;--muted:#6b7280;--A:#3b6df6;--B:#f59e0b;--ok:#10b981;--bad:#ef4444;--line:#e8ecf4}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;padding-bottom:40px}
+.wrap{max-width:820px;margin:0 auto;padding:0 14px}
+/* 补丁2：iPhone 刘海安全区域 */
+header{background:linear-gradient(135deg,#1e3a8a,#3b6df6);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 0 12px;position:sticky;top:0;z-index:60}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:17px}
+.roles{display:flex;gap:6px;background:rgba(255,255,255,.16);padding:4px;border-radius:12px}
+.roles button{border:none;background:transparent;color:rgba(255,255,255,.75);font-weight:800;padding:7px 14px;border-radius:9px;cursor:pointer;font-size:14px;font-family:inherit;min-height:38px}
+.roles button.on{background:#fff;color:#1e3a8a}
+.todaybar{display:flex;gap:14px;margin-top:10px;font-size:12px;opacity:.92;flex-wrap:wrap;align-items:center}
+.todaybar b{font-size:13px}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;background:#fff;position:sticky;top:0;z-index:55;border-bottom:1px solid var(--line);scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;border:none;background:#f1f4fa;color:#4b5563;padding:8px 15px;border-radius:99px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;min-height:38px}
+nav button.on{background:var(--A);color:#fff}
+main{padding-top:14px}
+.card{background:#fff;border-radius:16px;padding:17px;margin-bottom:13px;box-shadow:0 1px 3px rgba(16,24,40,.05),0 6px 20px -10px rgba(16,24,40,.1)}
+h2{font-size:16.5px;margin:0 0 12px;font-weight:800}
+h3{font-size:13px;margin:0 0 6px;font-weight:800;color:var(--muted)}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:600px){.grid3{grid-template-columns:1fr 1fr}}
+.btn{border:none;border-radius:12px;padding:12px 18px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;background:#eef1f7;color:#374151;min-height:46px;display:inline-flex;align-items:center;justify-content:center}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--A);color:#fff}
+.btn.ok{background:var(--ok);color:#fff}
+.btn.bad{background:var(--bad);color:#fff}
+.btn.warn{background:#f59e0b;color:#fff}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:#4b5563}
+.btn.block{width:100%;display:flex}
+
+/* ===== 阶段卡片：统一浅色底 ===== */
+.stage{display:flex;align-items:center;gap:12px;padding:13px;border-radius:14px;background:#f8faff;border:1.5px solid var(--line);margin-bottom:10px;cursor:pointer;min-height:66px}
+.stage.done{background:#f8faff;border-color:#b7ecd6}
+.stage.active{background:#fff;border-color:var(--line)}
+.stage.locked{opacity:.55;cursor:not-allowed}
+.stage .ic{font-size:22px;width:42px;height:42px;display:grid;place-items:center;background:#fff;border-radius:11px;flex:0 0 auto}
+.stage .tx{flex:1;min-width:0}
+.stage .tx b{font-size:14.5px;display:block}
+.stage .tx span{font-size:12px;color:var(--muted)}
+.stage .st{font-size:11px;font-weight:800;padding:4px 11px;border-radius:99px;background:#eef1f7;color:#6b7280;white-space:nowrap}
+.stage.done .st{background:var(--ok);color:#fff}
+.stage.active .st{background:var(--A);color:#fff}
+.stage.done .ic{background:#fff}
+.stage.done .st::before{content:'✓ '}
+
+.pbar{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:8px}
+.bar{height:6px;background:#eef1f7;border-radius:99px;overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#3b6df6,#7ba4ff);border-radius:99px;transition:.3s}
+.stem{font-size:22px;font-weight:800;line-height:1.45;word-break:break-word;margin-bottom:4px;text-align:center}
+.stem.long{font-size:16px;line-height:1.7;text-align:left}
+.sub{font-size:13px;color:var(--muted);margin-bottom:16px;text-align:center}
+.sub.left{text-align:left}
+.spk{border:none;background:#e8effe;color:var(--A);width:48px;height:48px;border-radius:50%;cursor:pointer;font-size:18px}
+.spk.center{display:flex;margin:10px auto}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;margin-bottom:9px;cursor:pointer;font-size:14.5px;min-height:50px}
+.opt .k{flex:0 0 auto;width:24px;height:24px;border-radius:6px;background:#eef1f7;display:grid;place-items:center;font-size:12px;font-weight:800;color:#6b7280;margin-top:1px}
+.opt.right{border-color:var(--ok);background:#e7f8f1}
+.opt.right .k{background:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--bad);background:#fdecec}
+.opt.wrong .k{background:var(--bad);color:#fff}
+.explain{margin-top:12px;padding:12px 14px;border-radius:12px;background:#fffaf0;border:1px solid #fde9c4;font-size:13.5px;color:#7c5a12;line-height:1.7}
+.wcard{text-align:center;padding:16px 0}
+.wcard .w{font-size:32px;font-weight:800;word-break:break-word}
+.wcard .ph{color:var(--muted);font-size:14px;margin-top:4px;min-height:20px}
+.wcard .cn{font-size:20px;font-weight:700;color:var(--A);margin-top:12px}
+.wcard .ex{margin-top:14px;text-align:left;background:#f8faff;border-left:3px solid var(--A);padding:10px 12px;border-radius:0 10px 10px 0;font-size:13.5px;color:#374151;line-height:1.6}
+.blocks,.answer-area{display:flex;flex-wrap:wrap;gap:8px;min-height:56px;padding:12px;border-radius:12px;margin-bottom:14px}
+.blocks{background:#f8faff;border:1.5px dashed #c9d7f8}
+.answer-area{background:#fff;border:1.5px solid var(--A)}
+.blocks .blk,.answer-area .blk{padding:9px 14px;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
+.blocks .blk{background:#fff;border:1.5px solid var(--line)}
+.blocks .blk.used{opacity:.25;pointer-events:none}
+.answer-area .blk{background:#e8effe;border:1.5px solid var(--A);color:var(--A)}
+.answer-area .ph{color:#c3cad6;font-size:13px}
+.cal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px}
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px}
+.cal-week span{text-align:center;font-size:11px;color:var(--muted);font-weight:700}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-cell{aspect-ratio:1;border-radius:11px;background:#f7f9fc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12.5px;font-weight:700;color:#4b5563;cursor:pointer;min-height:36px}
+.cal-cell.out{opacity:.3;cursor:default}
+.cal-cell.today{outline:2px solid var(--A);outline-offset:-2px}
+.cal-cell.sel{background:#e8effe}
+.cal-cell .dots{display:flex;gap:3px}
+.cal-cell .dots i{width:6px;height:6px;border-radius:50%;background:#e2e7ef;display:block}
+.cal-cell .dots i.a.on{background:var(--A)}
+.cal-cell .dots i.b.on{background:var(--B)}
+.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:800}
+.badge.a{background:#e8effe;color:var(--A)}
+.badge.b{background:#fef4e5;color:#b45309}
+.stat-num{font-size:26px;font-weight:800;line-height:1.2}
+.stat-lab{font-size:12px;color:var(--muted);font-weight:700;margin-top:2px}
+.tip{background:#f0f6ff;border:1px solid #d6e4ff;border-radius:12px;padding:11px 13px;font-size:12.5px;color:#3b5bdb;line-height:1.7;margin-top:12px}
+.result{text-align:center;padding:26px 18px}
+.result .big{font-size:48px}
+.result .pct{font-size:36px;font-weight:800;line-height:1.2;margin-top:4px}
+.mini-stats{display:flex;justify-content:center;gap:18px;margin:16px 0;font-size:13px;flex-wrap:wrap}
+.mini-stats b{display:block;font-size:20px;font-weight:800}
+.list-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.list-item:last-child{border-bottom:none}
+/* 补丁1：输入框改为 16px，避免 iOS 放大页面 */
+textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:16px;outline:none;background:#fbfcfe;min-height:110px;resize:vertical;line-height:1.7}
+input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:16px;outline:none;background:#fbfcfe}
+#toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);background:rgba(17,24,39,.94);color:#fff;padding:12px 22px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.28s;z-index:999;font-weight:700;max-width:86vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.combo-bar{position:fixed;left:0;right:0;top:0;height:4px;background:rgba(0,0,0,.06);z-index:70;opacity:0;transition:.3s;pointer-events:none}
+.combo-bar.show{opacity:1}
+.combo-bar i{display:block;height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b,#ef4444);border-radius:0 2px 2px 0;transition:width .3s,background .3s}
+@keyframes avatarFlash{0%,100%{filter:none;transform:scale(1)}40%{filter:brightness(1.6) drop-shadow(0 0 12px #fbbf24);transform:scale(1.15)}}
+.roles button.flash{animation:avatarFlash .5s ease}
+#reportModal{position:fixed;inset:0;background:rgba(17,24,39,.6);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.3s}
+#reportModal.show{opacity:1;pointer-events:auto}
+#reportModal .box{background:#fff;border-radius:22px;padding:26px 22px;max-width:420px;width:100%;text-align:center;transform:scale(.9);transition:.3s;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+#reportModal.show .box{transform:scale(1)}
+#reportModal .big{font-size:52px;line-height:1}
+#reportModal h2{font-size:19px;margin:8px 0 4px}
+#reportModal .mini-stats{justify-content:center;gap:14px;margin:16px 0}
+#reportModal .quote{font-style:italic;font-size:13px;color:#6b7280;margin-top:8px;padding-top:10px;border-top:1px dashed #e5e7eb}
+#login{position:fixed;inset:0;background:linear-gradient(135deg,#1e3a8a,#3b6df6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+#login .box{background:#fff;border-radius:22px;padding:30px 22px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+#login h1{font-size:22px;margin:0 0 6px}
+#login p{color:var(--muted);font-size:13px;margin:0 0 24px}
+#login .players{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#login .player{border:2px solid var(--line);border-radius:18px;padding:16px 10px;cursor:pointer;transition:.18s;background:#fbfcfe}
+#login .player:hover{border-color:var(--A);transform:translateY(-3px)}
+#login .player.b:hover{border-color:var(--B)}
+#login .player .av-line{width:90px;height:90px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:#f8faff;border-radius:50%;border:3px solid #e8effe;overflow:hidden}
+#login .player.a .av-line{border-color:var(--A);background:#eef4ff}
+#login .player.b .av-line{border-color:var(--B);background:#fff8ec}
+#login .player .av-line svg{width:100%;height:100%;display:block}
+#login .player .nm{font-weight:800;font-size:17px;margin-top:8px}
+#login .player .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.mem-card{aspect-ratio:1;border-radius:12px;border:2px solid var(--line);background:linear-gradient(135deg,#3b6df6,#7ba4ff);display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer;transition:.2s;font-size:13px;text-align:center;padding:6px;word-break:break-word;min-height:70px;color:transparent}
+.mem-card.flipped{background:#fff;border-color:var(--A);color:var(--ink)}
+.mem-card.matched{background:#e7f8f1;border-color:var(--ok);color:#0f9d6b;pointer-events:none}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:#e7f8f1;color:#0f9d6b}
+.sync-badge.off{background:#f1f4fa;color:#9aa4b2}
+.sync-badge i{width:6px;height:6px;border-radius:50%;background:#0f9d6b;display:block}
+.sync-badge.off i{background:#9aa4b2}
+.match-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.match-card{aspect-ratio:1.05;border-radius:10px;border:2px solid var(--line);background:linear-gradient(135deg,#3b6df6,#7ba4ff);display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer;transition:.2s;font-size:11.5px;text-align:center;padding:5px;word-break:break-word;min-height:62px;line-height:1.2;color:transparent}
+.match-card.flipped{background:#fff;border-color:var(--A);color:var(--ink)}
+.match-card.matched{background:#e7f8f1;border-color:var(--ok);color:#0f9d6b;pointer-events:none;opacity:.6}
+.match-card.wrong{background:#fdecec;border-color:var(--bad);color:#dc2626}
+@media(max-width:520px){.match-grid{gap:6px}.match-card{font-size:10.5px;min-height:54px}}
+.fire-1{color:#fbbf24}
+.fire-2{color:#f59e0b;font-weight:800}
+.fire-3{color:#ea580c;font-weight:800}
+.fire-4{color:#dc2626;font-weight:800;text-shadow:0 0 8px rgba(220,38,38,.3)}
+.fire-icon{font-size:18px;line-height:1}
+.fire-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 12px;border-radius:12px;background:#f8faff}
+.fire-row.a{background:#eef4ff;border:1px solid #d5e2ff}
+.fire-row.b{background:#fff8ec;border:1px solid #ffe1b8}
+.fire-row .name{font-weight:800;font-size:13px;flex:0 0 auto}
+.fire-row .days{font-weight:800;font-size:14px;color:#374151}
+.fire-row .track{flex:1;height:8px;background:#e8ecf4;border-radius:99px;overflow:hidden}
+.fire-row .track i{display:block;height:100%;border-radius:99px;transition:.5s}
+.fire-row.a .track i{background:linear-gradient(90deg,#6f9bff,#3b6df6)}
+.fire-row.b .track i{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+.fire-row .crown{font-size:16px;margin-left:2px}
+.cal-cell{position:relative;overflow:hidden}
+.cal-cell.done-a{background:#e8effe;border:1px solid #c9d8ff}
+.cal-cell.done-b{background:#fef4e5;border:1px solid #ffd9a3}
+.cal-cell.done-both{background:linear-gradient(135deg,#e8effe 0%,#fef4e5 100%);border:1px solid #d5c7ff;font-weight:800}
+.cal-cell.today{animation:pulseToday 2.2s infinite}
+@keyframes pulseToday{0%,100%{box-shadow:0 0 0 0 rgba(59,109,246,.55)}50%{box-shadow:0 0 0 8px rgba(59,109,246,0)}}
+.cal-cell .day-emojis{display:flex;gap:1px;justify-content:center;font-size:12px;line-height:1;margin-top:1px;letter-spacing:-2px}
+.cal-cell.sel{outline:2px solid var(--A);outline-offset:-2px}
+.stage.theme-1{--tc:#3b6df6}
+.stage.theme-2{--tc:#10b981}
+.stage.theme-3{--tc:#8b5cf6}
+.stage.theme-4{--tc:#f59e0b}
+.stage.theme-5{--tc:#06b6d4}
+.stage.theme-6{--tc:#ec4899}
+.stage[class*="theme-"]{border-left:4px solid var(--tc);background:#f8faff}
+.stage.done[class*="theme-"]{background:#f8faff}
+.stage.active[class*="theme-"]{background:#fff;border-color:var(--line);border-left-color:var(--tc);box-shadow:0 4px 16px -6px rgba(0,0,0,.08)}
+.progress-dots{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.progress-dots i{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.22);display:block;transition:.3s}
+.progress-dots i.on{background:#fff;box-shadow:0 0 10px rgba(255,255,255,.85)}
+.progress-dots i.now{background:#fbbf24;box-shadow:0 0 12px rgba(251,191,36,.9);animation:pulseDot 1.6s infinite}
+@keyframes pulseDot{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.wrong-card-hot{border:1.5px solid #fecaca;background:linear-gradient(135deg,#fef7f7,#fff);position:relative;overflow:hidden}
+.wrong-badge-num{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-weight:800;font-size:20px;display:grid;place-items:center;flex:0 0 auto;box-shadow:0 0 0 0 rgba(220,38,38,.6);animation:pulseBadge 2s infinite}
+@keyframes pulseBadge{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.55)}50%{box-shadow:0 0 0 12px rgba(220,38,38,0)}}
+.wrong-card-clean{border:1.5px solid #b7ecd6;background:linear-gradient(135deg,#f0fdf4,#fff)}
+.wrong-card-clean .em{font-size:28px}
+.match-card-elevated{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;position:relative;overflow:hidden;border:none}
+.match-card-elevated::before{content:'✨';position:absolute;right:14px;top:10px;font-size:16px;opacity:.7}
+.match-card-elevated::after{content:'🎮';position:absolute;left:10px;bottom:6px;font-size:24px;opacity:.28}
+.match-card-elevated .txt-b{color:#fff;font-weight:800;font-size:15px}
+.match-card-elevated .txt-s{color:rgba(255,255,255,.85);font-size:12px}
+.match-card-elevated .btn{background:rgba(255,255,255,.95);color:#5b21b6;font-weight:800}
+.avatar-mini{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:0 0 auto;background:#fff}
+.avatar-mini.a{background:#e8effe;border:2px solid var(--A)}
+.avatar-mini.b{background:#fef4e5;border:2px solid var(--B)}
+.lead-badge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;background:#fef3c7;color:#b45309;margin-left:4px}
+.crown-tag{font-size:16px;margin-left:4px}
+.vs-block{margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.vs-block:last-child{border-bottom:none}
+.vs-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px;font-weight:800}
+.vs-head .icon{font-size:14px;margin-right:4px}
+.vs-bar{display:flex;align-items:center;gap:6px}
+.vs-left,.vs-right{flex:1;height:22px;background:#f2f5fa;border-radius:6px;overflow:hidden;position:relative}
+.vs-left{display:flex;justify-content:flex-end}
+.vs-left i,.vs-right i{display:block;height:100%;border-radius:6px;transition:.6s cubic-bezier(.2,.8,.2,1)}
+.vs-left i{background:linear-gradient(90deg,#6f9bff,#3b6df6)}
+.vs-right i{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+.vs-left i.win{box-shadow:0 0 0 2px #fde68a inset}
+.vs-right i.win{box-shadow:0 0 0 2px #fde68a inset}
+.vs-mid{flex:0 0 auto;font-weight:900;color:var(--muted);font-size:12px;padding:0 4px}
+.vs-val{position:absolute;top:0;line-height:22px;font-size:11px;font-weight:800;color:#fff;padding:0 6px;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.vs-left .vs-val{left:6px}
+.vs-right .vs-val{right:6px}
+.vs-empty{color:#c3cad6;font-size:12px;font-weight:700;line-height:22px;padding:0 10px}
+.vs-top-duel{background:linear-gradient(135deg,#1e3a8a,#3b6df6);color:#fff;border-radius:16px;padding:20px;text-align:center;position:relative;overflow:hidden;margin-bottom:13px}
+.vs-top-duel::before{content:'';position:absolute;left:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.06)}
+.vs-top-duel::after{content:'';position:absolute;right:-40px;bottom:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.06)}
+.vs-top-duel .pl{display:inline-flex;flex-direction:column;align-items:center;gap:4px;vertical-align:middle}
+.vs-top-duel .av{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.95);display:grid;place-items:center;font-size:26px;position:relative}
+.vs-top-duel .av.lead{box-shadow:0 0 0 3px #fde68a}
+.vs-top-duel .av .crown{position:absolute;top:-12px;font-size:20px}
+.vs-top-duel .nm{font-size:12.5px;font-weight:700;opacity:.95}
+.vs-top-duel .score{font-size:38px;font-weight:900;line-height:1;margin-top:4px}
+.vs-top-duel .score.gold{color:#fde68a;text-shadow:0 0 14px rgba(253,230,138,.55)}
+.vs-top-duel .vs-word{display:inline-block;margin:0 20px;font-size:22px;font-weight:900;opacity:.55;vertical-align:middle}
+.vs-top-duel .banner{margin-top:14px;font-size:13px;font-weight:800;background:linear-gradient(90deg,rgba(253,230,138,.85),rgba(251,191,36,.85));color:#78350f;display:inline-block;padding:6px 18px;border-radius:99px;box-shadow:0 4px 14px -4px rgba(251,191,36,.7);position:relative;z-index:1}
+.vs-top-duel .banner.tie{background:rgba(255,255,255,.25);color:#fff}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="box">
+    <h1>TOEIC 每日闯关</h1>
+    <p>团队「波&娇」· 请选择你的角色进入</p>
+    <div class="players">
+      <div class="player a" data-r="A">
+        <div class="av-line"><svg viewBox="0 0 100 100"><ellipse cx="22" cy="42" rx="9" ry="15" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(-25 22 42)"/><ellipse cx="78" cy="42" rx="9" ry="15" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(25 78 42)"/><ellipse cx="50" cy="58" rx="28" ry="26" fill="#fff" stroke="#333" stroke-width="2.5"/><circle cx="41" cy="56" r="3.5" fill="#333"/><circle cx="59" cy="56" r="3.5" fill="#333"/><ellipse cx="50" cy="66" rx="4.5" ry="3.5" fill="#333"/><path d="M 46 72 Q 50 76 54 72" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/><g transform="translate(74 26)"><path d="M 0 0 L -10 -6 L -10 6 Z" fill="#ffb3c6" stroke="#333" stroke-width="1.5"/><path d="M 0 0 L 10 -6 L 10 6 Z" fill="#ffb3c6" stroke="#333" stroke-width="1.5"/><circle cx="0" cy="0" r="3" fill="#ff8fab" stroke="#333" stroke-width="1.5"/></g></svg></div>
+        <div class="nm">阿娇</div>
+        <div class="sub">角色 A</div>
+      </div>
+      <div class="player b" data-r="B">
+        <div class="av-line"><svg viewBox="0 0 100 100"><ellipse cx="22" cy="42" rx="9" ry="15" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(-25 22 42)"/><ellipse cx="78" cy="42" rx="9" ry="15" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(25 78 42)"/><ellipse cx="50" cy="58" rx="28" ry="26" fill="#fff" stroke="#333" stroke-width="2.5"/><circle cx="41" cy="56" r="3.5" fill="#333"/><circle cx="59" cy="56" r="3.5" fill="#333"/><ellipse cx="50" cy="66" rx="4.5" ry="3.5" fill="#333"/><path d="M 46 72 Q 50 76 54 72" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/><g transform="translate(50 20)"><ellipse cx="0" cy="10" rx="20" ry="4" fill="#3b6df6" stroke="#333" stroke-width="2"/><path d="M -13 10 L -9 -9 L 9 -9 L 13 10 Z" fill="#3b6df6" stroke="#333" stroke-width="2"/></g></svg></div>
+        <div class="nm">阿波</div>
+        <div class="sub">角色 B</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="wrap">
+    <div class="hd">
+      <div class="logo">TOEIC <small>波&娇</small></div>
+      <div class="roles" id="roles">
+        <button data-r="A" class="on">阿娇</button>
+        <button data-r="B">阿波</button>
+      </div>
+    </div>
+    <div class="todaybar">
+      <div>🔥 连续 <b id="streak">0</b> 天</div>
+      <div id="whoami">当前：阿娇</div>
+      <div id="syncStatus" class="sync-badge off"><i></i>同步中</div>
+    </div>
+  </div>
+</header>
+
+<nav id="tabs">
+  <button data-v="today" class="on">今日关卡</button>
+  <button data-v="calendar">打卡日历</button>
+  <button data-v="pk">🎮 双人PK</button>
+  <button data-v="compare">双人对比</button>
+  <button data-v="words">单词库</button>
+  <button data-v="data">导入</button>
+</nav>
+
+<div class="combo-bar" id="comboBar"><i id="comboFill" style="width:0%"></i></div>
+
+<div id="reportModal"><div class="box">
+  <div class="big">🎉</div>
+  <h2>今日打卡完成</h2>
+  <div class="muted" id="reportDate"></div>
+  <div class="mini-stats" id="reportStats"></div>
+  <div class="quote" id="reportQuote"></div>
+  <button class="btn primary block" id="reportClose" style="margin-top:14px">继续加油</button>
+</div></div>
+
+<main><div class="wrap" id="main"></div></main>
+
+<script>
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return [...(r||document).querySelectorAll(s)]}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function todayStr(){var d=new Date();var t=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return t.toISOString().slice(0,10)}
+function addDays(ds,n){var d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function toast(m){var t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t)}t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show')},1800)}
+function speak(text,rate){rate=rate||0.9;if(!('speechSynthesis' in window)){toast('浏览器不支持语音');return}window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=rate;window.speechSynthesis.speak(u)}
+
+var KEY='toeic_app_v1';
+var TEAM='bojiao';
+var SYNC_SECRET='bjsy2026';
+var NAMES={A:'阿娇',B:'阿波'};
+var STAGES=[
+  {key:'learn',icon:'📖',name:'阶段1 · 单词学习',desc:'20 新词 + 20 复习'},
+  {key:'fill',icon:'✍️',name:'阶段2 · 例句填空',desc:'20 题选词填空'},
+  {key:'build',icon:'🧩',name:'阶段3 · 拼句子',desc:'20 句自主拼句'},
+  {key:'synonym',icon:'🔗',name:'阶段4 · 同义词替换',desc:'20 组同义选择'},
+  {key:'listening',icon:'🎧',name:'阶段5 · 听力例句',desc:'20 句打卡'},
+  {key:'grammar',icon:'✏️',name:'阶段6 · 语法词汇',desc:'20 道托业真题'}
+];
+
+var WORDS_RAW='appointment|||约会，约定\nattendance|||出席人数；出席\ncabinet|||橱柜\ncalendar|||日历；月历\nclerk|||办事员\nmonitor|||检测；监视\npartition|||分隔\npostage|||邮费\npunctuality|||准时\nschedule|||时间表\nshift|||换班；轮班\nstaff|||全体职员\nstrike|||罢工\ntask|||工作，任务\nwork force|||劳动人口\nassignment|||分配；工作\nbulletin|||公报；告示\ncalculator|||计算器\ncarbon copy|||复写副本\ncolleague|||同事\ndocument|||文件\nextension|||分机；延期\nintercom|||对讲机\nmemo|||备忘录\noperator|||接线生\novertime|||加班\nportfolio|||公事包\nreceptionist|||接待员\nsecretary|||秘书\nstapler|||订书机\nallocate|||分配\nauthorize|||授权\nbonus|||奖金\ncapability|||能力\ncollaboration|||合作\ncurriculum vitae|||履历\neligible|||合格的\nemployer|||雇主\nexecutive|||行政人员\nincome|||收入\nlay off|||解雇\noccupation|||职业\npermanent|||永久的\npromote|||升迁；促销\nrecruit|||征募\nresume|||履历表\nsalary|||薪水\nappoint|||任命\nbenefit|||受益\ncandidate|||候选人\ncertificate|||证书\ncompetent|||有能力的\ncoordinate|||协调\ndeadline|||截至期限\nemployee|||受雇者\nevaluation|||评价\nexpertise|||专门技术\ninterview|||面谈\npension|||养老金\npersonnel|||人事部门\nrecommendation|||推荐\nresign|||辞职\nretire|||退休\nsubstitute|||代理人\nacquisition|||获得\namplify|||放大；加强\nasset|||优点；长处\ncorporation|||公司\ncutback|||减少\nenterprise|||企业\nfranchise|||经销权\nlaunch|||开办；发起\nmonopoly|||垄断\nphase|||阶段\nproposition|||提案\nrival|||竞争者\nsubsidiary|||子公司\nacquire|||获得\nassess|||评估\nbenchmark|||基准\ncarry out|||执行\ncut down|||削减\nentrepreneur|||企业家\nexpand|||扩张\nfirm|||公司\nintegrate|||整合\nmerger|||合并\npending|||待决定的\npreliminary|||初步的\npropose|||提议\nprosperity|||繁荣\nscheme|||计划\nthrive|||兴旺\naccount|||帐户\nbalance|||余额\nbond|||债券\ncredit|||信用\ndebt|||债务\ndeficit|||赤字\nendorse|||背书；支持\nexempt|||豁免的\nexpense|||消费\ninflation|||通货膨胀\nprofit|||利润\nrevenue|||收益\nstock|||股票\nwithdrawal|||提款\naccountant|||会计师\nbankrupt|||破产的\ncapital|||资金\nconvert|||转换\ncurrency|||货币\ndeduction|||扣除\ndeposit|||押金\ndiscrepancy|||差异\nestimate|||估价\nexpenditure|||开销\nfiscal|||财政的\nfund|||基金\nledger|||分类帐\noverdue|||过期未付的\nshareholder|||股东\nyield|||收益\nbid|||投标\ncommercial|||商用的\ncompetitor|||竞争者\nconsolidate|||合并\ncontract|||合同\ncorporate|||公司的\ncredible|||可信的\nearnings|||收益\nexport|||出口\nimport|||进口\ninvoice|||发票\npayment|||付款\nquote|||报价\nsupply|||供应品\ntariff|||关税\nvoucher|||凭证\ncommodity|||商品\nconsumer|||消费者\ncontractor|||承包商\ndealer|||商人\ndue|||到期的\nforward|||转寄\nheadquarters|||总部\ninventory|||存货\norder|||订单\npatent|||专利\nquota|||配额\nshipment|||一批货\nsurplus|||盈余\ntrademark|||注册商标\nwarehouse|||仓库\nadjourn|||休会；延期\nagreement|||协议\namendment|||修正\napproval|||同意\nattentive|||专心的\nboard|||董事会\nbrainstorm|||集思广益\nconcede|||让步\nconference|||会议\nconvention|||大会\nconvince|||使信服\ndelegate|||代表\ndemand|||要求\ndispute|||争端\nnegotiation|||谈判\npersuade|||说服\npostpone|||延期\nreconcile|||调解\nsettlement|||协议\nagenda|||议程\nalternative|||可替代的\nannounce|||宣布\nattorney|||律师\nbreakthrough|||突破\ncompromise|||妥协\nconsensus|||共识\ncriterion|||标准\ndecline|||下降\ndiplomacy|||交际手段\non behalf of|||代表\npetition|||请愿\npremise|||前提\nseminar|||研讨会\nstatement|||声明\nadvance|||进展\ncapacity|||容量\ncomponent|||零件\ndevice|||装置\nengineer|||工程师\nfacilitate|||促进\nfuel|||燃料\ngenerator|||发电机\ninnovative|||革新的\ninventor|||发明家\nmalfunction|||故障\nmode|||模式\noperate|||操作\noutlet|||销售店；插座\nportable|||便携的\nraw material|||原料\nsatellite|||卫星\nspecification|||说明\nconsecutive|||连续的\ndevise|||设计\nequipment|||设备\nfacility|||设施\ninspect|||检查\nlaboratory|||实验室\nmaintenance|||维护\nmanual|||手册\nnetwork|||网络\noutage|||断电\npetroleum|||石油\nprocedure|||程序\nreverse|||相反的\nsolar|||太阳的\nstatic|||静电的\naccess|||使用；取得\nautomatically|||自动的\ncable|||电缆\ncompliance|||服从\ndelete|||删除\ndigital|||数字的\ndownload|||下载\nhacker|||黑客\ninput|||输入\nInternet|||互联网\nlaptop|||笔记本电脑\nmultimedia|||多媒体\nsearch engine|||搜索引擎\nshut down|||关闭\nterminology|||术语\nup-to-date|||最新的\nactivate|||激活\nbrowse|||浏览\ncommand|||指令\ndatabase|||数据库\ndesktop|||桌上型\ndowngrade|||降级\nhyperlink|||超链接\ninstall|||安装\nknow-how|||技能\nmodem|||调制解调器\nomit|||忽略\nscanner|||扫描仪\nserver|||服务器\nspreadsheet|||电子表格\nswitch|||开关\ntransmission|||传输\nupgrade|||升级\nvirus|||病毒\nadvertisement|||广告\nappendix|||附录\nattach|||附上\ncampaign|||宣传活动\ncohesive|||有凝聚力的\nconfidential|||机密的\ncorrespondence|||通信\ndictate|||口述\nelaborate|||详尽的\ninquire|||询问\njot down|||记下\nleaflet|||传单\nnotify|||通知\npublicity|||公开\nresponse|||回应\nrevise|||修订\nslogan|||标语\nurgent|||紧急的\naffirm|||确认\nASAP|||越快越好\nbanner|||旗帜\ncircular|||通告\ncomposition|||作品\nconvene|||开会\ncourier|||快递员\ndraft|||草稿\nenclose|||装入\ninform|||告知\nissue|||发布\nlayout|||编排\nlegible|||易读的\nproofread|||校对\nregarding|||关于\nrestate|||重述\nsignature|||签名\nstationery|||文具\nwrite-up|||报告书\naccommodation|||住宿\nboarding pass|||登机牌\nbrochure|||小册子\ncheckout|||退房\nconfirmation|||确认\ncustoms|||海关\ndeparture|||出发\nen route|||在途中\nexpedition|||探险\nflight|||航班\nitinerary|||行程表\nlodge|||旅馆\nluxurious|||奢华的\nmotel|||汽车旅馆\npacking|||打包\npeak season|||旺季\nreservation|||预订\nsightseeing|||观光\nsuite|||套房\nvalid|||有效的\nbaggage claim|||行李提领处\nbreathtaking|||惊人的\ncarry-on|||手提行李\nconcierge|||门房\ncruise|||乘船游览\ndeluxe|||豪华的\ndestination|||目的地\nexotic|||异国的\nfasten|||系紧\nflight attendant|||空服员\njet lag|||时差\nluggage|||行李\nmetal detector|||金属探测器\noverseas|||海外的\npassenger|||乘客\nporter|||脚夫\nround-trip|||双程的\nstopover|||中途停留\nvacant|||空的\nvoyage|||航行\naccelerate|||加速\naircraft|||飞机\narrival|||到达\nbuckle up|||系安全带\ncargo|||货物\nconvertible|||敞篷车\ndelay|||延迟\nforbid|||禁止\nground crew|||地勤人员\nnavigate|||航行\npilot|||飞行员\nroute|||路径\nseat belt|||安全带\nsubway|||地铁\ntaxicab|||计程车\ntransit|||运输\nvehicle|||交通工具\nairliner|||大型客机\naviation|||航空学\ncabin|||客舱\ncommuter|||通勤者\ncrossroads|||十字路口\nferry|||渡轮\nfreight|||货运\nintersection|||十字路口\nlife vest|||救生衣\npedestrian|||行人\nrestriction|||限制\nrunway|||飞机跑道\nshortcut|||近路\ntake off|||起飞\ntimetable|||时间表\ntransport|||运输\nvia|||经由\naffordable|||负担的起的\nbazaar|||市场\nclient|||顾客\ncustomer|||顾客\ndiscount|||折扣\ndistributor|||经销商\nexpiration|||期满\nitemize|||详细列举\nlatest|||最新的\npickpocket|||扒手\npushcart|||手推车\nreceipt|||收据\nreimburse|||偿还\nrequest|||请求\nsample|||样品\nsolicit|||请求\ntrendy|||时髦的\nVIP|||贵宾\nwholesale|||批发\nbargain|||便宜货\ncoupon|||折价券\ndefective|||有瑕疵的\ndisplay|||陈列\ndrugstore|||药房\nflea market|||跳蚤市场\nlabel|||标签\nmodify|||修改\npatron|||顾客\npurchase|||购买\nquantity|||数量\nrefund|||退款\nreplacement|||替换\nretailer|||零售商\nshopping mall|||购物中心\nthrift|||节俭\nvender|||小贩\nwarranty|||保证书\nworkmanship|||手艺\nalcohol|||酒精\nappetite|||食欲\nartificial|||人造的\nbland|||淡而无味的\nchef|||主厨\ncrave|||渴望\ndelicacy|||佳肴\ndigest|||消化\nfragrant|||芳香的\ningredient|||成分\nliquor|||烈酒\nmunch|||用力嚼\npalatable|||美味的\nportion|||一份\nravenous|||饥饿的\nrefreshment|||茶点\nsilverware|||银器\nspecialty|||专长\nstarve|||挨饿\naperitif|||饭前酒\nappetizer|||开胃菜\nbeverage|||饮料\nbuffet|||自助餐\nchopsticks|||筷子\ncuisine|||烹调\ndessert|||餐后甜点\nentree|||主菜\nleftovers|||剩饭剩菜\nmenu|||菜单\nnapkin|||餐巾\npastry|||小甜点心\npreservative|||防腐剂\nrecipe|||食谱\nseasoning|||调味品\nsnack|||小吃\nspice|||香料\nvegetarian|||素食者\nacceptance|||接受\nacquaintance|||相识的人\nanniversary|||周年纪念日\nassociate|||同事\nbanquet|||宴会\ncommitment|||承诺\ncourtesy|||礼貌\ndistinguished|||卓越的\nembrace|||拥抱\netiquette|||礼节\nfarewell|||告别\ngreeting|||问候\nhug|||拥抱\nlavish|||大方的\nnosy|||好管闲事的\noffensive|||冒犯的\nprotocol|||外交礼仪\nregards|||问候\nsalute|||向…致敬\nacknowledge|||承认\naggressive|||挑衅的\napologize|||道歉\nattractive|||有吸引力的\nbarrier|||障碍\ncompliment|||赞扬\ncriticize|||批评\neloquent|||雄辩的\nencounter|||偶遇\nextend|||延伸\nfavorable|||有利的\ngossip|||闲话\nhilarious|||令人捧腹的\nintrude|||闯入\nmodest|||谦逊的\nnuisance|||讨厌的人\nprompt|||准时的\nquarrel|||争吵\nrun into|||偶遇\nscandal|||丑闻';
+
+var SENT_RAW='People are applauding the players.|人们正在为演奏者鼓掌。\nThe lawns are being watered.|草地正在被浇水。\nThe man is putting on his glasses.|这个男人正在戴眼镜。\nShe is carrying two buckets.|她提着两个桶。\nShe is digging in the ground.|她正在挖地。\nThey are moving in opposite directions.|他们正在向相反的方向走去。\nThe men are mowing lawns.|男人们正在割草。\nThe road is being paved.|道路正在被铺。\nThe woman is paying for an item.|这个女人正在给商品付款。\nTrees are being planted.|树木正在被栽种。\nA woman is pointing at something on a drawing.|一个女人正在指着画上的什么东西。\nA man is taking a picture.|一个男人正在照相。\nA waiter is pouring water into cups.|一个服务生正在往杯子里倒水。\nHe is putting on a laboratory coat.|他正在穿实验室服。\nThey are taking off their uniforms.|他们正在脱他们的制服。\nThe man is reaching for his wallet.|这个男人正在掏钱包。\nThe ladder is being repaired.|梯子正在被修理。\nHe is working on the roof.|他正在屋顶上干活。\nA woman is shopping around in the supermarket.|一个女人在超市买东西。\nThey are strolling arm in arm.|他们正在挽着臂散步。\nThey are seated across from each other.|他们面对面地坐着。\nThe place is crowded with spectators.|这个地方挤满了观众。\nThe papers have been stacked up next to the copier.|纸已经被堆在复印机边上。\nThe bed needs to be made.|床需要铺一下。\nThe table is placed between the sofa and the lamp.|桌子被放在沙发和台灯中间。\nThere is a flower vase next to the stairway.|楼梯的旁边有一个花瓶。\nThe women have their legs crossed.|这些女人交叉着腿。\nThey are seated in a circle.|他们围坐成一圈。\nThe cars are all parked in a line.|汽车停成一排。\nThe boxes are lined up in a row.|箱子排成一排。\nThe man is leaning against the fence.|这个男人靠着篱笆。\nThe lawn has been neatly mowed.|草地被修剪得很平整。\nHe is standing at the newsstand.|他站在报刊亭。\nThe vehicles are parked next to each other.|车一辆挨着一辆地停放着。\nGarden furniture is set up outdoors.|花园家具被放在外面。\nThe shelves are packed with packages.|架子上摆满了包装盒。\nTwo men are watching at the parade.|两个男人正在看游行。\nLabels have been attached to some of the parts.|标签已经被贴在一些部件上。\nThe tables are partially shaded.|桌子被遮住了一部分。\nThere are no pedestrian on the side walk.|人行道上没有行人。\nFallen leaves have been piled up near the trees.|落叶堆在树边。\nOne of the doors has been left open.|其中一个门开着。\nThe floor has been polished to a shine.|地板被擦得发亮。\nThe woman is resting her chin on her hand.|这个女人用手托着下巴。\nThe files are scattered around the office.|文件散落在办公室。\nThe men are all wearing short-sleeved shirts.|男人们都穿着短袖衬衫。\nThe chairs are being painted.|椅子正在被涂漆。\nThey are all lined up side by side.|她们肩并肩站在一排。\nThe boxes are stacked up by the sink.|箱子堆在污水槽旁。\nAll the equipment has been removed from the site.|所有的设备已经被移出现场了。\nThere are skyscrapers on the other side of the river.|河的另一边有摩天大楼。\nThe building is only one story high.|这个建筑只有一层。\nThere are buildings of various heights.|这里有各种高度的建筑。\nPlease do not sit in the aisle.|请不要坐在走廊里。\nThe public phones are unoccupied.|公共电话没有被使用。\nStore all emergency items in a safe place.|把所有紧急物资储藏在一个安全的地方。\nNotices have been posted on the memo board.|通知被粘在了留言板上。\nPlease, clean the premises after use.|使用完场地后请打扫干净。\nHis greatest achievement was completing the report.|他最大的成就是完成了这个报告。\nPlease do not alter the report.|请不要改动这个报告。\nI am not done with the annual report yet.|我还没完成年度报告。\nThe budget proposal for next quarter is due on Wednesday.|下个季度预算计划书的最后期限是星期三。\nI have to revise my first draft today.|我今天必须要修订我的第一个草案。\nPut the flyer on my desk.|把传单放在我的桌子上。\nGoing over those documents will take some time.|浏览这些文件需要一些时间。\nCan you look through this for me?|你能帮我浏览一下这个吗？\nCan you help me with this cost proposal?|你能帮我做一下这个费用计划书吗？\nCan you review this report for me please?|能请你帮我审查一下这份报告吗？\nCould you also send the copy to the sales department?|你能再把这个复印件送去销售部吗？\nThe schedule charts are being distributed to the employees.|日程表正在被分发给员工。\nHe is sorting through some papers.|他正在给文件分类。\nDid you submit the spreadsheet by the due date?|你如期提交数据报表了吗？\nWhat time does the airport shuttle depart?|机场穿梭巴士几点出发？\nPlease use the alternative route.|请走另外一条路。\nThe subway is filled with passengers.|地铁里挤满了乘客。\nIf you park here, your car will be towed away.|如果你在这里停车，车将会被拖走。\nHow do I get to the subway station?|我怎么去地铁站？\nI want to give Mary a ride to the library.|我想搭载玛丽去图书馆。\nDue to heavy traffic, I will be delayed by an hour.|由于交通拥堵，我会晚到一个小时。\nA woman is using a public phone.|一个女人正在使用公共电话。\nThe traffic is jammed due to road work.|交通出现拥堵是由于道路施工。\nDo you know the shortcut to the airport?|你知道去机场的近路吗？\nThere are no spaces left in the parking lot.|停车场里没有车位了。\nThe bus has stopped by for passengers to board.|公共汽车停下让乘客上下车。\nMore people should use the public transportation.|更多的人应该使用公共交通工具。\nThe copy machine will be out of order until Friday.|复印机到星期五才能用。\nThe machine was missing a key component.|这个机器丢失了一个重要的零件。\nThe product was damaged during delivery.|产品在运送过程中被损坏了。\nThe product was defective.|这个产品不合格。\nThere is an error in this program.|这个程序中有一个错误。\nMy car is in the garage having the oil changed.|我的汽车正在修理厂里换机油。\nYou need to install the right software.|你需要安装正确的软件。\nThe machine keeps jamming papers all day long.|这个机器一整天都在不停地卡纸。\nThey are using lawnmowers.|他们正在使用割草机。\nThe boat is out of service and is being repaired.|船坏了，正在被修理。\nAn overhead projector has been set up on the table.|桌子上安装了一个高射投影仪。\nThe workers are replacing the windows.|工人们正在更换窗户。\nThe computer files need to be updated.|电脑数据需要更新。';
+
+var SYN_RAW='produce|/prəˈduːs/|生产；制造|manufacture;make|The company produces electronic components.\nmanufacture|/ˌmænjuˈfæktʃər/|制造|produce;fabricate|The factory manufactures car parts.\nproduct|/ˈprɑːdʌkt/|产品|merchandise;commodity|Our new product will launch next month.\nmerchandise|/ˈmɜːrtʃəndaɪz/|商品；货物|goods;commodity|All merchandise is discounted this week.\ncommodity|/kəˈmɑːdəti/|商品|product;goods|Oil is a valuable commodity.\ngoods|/ɡʊdz/|货物|merchandise;cargo|The goods arrived on time.\ncargo|/ˈkɑːrɡoʊ/|货物|freight;shipment|The cargo was loaded onto the ship.\ncomplete|/kəmˈpliːt/|完成|finish;finalize|Please complete the form by Friday.\nfinish|/ˈfɪnɪʃ/|完成|complete;conclude|We need to finish the project today.\nclient|/ˈklaɪənt/|客户|customer;patron|Our client is very satisfied with the service.\ncustomer|/ˈkʌstəmər/|顾客|client;consumer|The customer complained about the delay.\ndepartment|/dɪˈpɑːrtmənt/|部门|division;sector|She works in the marketing department.\ndivision|/dɪˈvɪʒn/|部门；分部|department;sector|He manages the sales division.\nsector|/ˈsektər/|部门；行业|department;industry|The public sector is hiring more staff.\nsection|/ˈsekʃn/|部门；部分|department;division|Please contact the accounting section.\nreference|/ˈrefrəns/|推荐；参考|recommendation|She provided a reference from her former employer.\nassign|/əˈsaɪn/|分配|allocate;distribute|The manager assigned the task to me.\nallocate|/ˈæləkeɪt/|分配|assign;distribute|Funds were allocated to each department.\nhire|/ˈhaɪər/|招聘|employ;recruit|We need to hire more staff.\nemploy|/ɪmˈplɔɪ/|雇佣|hire;recruit|The company employs over 500 people.\nrecruit|/rɪˈkruːt/|招聘|hire;employ|They are recruiting new graduates.\ncontract|/ˈkɑːntrækt/|合同|agreement|Please sign the contract before Friday.\nagreement|/əˈɡriːmənt/|协议|contract;deal|The two companies reached an agreement.\napplicant|/ˈæplɪkənt/|申请人|candidate|Each applicant must submit a resume.\nrevise|/rɪˈvaɪz/|修改|modify;amend|Please revise the draft before submitting.\nmodify|/ˈmɑːdɪfaɪ/|修改|revise;change|We need to modify the design.\nupdate|/ˌʌpˈdeɪt/|更新|revise;upgrade|Please update your contact information.\nrenovate|/ˈrenəveɪt/|翻新|remodel;upgrade|The hotel will be renovated next year.\nreturn|/rɪˈtɜːrn/|退货|refund;exchange|You can return the item within 30 days.\nrefund|/ˈriːfʌnd/|退款|reimburse;repay|The store issued a full refund.\nreplace|/rɪˈpleɪs/|更换|substitute;swap|We need to replace the broken printer.\nrepair|/rɪˈper/|修理|fix;service|The technician will repair the machine.\norder|/ˈɔːrdər/|订购|purchase;buy|I ordered new office supplies online.\nbuy|/baɪ/|购买|purchase;acquire|She bought a new laptop for work.\npurchase|/ˈpɜːrtʃəs/|购买|buy;acquire|You can purchase tickets at the door.\ndelivery|/dɪˈlɪvəri/|配送|shipment;distribution|The delivery will arrive tomorrow.\nshipment|/ˈʃɪpmənt/|货物；装运|delivery;cargo|The shipment was delayed due to weather.\nretailer|/ˈriːteɪlər/|零售商|store;vendor|The retailer offers competitive prices.\nsupplier|/səˈplaɪər/|供应商|provider;vendor|We switched to a new supplier.\nendorse|/ɪnˈdɔːrs/|认可|approve;support|The manager endorsed the proposal.\napprove|/əˈpruːv/|批准|endorse;authorize|The board approved the budget.\nfile|/faɪl/|文件|document;record|Please save the file on the server.\ndocument|/ˈdɑːkjumənt/|文件|file;paper|All documents must be signed.\nplant|/plænt/|工厂|factory;facility|The plant will be closed for maintenance.\nfactory|/ˈfæktəri/|工厂|plant;manufactory|The factory produces 1,000 units per day.\nestimate|/ˈestɪmeɪt/|评估|assess;evaluate|We need to estimate the project cost.\nevaluate|/ɪˈvæljueɪt/|评估|assess;appraise|We evaluate performance every quarter.\nsubmit|/səbˈmɪt/|提交|turn in;hand in|Please submit your report by Friday.\nrequire|/rɪˈkwaɪər/|需要|need;demand|This position requires fluent English.\ndecrease|/dɪˈkriːs/|减少|go down;drop|Sales decreased by 10% last quarter.\nannual|/ˈænjuəl/|每年的|yearly|The annual report is due next month.\nitinerary|/aɪˈtɪnəreri/|行程表|schedule;travel plan|Please review the itinerary before departure.\nexpire|/ɪkˈspaɪər/|到期|run out|Your passport will expire next year.\ndetermine|/dɪˈtɜːrmɪn/|确定|find out;ascertain|We need to determine the cause of the error.\nturn in|/tɜːrn ɪn/|上交|submit;hand in|Please turn in your assignment by Monday.\nput off|/pʊt ɔːf/|推迟|postpone;delay|The meeting was put off until next week.\ncut down|/kʌt daʊn/|削减|reduce;decrease|We need to cut down on expenses.\ninform|/ɪnˈfɔːrm/|通知|notify;announce|Please inform all staff of the change.\ncarry out|/ˈkæri aʊt/|执行|execute;implement|We will carry out the plan next week.\nadapt|/əˈdæpt/|适应|adjust;modify|You need to adapt to the new environment.\nadjust|/əˈdʒʌst/|调整|adapt;modify|Please adjust the settings on your computer.\nestablish|/ɪˈstæblɪʃ/|建立|found;set up|The company was established in 2005.';
+
+var GRAMMAR_RAW=[
+{q:'All reports must be submitted ___ Friday afternoon.',opts:['by','until','since','for'],ans:0,ex:'by + 时间点表示不迟于…的截止时间。',tag:'介词'},
+{q:'___ the heavy rain, the outdoor event was held as scheduled.',opts:['Despite','Although','Because','However'],ans:0,ex:'Despite 是介词，后接名词短语。',tag:'连词'},
+{q:'Employees are required to ___ with the company dress code.',opts:['comply','obey','follow','respect'],ans:0,ex:'comply with 是固定搭配。',tag:'动词搭配'},
+{q:'The new software will be ___ next month.',opts:['install','installed','installing','installation'],ans:1,ex:'被动语态 be + 过去分词。',tag:'语态'},
+{q:'Ms. Lee has been working at this firm ___ 2015.',opts:['for','since','during','from'],ans:1,ex:'since + 时间点。',tag:'介词'},
+{q:'The manager asked the staff to ___ their reports by noon.',opts:['submission','submit','submitted','submitting'],ans:1,ex:'ask sb to do sth。',tag:'非谓语'},
+{q:'The company is looking for a ___ candidate to fill the position.',opts:['qualified','qualifying','qualification','qualify'],ans:0,ex:'形容词修饰名词。',tag:'词性'},
+{q:'All visitors must register ___ arrival at the front desk.',opts:['on','in','at','by'],ans:0,ex:'on arrival 是固定搭配。',tag:'介词'},
+{q:'The shipment will be ___ tomorrow morning.',opts:['dispatch','dispatched','dispatching','dispatcher'],ans:1,ex:'被动语态 will be + 过去分词。',tag:'语态'},
+{q:'We need to ___ our expenses to stay within budget.',opts:['reduce','deduce','produce','induce'],ans:0,ex:'reduce 意为减少。',tag:'词汇辨析'},
+{q:'Ms. Park is ___ for the marketing department.',opts:['responsible','responsibility','responsibly','response'],ans:0,ex:'be responsible for 固定搭配。',tag:'固定搭配'},
+{q:'The new policy will take ___ on January 1.',opts:['effect','affect','effort','afford'],ans:0,ex:'take effect 是固定搭配。',tag:'固定搭配'},
+{q:'The elevator is ___ maintenance and cannot be used.',opts:['under','in','on','at'],ans:0,ex:'under maintenance 意为正在维护中。',tag:'介词'},
+{q:'The annual report shows a significant ___ in revenue.',opts:['increase','increasing','increased','increasingly'],ans:0,ex:'形容词修饰名词。',tag:'词性'},
+{q:'The contract must be signed ___ both parties before Friday.',opts:['by','from','with','of'],ans:0,ex:'by 表示动作执行者。',tag:'介词'},
+{q:'___ you have any questions, please contact the IT department.',opts:['If','Unless','Although','Because'],ans:0,ex:'If 表示条件。',tag:'连词'},
+{q:'The company plans to ___ its operations into overseas markets.',opts:['expand','expend','expense','expansion'],ans:0,ex:'expand 意为扩展。',tag:'词汇辨析'},
+{q:'The shipment was delayed ___ the severe weather.',opts:['due to','because','although','so'],ans:0,ex:'due to 后接名词。',tag:'连词'},
+{q:'We are pleased to ___ that your application has been approved.',opts:['announce','announcement','announcing','announced'],ans:0,ex:'be pleased to do sth。',tag:'非谓语'},
+{q:'The manager will ___ the proposal before the meeting.',opts:['review','reviews','reviewed','reviewing'],ans:0,ex:'will + 动词原形。',tag:'时态'}
+];
+
+function parseWords(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|||');var w=(p[0]||'').trim();var ph='',pos='',cn='',ex='',exCn='';if(p.length>=6){ph=(p[1]||'').trim();pos=(p[2]||'').trim();cn=(p[3]||'').trim();ex=(p[4]||'').trim();exCn=(p[5]||'').trim()}else if(p.length>=4){ph=(p[1]||'').trim();pos=(p[2]||'').trim();cn=(p[3]||'').trim()}else if(p.length>=2){cn=(p[1]||'').trim()}return{id:'w'+(i+1),w:w,ph:ph,pos:pos,cn:cn,ex:ex,exCn:exCn}})}
+function parseSents(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|');return{id:'t'+(i+1),en:(p[0]||'').trim(),cn:(p[1]||'').trim()}})}
+function parseSyns(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|');return{id:'s'+(i+1),w:(p[0]||'').trim(),ph:(p[1]||'').trim(),cn:(p[2]||'').trim(),syns:(p[3]||'').split(/[;；]/).map(function(x){return x.trim()}).filter(Boolean),ex:(p[4]||'').trim()}})}
+
+var SEED_WORDS=parseWords(WORDS_RAW);
+var SEED_SENTS=parseSents(SENT_RAW);
+var SEED_SYNS=parseSyns(SYN_RAW);
+var SEED_GRAMMAR=GRAMMAR_RAW.map(function(g,i){return{id:'g'+(i+1),q:g.q,opts:g.opts,ans:g.ans,ex:g.ex,tag:g.tag}});
+var DB=null;
+
+function defaultDB(){return{current:'A',roles:{A:{srs:{},daily:{},logs:{},wrong:{}},B:{srs:{},daily:{},logs:{},wrong:{}}},content:{words:SEED_WORDS.slice(),sentences:SEED_SENTS.slice(),synonyms:SEED_SYNS.slice(),grammar:SEED_GRAMMAR.slice()},settings:{newPerDay:20,reviewPerDay:20}}}
+function loadDB(){try{var raw=localStorage.getItem(KEY);DB=raw?JSON.parse(raw):defaultDB()}catch(e){DB=defaultDB()}fixDB()}
+function fixDB(){
+  DB.current=DB.current||'A';
+  if(!DB.roles)DB.roles={};
+  ['A','B'].forEach(function(r){
+    if(!DB.roles[r])DB.roles[r]={};
+    DB.roles[r].srs=DB.roles[r].srs||{};
+    DB.roles[r].daily=DB.roles[r].daily||{};
+    DB.roles[r].logs=DB.roles[r].logs||{};
+    DB.roles[r].wrong=DB.roles[r].wrong||{};
+  });
+  if(!DB.content)DB.content={};
+  ['words','sentences','synonyms','grammar'].forEach(function(k){if(!DB.content[k])DB.content[k]=[]});
+  if(!DB.settings)DB.settings={};
+  DB.settings.newPerDay=DB.settings.newPerDay||20;
+  DB.settings.reviewPerDay=DB.settings.reviewPerDay||20;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){toast('保存失败')}}
+function cur(){return DB.roles[DB.current]}
+
+var ENCOURAGE_STREAK=[
+  {n:3,txt:'🔥 三连对，手感来了'},
+  {n:5,txt:'⚡ 五连对，稳得一批'},
+  {n:8,txt:'🚀 八连对，这状态拉满'},
+  {n:12,txt:'👑 十二连对，太顶了'}
+];
+var streakRight=0;
+
+/* ===== 情绪价值：文案池 ===== */
+var CHEERS=['太稳了兄弟','这波操作 6','就是这个节奏','牛！','继续保持','✓ 答得漂亮','你是真滴强','这题都没难住你','手起刀落','又对了，稳'];
+var RESULT_QUOTES=['今天的你比昨天更强','坚持就是天赋','别急，慢慢来','错题是最好的老师','进步不需要理由','明天见，别断','一点一点就够了','你已经比昨天厉害了'];
+var WELCOME_MORNING=['🌅 早，今天也要加油','☕ 早安，先刷两关','🌤️ 早上好，状态在线'];
+var WELCOME_AFTERNOON=['☀️ 下午好，刷两关？','🍵 午后时光，来两题','🌞 下午有精神，冲一关'];
+var WELCOME_EVENING=['🌙 晚上好，今天进度如何','🌆 晚上也别停','✨ 晚上好，收个尾'];
+var WELCOME_BACK=['👋 好几天没见，回来就好','😊 欢迎回来，继续加油'];
+var welcomeShown=false;
+
+var CONSOLES=[
+  '没关系，下一题',
+  '这题有点绕，记一下就好',
+  '错一次记一辈子，稳赚',
+  '😌 慢一点也没关系',
+  '再来，这次肯定对',
+  '记下来就是收获',
+  '错了才知道重点在哪',
+  '💪 别灰心，题就是用来错的',
+  '这个坑记住了，下次不踩',
+  '🌱 一题而已，继续走',
+  '有错才有进步，加油',
+  '📌 收藏一下，下次就对了'
+];
+var CONSOLES_BREAK=[
+  '连击断了，从头也很酷',
+  '断了就断了，别慌',
+  '一题而已，下一题翻盘',
+  '连击归零，分数重新起飞',
+  '😤 不甘心？再来一题'
+];
+var CONSOLES_LOW=[
+  '🌱 今天有点难，明天再战',
+  '🌧️ 状态不好也没关系，坚持最重要',
+  '💭 错题都是以后的分数',
+  '📈 今天退步明天进步，正常',
+  '☕ 累了就休息一下，别硬撑'
+];
+
+function randOf(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+/* ===== 角色头像闪光 ===== */
+function flashAvatar(){
+  var btn=$('#roles button.on')||$('#roles button');
+  if(!btn)return;
+  btn.classList.remove('flash');
+  void btn.offsetWidth;
+  btn.classList.add('flash');
+  setTimeout(function(){btn.classList.remove('flash')},550);
+}
+
+/* ===== 连击进度条 ===== */
+function updateComboBar(){
+  var bar=$('#comboBar'),fill=$('#comboFill');
+  if(!bar||!fill)return;
+  if(streakRight<=0){bar.classList.remove('show');fill.style.width='0%';return}
+  bar.classList.add('show');
+  fill.style.width=Math.min(100,streakRight/12*100)+'%';
+  var grad;
+  if(streakRight<3)grad='linear-gradient(90deg,#cbd5e1,#94a3b8)';
+  else if(streakRight<6)grad='linear-gradient(90deg,#fde68a,#fbbf24)';
+  else if(streakRight<9)grad='linear-gradient(90deg,#fbbf24,#f59e0b)';
+  else if(streakRight<12)grad='linear-gradient(90deg,#f59e0b,#ef4444)';
+  else grad='linear-gradient(90deg,#ef4444,#dc2626)';
+  fill.style.background=grad;
+  fill.style.boxShadow=streakRight>=12?'0 0 10px rgba(220,38,38,.75)':'none';
+}
+
+/* ===== 里程碑庆祝 ===== */
+function checkMilestone(){
+  var R=cur();
+  if(!R._ms)R._ms={};
+  var ms=R._ms;
+  var st=roleStats(R);
+  [50,100,200,300,500].forEach(function(n){
+    if(st.mastered>=n&&!ms['m'+n]){ms['m'+n]=1;setTimeout(function(){toast('🎊 已掌握 '+n+' 词，词汇量起飞')},700)}
+  });
+  [7,14,30,60,100].forEach(function(n){
+    if(st.streak>=n&&!ms['s'+n]){ms['s'+n]=1;setTimeout(function(){toast('🔥 连续 '+n+' 天打卡，习惯养成了')},900)}
+  });
+  [7,14,30].forEach(function(n){
+    if(st.completedDays>=n&&!ms['c'+n]){ms['c'+n]=1;setTimeout(function(){toast('🏅 完整通关 '+n+' 天，太顶了')},1100)}
+  });
+  save();
+}
+
+/* ===== 每日战报 ===== */
+var REPORT_QUOTES=['今天的你比昨天更强','坚持是最好的天赋','明天见，别断','这一天没白过','继续保持，节奏不要停'];
+function showDailyReport(){
+  var R=cur(),d=todayStr();
+  if(R._reportDay===d)return;
+  R._reportDay=d;
+  if(R._comboDay!==d){R._comboDay=d;R._maxCombo=0}
+  save();
+  var log=R.logs[d]||{answered:0,right:0};
+  var plan=R.daily[d]||{};
+  var doneCount=STAGES.filter(function(s){return plan[s.key]&&plan[s.key].done}).length;
+  var maxCombo=R._maxCombo||0;
+  setTimeout(function(){
+    var el=$('#reportModal');if(!el)return;
+    $('#reportDate').textContent=d;
+    $('#reportStats').innerHTML=
+      '<div><b style="color:#3b6df6">'+log.answered+'</b>答题</div>'+
+      '<div><b style="color:#10b981">'+(log.answered?Math.round(log.right/log.answered*100):0)+'%</b>正确率</div>'+
+      '<div><b style="color:#f59e0b">'+maxCombo+'</b>最长连击</div>'+
+      '<div><b style="color:#8b5cf6">'+doneCount+'/'+STAGES.length+'</b>阶段</div>';
+    $('#reportQuote').textContent='— '+randOf(REPORT_QUOTES);
+    el.classList.add('show');
+  },600);
+}
+
+function onRightAnswer(){
+  streakRight++;
+  var hit=null;
+  for(var i=0;i<ENCOURAGE_STREAK.length;i++){if(ENCOURAGE_STREAK[i].n===streakRight)hit=ENCOURAGE_STREAK[i]}
+  if(hit){
+    toast(hit.txt);
+    flashAvatar();
+  }
+  else if(streakRight>=3&&streakRight%4===0){toast(randOf(CHEERS))}
+  updateComboBar();
+  var R=cur();
+  if(streakRight>(R._maxCombo||0)){R._maxCombo=streakRight;save()}
+}
+function onWrongAnswer(){
+  var broken=(streakRight>=3);
+  streakRight=0;
+  updateComboBar();
+  if(broken){
+    setTimeout(function(){toast(randOf(CONSOLES_BREAK))},300);
+  }else if(Math.random()<0.4){
+    toast(randOf(CONSOLES));
+  }
+}
+function wrongReviewFeedback(){
+  var msg=['📕 这道题不简单，再记一下','错题就是来消灭的，继续','又遇到了，正好加深印象','慢慢来，错题终会被你收服'][Math.floor(Math.random()*4)];
+  toast(msg);
+}
+function stageFeedback(rate){
+  if(rate>=95)return'🎯 近乎完美，今天状态拉满';
+  if(rate>=80)return'💪 稳！继续保持';
+  if(rate>=60)return'📈 达标，错题回炉一下会更好';
+  return'🌱 今天有点难，明天再战';
+}
+
+function getWrongList(){var d=todayStr(),R=cur();if(!R.wrong)R.wrong={};if(!R.wrong[d])R.wrong[d]=[];return R.wrong[d]}
+function saveWrongList(list){var d=todayStr(),R=cur();if(!R.wrong)R.wrong={};R.wrong[d]=list;save();publishMyStats()}
+function addWrong(type,id){var list=getWrongList();if(list.some(function(x){return x.type===type&&x.id===id}))return;list.push({type:type,id:id,ts:Date.now()});saveWrongList(list)}
+function removeWrong(type,id){
+  var list=getWrongList();
+  var i=list.findIndex(function(x){return x.type===type&&x.id===id});
+  if(i>=0){
+    list.splice(i,1);
+    saveWrongList(list);
+    if(list.length===0){
+      var d=todayStr(),R=cur();
+      if(R._lastClear!==d){
+        R._lastClear=d;save();
+        setTimeout(function(){toast('🎉 错题清空！今天一题不剩')},400);
+      }
+    }
+  }
+}
+function countWrongToday(){return getWrongList().length}
+
+/* ===== 跨设备同步 ===== */
+var SYNC_TOPIC='toeic_sync_'+TEAM+'_'+SYNC_SECRET;
+var PK_TOPIC_PREFIX='toeic_pk_'+SYNC_SECRET+'_';
+var PEER_KEY='toeic_peer_v1';
+var syncClient=null;
+var syncTimer=null;
+var peerData={A:null,B:null};
+function loadPeer(){try{var raw=localStorage.getItem(PEER_KEY);if(raw)peerData=JSON.parse(raw)}catch(e){peerData={A:null,B:null}}}
+function savePeer(){try{localStorage.setItem(PEER_KEY,JSON.stringify(peerData))}catch(e){}}
+function updateSyncBadge(ok,text){var el=$('#syncStatus');if(!el)return;el.className='sync-badge'+(ok?'':' off');el.innerHTML='<i></i>'+(text||(ok?'已同步':'未连接'))}
+function publishMyStats(){
+  if(!syncClient||!syncClient.connected)return;
+  var R=cur();
+  try{syncClient.publish(SYNC_TOPIC,JSON.stringify({role:DB.current,name:NAMES[DB.current],stats:roleStats(R),logs:R.logs,daily:R.daily,ts:Date.now()}),{qos:0})}catch(e){}
+}
+function initSync(){
+  loadPeer();
+  if(syncClient){try{syncClient.end()}catch(e){}syncClient=null}
+  if(syncTimer){clearInterval(syncTimer);syncTimer=null}
+  if(typeof mqtt==='undefined'){updateSyncBadge(false,'无MQTT');return}
+  var myRole=DB.current;
+  var cid='toeic_sync_'+myRole+'_'+Math.random().toString(16).slice(2,8);
+  try{
+    syncClient=mqtt.connect('wss://broker.emqx.io:8084/mqtt',{clientId:cid,clean:true,connectTimeout:10000,reconnectPeriod:5000});
+    syncClient.on('connect',function(){updateSyncBadge(true,'已连接');syncClient.subscribe(SYNC_TOPIC,{qos:0});publishMyStats()});
+    syncClient.on('message',function(topic,payload){
+      try{var msg=JSON.parse(payload.toString());if(msg.role===DB.current)return;if(msg.stats){peerData[msg.role]={name:msg.name,stats:msg.stats,logs:msg.logs,daily:msg.daily,ts:msg.ts};savePeer();if(state.view==='compare'||state.view==='calendar'||state.view==='today')render()}}catch(e){}
+    });
+    syncClient.on('error',function(){updateSyncBadge(false,'连接失败')});
+    syncClient.on('close',function(){updateSyncBadge(false,'已断开')});
+  }catch(e){updateSyncBadge(false,'初始化失败')}
+  syncTimer=setInterval(publishMyStats,30000);
+}
+function getPeerStats(role){if(peerData[role]&&peerData[role].stats)return peerData[role].stats;return roleStats(DB.roles[role])}
+function getPeerLogs(role){if(peerData[role]&&peerData[role].logs)return peerData[role].logs;return DB.roles[role].logs}
+function getPeerSyncTime(role){if(peerData[role]&&peerData[role].ts){var d=new Date(peerData[role].ts);var mm=('0'+(d.getMonth()+1)).slice(-2);var dd=('0'+d.getDate()).slice(-2);var hh=('0'+d.getHours()).slice(-2);var mi=('0'+d.getMinutes()).slice(-2);return mm+'/'+dd+' '+hh+':'+mi}return '未同步'}
+
+function todayPlan(){var d=todayStr(),R=cur();if(!R.daily[d]){R.daily[d]={};STAGES.forEach(function(s){R.daily[d][s.key]={done:false,right:0,total:0}});save()}return R.daily[d]}
+function markStage(key,right,total){
+  var d=todayStr(),R=cur();
+  R.daily[d]=R.daily[d]||{};
+  R.daily[d][key]={done:true,right:right,total:total,at:Date.now()};
+  save();publishMyStats();checkMilestone();
+  flashAvatar();
+  if(STAGES.every(function(s){return R.daily[d][s.key]&&R.daily[d][s.key].done}))showDailyReport();
+}
+
+var INTERVALS=[0,1,2,4,7,15,30,60];
+function gradeSRS(id,g){var R=cur();var s=R.srs[id]||{stage:0,due:todayStr(),seen:0,right:0};s.seen++;if(g==='good'){s.stage=Math.min(s.stage+1,INTERVALS.length-1);s.right++}else if(g==='fuzzy'){s.right++}else{s.stage=0}s.due=addDays(todayStr(),INTERVALS[s.stage]);s.last=todayStr();R.srs[id]=s;save()}
+function pickReviewWords(n){var R=cur(),today=todayStr(),all=DB.content.words;var due=all.filter(function(w){var s=R.srs[w.id];return s&&s.due<=today});var fresh=all.filter(function(w){return !R.srs[w.id]});return shuffle(due).concat(shuffle(fresh)).slice(0,n)}
+function pickNewWords(n){var R=cur();var fresh=DB.content.words.filter(function(w){return !R.srs[w.id]});return shuffle(fresh).slice(0,n)}
+function logAnswer(kind,right){var d=todayStr(),R=cur();var lg=R.logs[d]||{answered:0,right:0,kinds:{}};lg.answered++;lg.right+=right?1:0;lg.kinds[kind]=(lg.kinds[kind]||0)+1;R.logs[d]=lg;save();publishMyStats()}
+function hasCheckIn(role,date){var lg=role.logs[date];return !!(lg&&lg.answered>0)}
+function streakOf(role){var d=todayStr();if(!hasCheckIn(role,d))d=addDays(d,-1);var n=0;while(hasCheckIn(role,d)&&n<3000){n++;d=addDays(d,-1)}return n}
+function totalDays(role){return Object.keys(role.logs).filter(function(d){return hasCheckIn(role,d)}).length}
+function roleStats(role){
+  var q=0,r=0,days=0,completedDays=0;
+  Object.keys(role.logs||{}).forEach(function(d){var lg=role.logs[d];if(lg.answered>0){days++;q+=lg.answered;r+=lg.right}});
+  Object.keys(role.daily||{}).forEach(function(d){var p=role.daily[d];if(STAGES.every(function(s){return p[s.key]&&p[s.key].done}))completedDays++});
+  return{answered:q,right:r,accuracy:q?Math.round(r/q*100):0,days:days,completedDays:completedDays,streak:streakOf(role),mastered:Object.keys(role.srs||{}).filter(function(k){return role.srs[k].stage>=4}).length,learning:Object.keys(role.srs||{}).length};
+}
+
+var state={view:'today',session:null,calMonth:todayStr().slice(0,7),calSel:todayStr(),pk:null,onlinePK:null,match:null};
+
+function render(){
+  $$('#roles button').forEach(function(b){b.classList.toggle('on',b.dataset.r===DB.current)});
+  $('#streak').textContent=streakOf(cur());
+  $('#whoami').textContent='当前：'+NAMES[DB.current];
+  $$('#tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.v===state.view)});
+  var main=$('#main');
+  if(state.onlinePK)return renderOnlinePK(main);
+  if(state.match)return renderMatch(main);
+  if(state.session)return renderSession(main);
+  switch(state.view){
+    case 'today':renderToday(main);break;
+    case 'calendar':renderCalendar(main);break;
+    case 'pk':renderPK(main);break;
+    case 'compare':renderCompare(main);break;
+    case 'words':renderWordBank(main);break;
+    case 'data':renderData(main);break;
+  }
+  window.scrollTo({top:0});
+}
+function renderSession(main){
+  var s=state.session;
+  if(s.kind==='learn')renderLearn(main);
+  else if(s.kind==='fill')renderFill(main);
+  else if(s.kind==='build')renderBuild(main);
+  else if(s.kind==='synonym')renderSyn(main);
+  else if(s.kind==='listen')renderListen(main);
+  else if(s.kind==='grammar')renderGrammar(main);
+  else if(s.kind==='wrong')renderWrongSession(main);
+}
+
+function fireLevel(n){
+  if(n<=0)return{icon:'',cls:'',label:'还没开始',bar:0};
+  var bar=Math.min(100,Math.round(n/30*100));
+  if(n<=2)return{icon:'🔥',cls:'fire-1',label:'小火苗',bar:bar};
+  if(n<=6)return{icon:'🔥🔥',cls:'fire-2',label:'在坚持',bar:bar};
+  if(n<=13)return{icon:'🔥🔥🔥',cls:'fire-3',label:'状态好',bar:bar};
+  return{icon:'🔥🔥🔥🔥',cls:'fire-4',label:'王者',bar:bar};
+}
+
+function renderToday(main){
+  if(!welcomeShown){
+    welcomeShown=true;
+    setTimeout(function(){
+      var h=new Date().getHours();
+      var msg;
+      if(streakOf(cur())===0&&totalDays(cur())>0)msg=randOf(WELCOME_BACK);
+      else if(h<12)msg=randOf(WELCOME_MORNING);
+      else if(h<18)msg=randOf(WELCOME_AFTERNOON);
+      else msg=randOf(WELCOME_EVENING);
+      toast(msg);
+    },500);
+  }
+  var R=cur(),plan=todayPlan();
+  var sR=roleStats(R),peerR=DB.current==='A'?'B':'A',sO=getPeerStats(peerR);
+  var log=R.logs[todayStr()]||{answered:0,right:0};
+  var doneCount=STAGES.filter(function(s){return plan[s.key]&&plan[s.key].done}).length;
+  var completed=doneCount===STAGES.length;
+  var wrongCount=countWrongToday();
+  var matchCount=getMatchWordPool().length;
+  var dots='';
+  for(var i=0;i<STAGES.length;i++){
+    var stg=STAGES[i];
+    var done=plan[stg.key]&&plan[stg.key].done;
+    var isNow=!done&&STAGES.slice(0,i).every(function(x){return plan[x.key]&&plan[x.key].done});
+    var cls='';
+    if(done)cls='on';else if(isNow)cls='now';
+    dots+='<i class="'+cls+'"></i>';
+  }
+  var html='<div class="card" style="background:linear-gradient(135deg,#1e3a8a,#3b6df6);color:#fff"><div class="row between"><div><div style="font-size:12px;opacity:.85">'+todayStr()+' · '+NAMES[DB.current]+'</div><div style="font-size:24px;font-weight:800;margin-top:2px">今日 '+doneCount+' / '+STAGES.length+' 阶段</div><div style="font-size:12.5px;opacity:.85">答题 '+log.answered+' · 正确率 '+(log.answered?Math.round(log.right/log.answered*100):0)+'%</div></div><div style="text-align:right"><div style="font-size:12px;opacity:.85">连续打卡</div><div style="font-size:24px;font-weight:800">'+sR.streak+'<span style="font-size:12px"> 天</span></div></div></div>';
+  if(completed)html+='<div style="margin-top:10px;background:rgba(255,255,255,.2);padding:8px 12px;border-radius:10px;font-size:13px;font-weight:700">🎉 今日全部完成，已自动打卡！</div>';
+  html+='<div class="progress-dots">'+dots+'</div>';
+  html+='</div>';
+  html+='<div class="card"><h2>今日任务流程</h2>';
+  STAGES.forEach(function(s,i){
+    var st=plan[s.key]||{},isDone=st.done;
+    var isActive=!isDone&&STAGES.slice(0,i).every(function(x){return plan[x.key]&&plan[x.key].done});
+    var cls='stage theme-'+(i+1)+(isDone?' done':'')+(isActive?' active':'')+(!isDone&&!isActive?' locked':'');
+    var badge=isDone?'完成':(isActive?'开始':'待完成');
+    html+='<div class="'+cls+'" data-stage="'+s.key+'" data-active="'+isActive+'"><div class="ic">'+(isDone?'✅':s.icon)+'</div><div class="tx"><b>'+s.name+'</b><span>'+s.desc+(isDone?' · 正确 '+st.right+'/'+st.total:'')+'</span></div><div class="st">'+badge+'</div></div>';
+  });
+  html+='</div>';
+  if(wrongCount>0){
+    html+='<div class="card wrong-card-hot"><div class="row between"><div style="flex:1"><div style="font-weight:800;font-size:15px;color:#dc2626">📕 今日错题集</div><div class="muted" style="margin-top:4px">答对自动移除 · 一共 '+wrongCount+' 道</div></div><div class="wrong-badge-num">'+wrongCount+'</div></div><button class="btn bad block" id="goWrong" style="margin-top:12px">🔁 去复习</button></div>';
+  }else{
+    html+='<div class="card wrong-card-clean"><div class="row between"><div style="flex:1"><div style="font-weight:800;font-size:15px;color:#0f9d6b">📕 今日错题集</div><div class="muted" style="margin-top:4px">今天还没有错题，继续保持</div></div><div class="em">✨</div></div></div>';
+  }
+  html+='<div class="card match-card-elevated"><div class="row between" style="position:relative;z-index:1"><div><div class="txt-b" style="font-size:16px">🎮 单词消消乐</div><div class="txt-s" style="margin-top:4px">'+(matchCount>0?'今日可玩 <b>'+Math.min(matchCount,50)+'</b> 对 · 5关 × 10对':'词库挑 50 对 · 5关 × 10对')+'</div><div class="txt-s" style="font-size:11px;margin-top:2px;opacity:.75">纯娱乐 · 不计入统计</div></div><button class="btn" id="goMatch">开玩</button></div></div>';
+  var totalAcc=sR.accuracy+sO.accuracy;
+  var aLead=totalAcc>0&&sR.accuracy>sO.accuracy;
+  var bLead=totalAcc>0&&sO.accuracy>sR.accuracy;
+  html+='<div class="card"><h2>双人速览 <span class="sync-badge"><i></i>同步 '+getPeerSyncTime(peerR)+'</span></h2>';
+  html+='<div class="fire-row a" style="margin-bottom:10px"><span class="avatar-mini a">🐱</span><span class="name">'+NAMES.A+'</span><span style="flex:1"></span><span class="days">'+sR.accuracy+'%</span>'+(aLead?'<span class="lead-badge">领先</span>':'')+'</div>';
+  html+='<div class="muted" style="font-size:11.5px;margin:-6px 0 12px 44px">完成 '+sR.completedDays+' 天 · 掌握 '+sR.mastered+' 词</div>';
+  html+='<div class="fire-row b"><span class="avatar-mini b">🐶</span><span class="name">'+NAMES.B+'</span><span style="flex:1"></span><span class="days">'+sO.accuracy+'%</span>'+(bLead?'<span class="lead-badge">领先</span>':'')+'</div>';
+  html+='<div class="muted" style="font-size:11.5px;margin:0 0 0 44px">完成 '+sO.completedDays+' 天 · 掌握 '+sO.mastered+' 词</div>';
+  html+='</div>';
+  var nw=null;[50,100,200,300,500].forEach(function(n){if(sR.mastered<n&&!nw)nw=n});
+  var ns=null;[7,14,30,60,100].forEach(function(n){if(sR.streak<n&&!ns)ns=n});
+  var nc=null;[7,14,30].forEach(function(n){if(sR.completedDays<n&&!nc)nc=n});
+  html+='<div class="card"><h2>🎯 下一里程碑</h2>';
+  if(nw)html+='<div style="font-size:13.5px;padding:5px 0;color:#374151">📚 距掌握 <b>'+nw+'</b> 词还差 <b style="color:#3b6df6">'+(nw-sR.mastered)+'</b> 词</div>';
+  else html+='<div style="font-size:13.5px;padding:5px 0;color:#0f9d6b">📚 已掌握 <b>'+sR.mastered+'</b> 词，继续冲！</div>';
+  if(ns)html+='<div style="font-size:13.5px;padding:5px 0;color:#374151">🔥 距连续 <b>'+ns+'</b> 天还差 <b style="color:#f59e0b">'+(ns-sR.streak)+'</b> 天</div>';
+  else html+='<div style="font-size:13.5px;padding:5px 0;color:#dc2626">🔥 连续 <b>'+sR.streak+'</b> 天，王者级别</div>';
+  if(nc)html+='<div style="font-size:13.5px;padding:5px 0;color:#374151">🏅 距完整通关 <b>'+nc+'</b> 天还差 <b style="color:#8b5cf6">'+(nc-sR.completedDays)+'</b> 天</div>';
+  else html+='<div style="font-size:13.5px;padding:5px 0;color:#8b5cf6">🏅 完整通关 <b>'+sR.completedDays+'</b> 天，全通关</div>';
+  html+='</div>';
+  html+='<div class="card"><h2>玩法说明</h2><div class="tip">· 每天一关，按顺序完成 6 个阶段<br>· 阶段1：学 20 个新词 + 复习 20 个旧词<br>· 阶段2-6：每阶段 20 题<br>· 📕 错题集：答对自动移除<br>· 🎮 消消乐：纯娱乐<br>· 📡 团队「波&娇」数据自动互同步</div></div>';
+  main.innerHTML=html;
+  $$('[data-stage]',main).forEach(function(el){var key=el.dataset.stage,active=el.dataset.active==='true';el.onclick=function(){if(!active){toast('请先完成前面的阶段');return}startStage(key)}});
+  var gw=$('#goWrong',main);if(gw)gw.onclick=function(){state.view='today';startWrongReview()};
+  var gm=$('#goMatch',main);if(gm)gm.onclick=function(){startMatchGame()};
+}
+function startStage(key){
+  if(key==='learn')startLearn();
+  else if(key==='fill')startFill();
+  else if(key==='build')startBuild();
+  else if(key==='synonym')startSyn();
+  else if(key==='listening')startListen();
+  else if(key==='grammar')startGrammar();
+}
+function startLearn(){
+  var news=pickNewWords(DB.settings.newPerDay);
+  var reviews=pickReviewWords(DB.settings.reviewPerDay);
+  if(!news.length&&!reviews.length){toast('词库为空');return}
+  streakRight=0;
+  state.session={kind:'learn',phase:news.length?'preview':'review',newWords:news,reviewQueue:reviews.slice(),previewIdx:0,reviewIdx:0,revealed:false,right:0,fuzzy:0,wrong:0,total:0,done:false};
+  render();
+}
+function renderLearn(main){
+  var s=state.session;
+  if(s.done)return renderLearnResult(main);
+  if(s.phase==='preview'){
+    var w=s.newWords[s.previewIdx];
+    if(!w){s.phase=s.reviewQueue.length?'review':'done';if(s.phase==='done')s.done=true;return render()}
+    main.innerHTML='<div class="card"><div class="pbar"><span>📖 新词预习</span><span>'+(s.previewIdx+1)+' / '+s.newWords.length+'</span></div><div class="bar"><i style="width:'+(s.previewIdx/s.newWords.length*100).toFixed(1)+'%"></i></div><div class="wcard"><div class="w">'+esc(w.w)+'</div>'+(w.ph?'<div class="ph">'+esc(w.ph)+'</div>':'')+'<button class="spk center" id="spk">🔊</button><div class="cn">'+esc(w.cn)+'</div>'+(w.ex?'<div class="ex">'+esc(w.ex)+(w.exCn?'<span class="cn">'+esc(w.exCn)+'</span>':'')+'</div>':'')+'</div></div><div class="card" style="position:sticky;bottom:10px"><div class="row"><button class="btn ghost" id="prevBtn"'+(s.previewIdx===0?' disabled style="opacity:.4"':'')+'>上一个</button><button class="btn primary" id="nextBtn" style="flex:1">'+(s.previewIdx+1>=s.newWords.length?'开始复习测试':'下一个')+'</button></div></div>';
+    $('#spk',main).onclick=function(){speak(w.w)};
+    $('#prevBtn',main).onclick=function(){if(s.previewIdx>0){s.previewIdx--;render()}};
+    $('#nextBtn',main).onclick=function(){if(s.previewIdx+1>=s.newWords.length){s.phase=s.reviewQueue.length?'review':'done';if(s.phase==='done')s.done=true}else s.previewIdx++;render()};
+    return;
+  }
+  if(s.phase==='review'){
+    var w2=s.reviewQueue[s.reviewIdx];
+    if(!w2){s.phase='done';s.done=true;return render()}
+    var st=cur().srs[w2.id];
+    main.innerHTML='<div class="card"><div class="pbar"><span>📝 复习测试'+(st?'（第'+(st.stage+1)+'次）':'')+'</span><span>'+(s.reviewIdx+1)+' / '+s.reviewQueue.length+'</span></div><div class="bar"><i style="width:'+(s.reviewIdx/s.reviewQueue.length*100).toFixed(1)+'%"></i></div><div class="wcard"><div class="w">'+esc(w2.w)+'</div>'+(s.revealed?'<div class="ph">'+esc(w2.ph||'')+'</div><button class="spk center" id="spk">🔊</button><div class="cn">'+esc(w2.cn)+'</div>'+(w2.ex?'<div class="ex">'+esc(w2.ex)+(w2.exCn?'<span class="cn">'+esc(w2.exCn)+'</span>':'')+'</div>':''):'<div class="muted" style="margin-top:18px">先回忆意思，再点下方按钮</div>')+'</div></div>';
+    if(s.revealed)main.innerHTML+='<div class="card" style="padding:14px 17px"><div class="grid3"><button class="btn bad" data-g="bad">不认识</button><button class="btn warn" data-g="fuzzy">模糊</button><button class="btn ok" data-g="good">认识</button></div></div>';
+    else main.innerHTML+='<div class="card" style="position:sticky;bottom:10px"><button class="btn primary block" id="revealBtn">显示答案</button></div>';
+    var sp=$('#spk',main);if(sp)sp.onclick=function(){speak(w2.w)};
+    var rb=$('#revealBtn',main);if(rb)rb.onclick=function(){s.revealed=true;render()};
+    $$('[data-g]',main).forEach(function(b){b.onclick=function(){var g=b.dataset.g;gradeSRS(w2.id,g);logAnswer('words',g==='good');s.total++;if(g==='good'){s.right++;onRightAnswer()}else if(g==='fuzzy'){s.fuzzy++;streakRight=0;updateComboBar()}else{s.wrong++;onWrongAnswer()}s.reviewIdx++;s.revealed=false;render()}});
+    return;
+  }
+}
+function renderLearnResult(main){
+  var s=state.session;markStage('learn',s.right,s.total);
+  var pct=s.total?Math.round(s.right/s.total*100):0;
+  main.innerHTML='<div class="card result"><div class="big">📖</div><h2 style="margin-top:8px">单词学习完成</h2><div class="muted">新词 '+s.newWords.length+' · 复习 '+s.reviewQueue.length+'</div><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>认识</div><div><b style="color:#f59e0b">'+s.fuzzy+'</b>模糊</div><div><b style="color:#ef4444">'+s.wrong+'</b>不认识</div></div><div class="pct" style="color:'+(pct>=80?'#10b981':'#f59e0b')+'">'+pct+'%</div><div class="muted">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="nextStage">进入阶段2 · 例句填空</button><button class="btn ghost block" id="homeBtn" style="margin-top:9px">返回今日关卡</button></div>';
+  $('#nextStage',main).onclick=function(){state.session=null;startStage('fill')};
+  $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function startFill(){
+  var pool=DB.content.sentences.filter(function(s){return s.en.split(' ').length>=5});
+  var picked=shuffle(pool).slice(0,20);
+  if(!picked.length){toast('例句库为空');return}
+  streakRight=0;
+  var qs=picked.map(function(s){
+    var words=s.en.replace(/[.,!?]$/,'').split(/\s+/);
+    var idx=Math.max(1,Math.floor(words.length/2));
+    var key=words[idx];
+    var blanked=s.en.replace(new RegExp('\\b'+key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b'),'______');
+    var wrongs=shuffle(DB.content.words.filter(function(w){return w.w!==key})).slice(0,3).map(function(w){return w.w});
+    while(wrongs.length<3)wrongs.push('other'+wrongs.length);
+    var opts=shuffle([key].concat(wrongs));
+    var mw=null;for(var i=0;i<DB.content.words.length;i++){if(DB.content.words[i].w===key){mw=DB.content.words[i];break}}
+    return{stem:blanked,long:true,sub:'选择正确的词填入空格',opts:opts,ans:[opts.indexOf(key)],ex:key+(mw?' · '+mw.cn:''),ex2:s.en,ex2cn:s.cn,speak:s.en,srcId:s.id};
+  });
+  state.session={kind:'fill',qs:qs,idx:0,right:0,picked:null,done:false};
+  render();
+}
+function renderFill(main){
+  var s=state.session;
+  if(s.done)return renderFillResult(main);
+  var q=s.qs[s.idx],total=s.qs.length,picked=s.picked;
+  var html='<div class="card"><div class="pbar"><span>✍️ 例句填空</span><span>'+(s.idx+1)+' / '+total+'</span></div><div class="bar"><i style="width:'+(s.idx/total*100).toFixed(1)+'%"></i></div><div class="stem long">'+esc(q.stem)+'</div><div class="sub left">'+esc(q.sub)+'</div><button class="spk" id="spkBtn" style="margin-bottom:14px">🔊</button><div>';
+  q.opts.forEach(function(o,i){var cls='opt';if(picked!=null){if(i===q.ans[0])cls+=' right';else if(i===picked)cls+=' wrong'}html+='<div class="'+cls+'" data-i="'+i+'"><div class="k">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
+  html+='</div>';
+  if(picked!=null){
+    html+='<div class="explain">'+(picked===q.ans[0]?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+'<br><b>'+esc(q.ex)+'</b>'+(q.ex2?'<br>'+esc(q.ex2)+(q.ex2cn?'<br><span style="opacity:.75">'+esc(q.ex2cn)+'</span>':''):'')+'</div>';
+    html+='<button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一题')+'</button>';
+  }
+  html+='</div><div class="card" style="padding:11px 17px"><div class="row between" style="font-size:13px;color:#6b7280;font-weight:700"><span>✅ '+s.right+'</span><button class="btn ghost" id="quitBtn" style="padding:6px 12px;min-height:36px">退出</button></div></div>';
+  main.innerHTML=html;
+  $('#spkBtn',main).onclick=function(){speak(q.speak)};
+  if(picked==null){$$('#main .opt',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.i;s.picked=i;var ok=(i===q.ans[0]);if(ok){s.right++;removeWrong('fill',q.srcId);onRightAnswer()}else{addWrong('fill',q.srcId);onWrongAnswer()}logAnswer('fill',ok);render()}})}
+  else{$('#nextBtn',main).onclick=function(){s.idx++;s.picked=null;if(s.idx>=total)s.done=true;render()}}
+  $('#quitBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function renderFillResult(main){
+  var s=state.session;markStage('fill',s.right,s.qs.length);
+  var pct=Math.round(s.right/s.qs.length*100);
+  main.innerHTML='<div class="card result"><div class="big">✍️</div><h2>例句填空完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>正确</div><div><b style="color:#ef4444">'+(s.qs.length-s.right)+'</b>错误</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted" style="margin-top:10px">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="nextStage">进入阶段3 · 拼句子</button><button class="btn ghost block" id="homeBtn" style="margin-top:9px">返回今日关卡</button></div>';
+  $('#nextStage',main).onclick=function(){state.session=null;startStage('build')};
+  $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function startBuild(){
+  var pool=DB.content.sentences.filter(function(s){return s.en.split(' ').length>=5});
+  var picked=shuffle(pool).slice(0,20);
+  if(!picked.length){toast('例句库为空');return}
+  streakRight=0;
+  var qs=picked.map(function(s){var words=s.en.replace(/[.,!?]$/,'').split(/\s+/);return{target:s.en,cn:s.cn,tokens:shuffle(words),answer:words,speak:s.en,srcId:s.id}});
+  state.session={kind:'build',qs:qs,idx:0,right:0,used:{},answer:[],submitted:false,done:false};
+  render();
+}
+function renderBuild(main){
+  var s=state.session;
+  if(s.done)return renderBuildResult(main);
+  var q=s.qs[s.idx],total=s.qs.length;
+  var html='<div class="card"><div class="pbar"><span>🧩 拼句子</span><span>'+(s.idx+1)+' / '+total+'</span></div><div class="bar"><i style="width:'+(s.idx/total*100).toFixed(1)+'%"></i></div><div class="muted" style="margin-bottom:8px">中文提示：'+esc(q.cn)+'</div><button class="spk" id="spkBtn" style="margin-bottom:12px">🔊</button><div class="answer-area" id="answerArea">';
+  if(s.answer.length){s.answer.forEach(function(w,i){html+='<div class="blk" data-ai="'+i+'">'+esc(w)+'</div>'})}else{html+='<span class="ph">点击下方单词块拼出句子</span>'}
+  html+='</div><div class="blocks" id="blocks">';
+  q.tokens.forEach(function(w,i){html+='<div class="blk'+(s.used[i]?' used':'')+'" data-ti="'+i+'">'+esc(w)+'</div>'});
+  html+='</div>';
+  if(s.submitted){html+='<div class="explain">'+(s.lastCorrect?'✅ 正确！':'❌ 正确答案：'+esc(q.target))+'<br>'+esc(q.cn)+'</div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一句')+'</button>'}
+  else{html+='<div class="row" style="gap:8px"><button class="btn ghost" id="clearBtn" style="flex:1">清空</button><button class="btn primary" id="submitBtn" style="flex:2">提交</button></div>'}
+  html+='</div><div class="card" style="padding:11px 17px"><div class="row between"><span style="font-size:13px;color:#6b7280;font-weight:700">✅ '+s.right+'</span><button class="btn ghost" id="quitBtn" style="padding:6px 12px;min-height:36px">退出</button></div></div>';
+  main.innerHTML=html;
+  $('#spkBtn',main).onclick=function(){speak(q.speak)};
+  if(!s.submitted){
+    $$('#blocks .blk',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.ti;if(s.used[i])return;s.used[i]=true;s.answer.push(q.tokens[i]);render()}});
+    $$('#answerArea .blk',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.ai;var w=s.answer[i];for(var ti=0;ti<q.tokens.length;ti++){if(!s.used[ti])continue;if(q.tokens[ti]===w){delete s.used[ti];break}}s.answer.splice(i,1);render()}});
+    $('#clearBtn',main).onclick=function(){s.answer=[];s.used={};render()};
+    $('#submitBtn',main).onclick=function(){if(s.answer.length!==q.answer.length){toast('请拼完整句子');return}var ok=s.answer.every(function(w,i){return w===q.answer[i]});s.lastCorrect=ok;if(ok){s.right++;removeWrong('build',q.srcId);onRightAnswer()}else{addWrong('build',q.srcId);onWrongAnswer()}logAnswer('sentences',ok);s.submitted=true;render()};
+  }else{$('#nextBtn',main).onclick=function(){s.idx++;s.used={};s.answer=[];s.submitted=false;if(s.idx>=total)s.done=true;render()}}
+  $('#quitBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function renderBuildResult(main){
+  var s=state.session;markStage('build',s.right,s.qs.length);
+  var pct=Math.round(s.right/s.qs.length*100);
+  main.innerHTML='<div class="card result"><div class="big">🧩</div><h2>拼句子完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>正确</div><div><b style="color:#ef4444">'+(s.qs.length-s.right)+'</b>错误</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted" style="margin-top:10px">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="nextStage">进入阶段4 · 同义词替换</button><button class="btn ghost block" id="homeBtn" style="margin-top:9px">返回今日关卡</button></div>';
+  $('#nextStage',main).onclick=function(){state.session=null;startStage('synonym')};
+  $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function startSyn(){
+  var pool=DB.content.synonyms;
+  if(!pool.length){toast('同义词库为空');return}
+  var picked=shuffle(pool).slice(0,20);
+  streakRight=0;
+  var qs=picked.map(function(it){
+    var correct=it.syns[0];if(!correct)return null;
+    var wp=[];DB.content.synonyms.forEach(function(x){if(x.id===it.id)return;x.syns.forEach(function(s){if(s&&s!==correct&&it.syns.indexOf(s)<0)wp.push(s)})});
+    var wrongs=shuffle(wp.filter(function(v,i,arr){return arr.indexOf(v)===i})).slice(0,3);
+    while(wrongs.length<3)wrongs.push('other'+wrongs.length);
+    var opts=shuffle([correct].concat(wrongs));
+    return{stem:it.w,ph:it.ph,sub:'选择意思最接近的同义词',opts:opts,ans:[opts.indexOf(correct)],ex:it.w+' ≈ '+it.syns.join(' / ')+'（'+it.cn+'）',ex2:it.ex||'',speak:it.w,srcId:it.id};
+  }).filter(Boolean);
+  if(!qs.length){toast('同义词库数据不足');return}
+  state.session={kind:'synonym',qs:qs,idx:0,right:0,picked:null,done:false};
+  render();
+}
+function renderSyn(main){
+  var s=state.session;
+  if(s.done)return renderSynResult(main);
+  var q=s.qs[s.idx],total=s.qs.length,picked=s.picked;
+  var html='<div class="card"><div class="pbar"><span>🔗 同义词替换</span><span>'+(s.idx+1)+' / '+total+'</span></div><div class="bar"><i style="width:'+(s.idx/total*100).toFixed(1)+'%"></i></div><div class="stem">'+esc(q.stem)+'</div><div class="sub">'+esc(q.ph||'')+'</div><div class="sub left" style="margin-top:-6px">'+esc(q.sub)+'</div><button class="spk center" id="spkBtn">🔊</button><div>';
+  q.opts.forEach(function(o,i){var cls='opt';if(picked!=null){if(i===q.ans[0])cls+=' right';else if(i===picked)cls+=' wrong'}html+='<div class="'+cls+'" data-i="'+i+'"><div class="k">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
+  html+='</div>';
+  if(picked!=null){html+='<div class="explain">'+(picked===q.ans[0]?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+'<br><b>'+esc(q.ex)+'</b>'+(q.ex2?'<br>'+esc(q.ex2):'')+'</div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一组')+'</button>'}
+  html+='</div><div class="card" style="padding:11px 17px"><div class="row between"><span style="font-size:13px;color:#6b7280;font-weight:700">✅ '+s.right+'</span><button class="btn ghost" id="quitBtn" style="padding:6px 12px;min-height:36px">退出</button></div></div>';
+  main.innerHTML=html;
+  $('#spkBtn',main).onclick=function(){speak(q.speak)};
+  if(picked==null){$$('#main .opt',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.i;s.picked=i;var ok=(i===q.ans[0]);if(ok){s.right++;removeWrong('synonym',q.srcId);onRightAnswer()}else{addWrong('synonym',q.srcId);onWrongAnswer()}logAnswer('synonym',ok);render()}})}
+  else{$('#nextBtn',main).onclick=function(){s.idx++;s.picked=null;if(s.idx>=total)s.done=true;render()}}
+  $('#quitBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function renderSynResult(main){
+  var s=state.session;markStage('synonym',s.right,s.qs.length);
+  var pct=Math.round(s.right/s.qs.length*100);
+  main.innerHTML='<div class="card result"><div class="big">🔗</div><h2>同义词替换完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>正确</div><div><b style="color:#ef4444">'+(s.qs.length-s.right)+'</b>错误</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted" style="margin-top:10px">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="nextStage">进入阶段5 · 听力例句</button><button class="btn ghost block" id="homeBtn" style="margin-top:9px">返回今日关卡</button></div>';
+  $('#nextStage',main).onclick=function(){state.session=null;startStage('listening')};
+  $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function startListen(){
+  var pool=DB.content.sentences;if(!pool.length){toast('听力库为空');return}
+  var picked=shuffle(pool).slice(0,20);
+  streakRight=0;
+  var qs=picked.map(function(it){
+    var type=Math.floor(Math.random()*2);
+    if(type===0){
+      var wrongs=shuffle(DB.content.sentences.filter(function(x){return x.id!==it.id})).slice(0,3).map(function(x){return x.cn});
+      while(wrongs.length<3)wrongs.push('other'+wrongs.length);
+      var opts=shuffle([it.cn].concat(wrongs));
+      return{mode:'choice',sub:'🎧 听音频，选择正确译文',stem:'',opts:opts,ans:[opts.indexOf(it.cn)],ex:it.en,ex2:it.cn,speak:it.en,srcId:it.id};
+    }else{
+      var words=it.en.replace(/[.,!?]$/,'').split(/\s+/);
+      var idx=Math.max(1,Math.floor(words.length/2));var key=words[idx];
+      var blanked=it.en.replace(new RegExp('\\b'+key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b'),'______');
+      var wrongs2=shuffle(DB.content.words.filter(function(w){return w.w!==key})).slice(0,3).map(function(w){return w.w});
+      while(wrongs2.length<3)wrongs2.push('other'+wrongs2.length);
+      var opts2=shuffle([key].concat(wrongs2));
+      return{mode:'fill',stem:blanked,long:true,sub:'🎧 听音频，选出被挖掉的词',opts:opts2,ans:[opts2.indexOf(key)],ex:it.en,ex2:it.cn,speak:it.en,srcId:it.id};
+    }
+  });
+  state.session={kind:'listen',qs:qs,idx:0,right:0,picked:null,done:false};
+  render();
+}
+function renderListen(main){
+  var s=state.session;
+  if(s.done)return renderListenResult(main);
+  var q=s.qs[s.idx],total=s.qs.length,picked=s.picked;
+  var html='<div class="card"><div class="pbar"><span>🎧 听力例句</span><span>'+(s.idx+1)+' / '+total+'</span></div><div class="bar"><i style="width:'+(s.idx/total*100).toFixed(1)+'%"></i></div><div class="sub left">'+esc(q.sub)+'</div><button class="spk" id="spkBtn">🔊</button><button class="btn ghost" id="slowBtn" style="margin-left:8px;padding:8px 14px;min-height:40px">🐢 慢速</button><div class="stem '+(q.long?'long':'')+'" style="margin-top:14px">'+esc(q.stem)+'</div><div>';
+  q.opts.forEach(function(o,i){var cls='opt';if(picked!=null){if(i===q.ans[0])cls+=' right';else if(i===picked)cls+=' wrong'}html+='<div class="'+cls+'" data-i="'+i+'"><div class="k">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
+  html+='</div>';
+  if(picked!=null){html+='<div class="explain">'+(picked===q.ans[0]?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+'<br><b>'+esc(q.ex)+'</b><br><span style="opacity:.75">'+esc(q.ex2)+'</span></div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一句')+'</button>'}
+  html+='</div><div class="card" style="padding:11px 17px"><div class="row between"><span style="font-size:13px;color:#6b7280;font-weight:700">✅ '+s.right+'</span><button class="btn ghost" id="quitBtn" style="padding:6px 12px;min-height:36px">退出</button></div></div>';
+  main.innerHTML=html;
+  $('#spkBtn',main).onclick=function(){speak(q.speak)};
+  $('#slowBtn',main).onclick=function(){speak(q.speak,0.65)};
+  /* 补丁3：去掉自动播放语音，iOS 会拦截 */
+  if(picked==null){$$('#main .opt',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.i;s.picked=i;var ok=(i===q.ans[0]);if(ok){s.right++;removeWrong('listening',q.srcId);onRightAnswer()}else{addWrong('listening',q.srcId);onWrongAnswer()}logAnswer('listening',ok);render()}})}
+  else{$('#nextBtn',main).onclick=function(){s.idx++;s.picked=null;if(s.idx>=total)s.done=true;render()}}
+  $('#quitBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function renderListenResult(main){
+  var s=state.session;markStage('listening',s.right,s.qs.length);
+  var pct=Math.round(s.right/s.qs.length*100);
+  main.innerHTML='<div class="card result"><div class="big">🎧</div><h2>听力例句完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>正确</div><div><b style="color:#ef4444">'+(s.qs.length-s.right)+'</b>错误</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted" style="margin-top:10px">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="nextStage">进入阶段6 · 语法词汇</button><button class="btn ghost block" id="homeBtn" style="margin-top:9px">返回今日关卡</button></div>';
+  $('#nextStage',main).onclick=function(){state.session=null;startStage('grammar')};
+  $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function startGrammar(){
+  var pool=DB.content.grammar;if(!pool.length){toast('语法库为空');return}
+  var picked=shuffle(pool).slice(0,20);
+  streakRight=0;
+  var qs=picked.map(function(it){return{stem:it.q,long:true,sub:'托业 Part 5/6 语法词汇',opts:it.opts,ans:[it.ans],ex:it.tag?'【'+it.tag+'】':'',ex2:it.ex,speak:it.q,srcId:it.id}});
+  state.session={kind:'grammar',qs:qs,idx:0,right:0,picked:null,done:false};
+  render();
+}
+function renderGrammar(main){
+  var s=state.session;
+  if(s.done)return renderGrammarResult(main);
+  var q=s.qs[s.idx],total=s.qs.length,picked=s.picked;
+  var html='<div class="card"><div class="pbar"><span>✏️ 语法词汇</span><span>'+(s.idx+1)+' / '+total+'</span></div><div class="bar"><i style="width:'+(s.idx/total*100).toFixed(1)+'%"></i></div><div class="stem long">'+esc(q.stem)+'</div><div class="sub left">'+esc(q.sub)+'</div><button class="spk" id="spkBtn" style="margin-bottom:14px">🔊</button><div>';
+  q.opts.forEach(function(o,i){var cls='opt';if(picked!=null){if(i===q.ans[0])cls+=' right';else if(i===picked)cls+=' wrong'}html+='<div class="'+cls+'" data-i="'+i+'"><div class="k">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
+  html+='</div>';
+  if(picked!=null){html+='<div class="explain">'+(picked===q.ans[0]?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+(q.ex?'<br><b>'+esc(q.ex)+'</b>':'')+(q.ex2?'<br>'+esc(q.ex2):'')+'</div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一题')+'</button>'}
+  html+='</div><div class="card" style="padding:11px 17px"><div class="row between"><span style="font-size:13px;color:#6b7280;font-weight:700">✅ '+s.right+'</span><button class="btn ghost" id="quitBtn" style="padding:6px 12px;min-height:36px">退出</button></div></div>';
+  main.innerHTML=html;
+  $('#spkBtn',main).onclick=function(){speak(q.stem)};
+  if(picked==null){$$('#main .opt',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.i;s.picked=i;var ok=(i===q.ans[0]);if(ok){s.right++;removeWrong('grammar',q.srcId);onRightAnswer()}else{addWrong('grammar',q.srcId);onWrongAnswer()}logAnswer('grammar',ok);render()}})}
+  else{$('#nextBtn',main).onclick=function(){s.idx++;s.picked=null;if(s.idx>=total)s.done=true;render()}}
+  $('#quitBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function renderGrammarResult(main){
+  var s=state.session;markStage('grammar',s.right,s.qs.length);
+  var pct=Math.round(s.right/s.qs.length*100);
+  main.innerHTML='<div class="card result"><div class="big">'+(pct>=80?'🏆':'📚')+'</div><h2>语法词汇完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>正确</div><div><b style="color:#ef4444">'+(s.qs.length-s.right)+'</b>错误</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted" style="margin-top:10px">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="homeBtn">返回今日关卡</button></div>';
+  $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function startWrongReview(){
+  var list=getWrongList();
+  if(!list.length){toast('今日没有错题');return}
+  var qs=[];
+  list.forEach(function(item){
+    if(item.type==='fill'){
+      var s=DB.content.sentences.find(function(x){return x.id===item.id});if(!s)return;
+      var words=s.en.replace(/[.,!?]$/,'').split(/\s+/);var idx=Math.max(1,Math.floor(words.length/2));var key=words[idx];
+      var blanked=s.en.replace(new RegExp('\\b'+key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b'),'______');
+      var wrongs=shuffle(DB.content.words.filter(function(w){return w.w!==key})).slice(0,3).map(function(w){return w.w});
+      while(wrongs.length<3)wrongs.push('other'+wrongs.length);
+      var opts=shuffle([key].concat(wrongs));
+      qs.push({kind:'fill',kind2:'fill',srcId:item.id,stem:blanked,long:true,sub:'错题重练 · 选择正确的词填空',opts:opts,ans:[opts.indexOf(key)],ex:key,ex2:s.en,ex2cn:s.cn,speak:s.en});
+    }else if(item.type==='build'){
+      var s2=DB.content.sentences.find(function(x){return x.id===item.id});if(!s2)return;
+      var words2=s2.en.replace(/[.,!?]$/,'').split(/\s+/);
+      qs.push({kind:'build',kind2:'build',srcId:item.id,target:s2.en,cn:s2.cn,tokens:shuffle(words2),answer:words2,speak:s2.en});
+    }else if(item.type==='synonym'){
+      var it=DB.content.synonyms.find(function(x){return x.id===item.id});if(!it||!it.syns[0])return;
+      var correct=it.syns[0];var wp=[];
+      DB.content.synonyms.forEach(function(x){if(x.id===it.id)return;x.syns.forEach(function(s){if(s&&s!==correct&&it.syns.indexOf(s)<0)wp.push(s)})});
+      var wrongs2=shuffle(wp.filter(function(v,i,arr){return arr.indexOf(v)===i})).slice(0,3);
+      while(wrongs2.length<3)wrongs2.push('other'+wrongs2.length);
+      var opts2=shuffle([correct].concat(wrongs2));
+      qs.push({kind:'synonym',kind2:'synonym',srcId:item.id,stem:it.w,ph:it.ph,sub:'错题重练 · 选择同义词',opts:opts2,ans:[opts2.indexOf(correct)],ex:it.w+' ≈ '+it.syns.join(' / ')+'（'+it.cn+'）',ex2:it.ex||'',speak:it.w});
+    }else if(item.type==='listening'){
+      var s3=DB.content.sentences.find(function(x){return x.id===item.id});if(!s3)return;
+      var wrongs3=shuffle(DB.content.sentences.filter(function(x){return x.id!==s3.id})).slice(0,3).map(function(x){return x.cn});
+      while(wrongs3.length<3)wrongs3.push('other'+wrongs3.length);
+      var opts3=shuffle([s3.cn].concat(wrongs3));
+      qs.push({kind:'listen',kind2:'listening',srcId:item.id,mode:'choice',sub:'错题重练 · 听音频选译文',stem:'',opts:opts3,ans:[opts3.indexOf(s3.cn)],ex:s3.en,ex2:s3.cn,speak:s3.en});
+    }else if(item.type==='grammar'){
+      var g=DB.content.grammar.find(function(x){return x.id===item.id});if(!g)return;
+      qs.push({kind:'grammar',kind2:'grammar',srcId:item.id,stem:g.q,long:true,sub:'错题重练 · 语法词汇',opts:g.opts,ans:[g.ans],ex:g.tag?'【'+g.tag+'】':'',ex2:g.ex,speak:g.q});
+    }
+  });
+  if(!qs.length){toast('错题内容已过期');return}
+  streakRight=0;
+  state.session={kind:'wrong',qs:qs,idx:0,right:0,wrong:0,done:false};
+  render();
+}
+function renderWrongSession(main){
+  var s=state.session;
+  if(s.done)return renderWrongResult(main);
+  var q=s.qs[s.idx],total=s.qs.length;
+  var kind=q.kind;
+  var html='<div class="card"><div class="pbar"><span>📕 错题重练</span><span>'+(s.idx+1)+' / '+total+'</span></div><div class="bar"><i style="width:'+(s.idx/total*100).toFixed(1)+'%"></i></div>';
+  if(kind==='build'){
+    html+='<div class="muted" style="margin-bottom:8px">中文提示：'+esc(q.cn)+'</div><button class="spk" id="spkBtn" style="margin-bottom:12px">🔊</button><div class="answer-area" id="answerArea">';
+    if(s.answer&&s.answer.length){s.answer.forEach(function(w,i){html+='<div class="blk" data-ai="'+i+'">'+esc(w)+'</div>'})}else{html+='<span class="ph">点击下方单词块拼出句子</span>'}
+    html+='</div><div class="blocks" id="blocks">';
+    q.tokens.forEach(function(w,i){html+='<div class="blk'+((s.used&&s.used[i])?' used':'')+'" data-ti="'+i+'">'+esc(w)+'</div>'});
+    html+='</div>';
+    if(s.submitted){html+='<div class="explain">'+(s.lastCorrect?'✅ 正确！':'❌ 正确答案：'+esc(q.target))+'<br>'+esc(q.cn)+'</div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一题')+'</button>'}
+    else{html+='<div class="row" style="gap:8px"><button class="btn ghost" id="clearBtn" style="flex:1">清空</button><button class="btn primary" id="submitBtn" style="flex:2">提交</button></div>'}
+  }else if(kind==='listen'){
+    html+='<div class="sub left">'+esc(q.sub)+'</div><button class="spk" id="spkBtn">🔊</button><button class="btn ghost" id="slowBtn" style="margin-left:8px;padding:8px 14px;min-height:40px">🐢 慢速</button><div class="stem '+(q.long?'long':'')+'" style="margin-top:14px">'+esc(q.stem)+'</div><div>';
+    q.opts.forEach(function(o,i){var cls='opt';if(s.picked!=null){if(i===q.ans[0])cls+=' right';else if(i===s.picked)cls+=' wrong'}html+='<div class="'+cls+'" data-i="'+i+'"><div class="k">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
+    html+='</div>';
+    if(s.picked!=null){html+='<div class="explain">'+(s.lastCorrect?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+'<br><b>'+esc(q.ex)+'</b><br><span style="opacity:.75">'+esc(q.ex2)+'</span></div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一题')+'</button>'}
+  }else{
+    html+='<div class="stem '+(q.long?'long':'')+'">'+esc(q.stem)+'</div>'+(q.ph?'<div class="sub">'+esc(q.ph)+'</div>':'')+'<div class="sub left" style="margin-top:-6px">'+esc(q.sub)+'</div><button class="spk center" id="spkBtn">🔊</button><div>';
+    q.opts.forEach(function(o,i){var cls='opt';if(s.picked!=null){if(i===q.ans[0])cls+=' right';else if(i===s.picked)cls+=' wrong'}html+='<div class="'+cls+'" data-i="'+i+'"><div class="k">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
+    html+='</div>';
+    if(s.picked!=null){html+='<div class="explain">'+(s.lastCorrect?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+(q.ex?'<br><b>'+esc(q.ex)+'</b>':'')+(q.ex2?'<br>'+esc(q.ex2):'')+'</div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一题')+'</button>'}
+  }
+  html+='</div><div class="card" style="padding:11px 17px"><div class="row between"><span style="font-size:13px;color:#6b7280;font-weight:700">✅ '+s.right+'　❌ '+s.wrong+'</span><button class="btn ghost" id="quitBtn" style="padding:6px 12px;min-height:36px">退出</button></div></div>';
+  main.innerHTML=html;
+  var spk=$('#spkBtn',main);if(spk)spk.onclick=function(){speak(q.speak)};
+  var slow=$('#slowBtn',main);if(slow)slow.onclick=function(){speak(q.speak,0.65)};
+  /* 补丁3：去掉错题听力自动播放 */
+  if(kind==='build'){
+    if(!s.submitted){
+      if(!s.used)s.used={};if(!s.answer)s.answer=[];
+      $$('#blocks .blk',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.ti;if(s.used[i])return;s.used[i]=true;s.answer.push(q.tokens[i]);render()}});
+      $$('#answerArea .blk',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.ai;var w=s.answer[i];for(var ti=0;ti<q.tokens.length;ti++){if(!s.used[ti])continue;if(q.tokens[ti]===w){delete s.used[ti];break}}s.answer.splice(i,1);render()}});
+      var cb=$('#clearBtn',main);if(cb)cb.onclick=function(){s.answer=[];s.used={};render()};
+      var sb=$('#submitBtn',main);if(sb)sb.onclick=function(){if(s.answer.length!==q.answer.length){toast('请拼完整句子');return}var ok=s.answer.every(function(w,i){return w===q.answer[i]});s.lastCorrect=ok;if(ok){s.right++;removeWrong(q.kind2,q.srcId);onRightAnswer()}else{s.wrong++;streakRight=0;updateComboBar();wrongReviewFeedback()}logAnswer('wrong',ok);s.submitted=true;render()};
+    }else{var nb=$('#nextBtn',main);if(nb)nb.onclick=function(){s.idx++;s.used={};s.answer=[];s.submitted=false;if(s.idx>=total)s.done=true;render()}}
+  }else{
+    if(s.picked==null){$$('#main .opt',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.i;s.picked=i;var ok=(i===q.ans[0]);s.lastCorrect=ok;if(ok){s.right++;removeWrong(q.kind2,q.srcId);onRightAnswer()}else{s.wrong++;streakRight=0;updateComboBar();wrongReviewFeedback()}logAnswer('wrong',ok);render()}})}
+    else{var nb2=$('#nextBtn',main);if(nb2)nb2.onclick=function(){s.idx++;s.picked=null;s.submitted=false;if(s.idx>=total)s.done=true;render()}}
+  }
+  var qb=$('#quitBtn',main);if(qb)qb.onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function renderWrongResult(main){
+  var s=state.session;
+  var total=s.qs.length;var pct=total?Math.round(s.right/total*100):0;
+  main.innerHTML='<div class="card result"><div class="big">'+(pct>=80?'🎉':'💪')+'</div><h2>错题重练完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>答对</div><div><b style="color:#ef4444">'+s.wrong+'</b>答错</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted">答对的题已从错题集移除</div><div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="againBtn">继续练剩余错题</button><button class="btn ghost block" id="homeBtn" style="margin-top:9px">返回今日关卡</button></div>';
+  $('#againBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;startWrongReview()};
+  $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;state.view='today';render()};
+}
+function getMatchWordPool(){
+  var R=cur(),d=todayStr();
+  var pool=[];
+  var srsToday=Object.keys(R.srs||{}).filter(function(k){return R.srs[k].last===d});
+  srsToday.forEach(function(k){var w=DB.content.words.find(function(x){return x.id===k});if(w&&w.cn)pool.push(w)});
+  var wrongList=getWrongList();
+  wrongList.forEach(function(item){
+    if(item.type==='fill'||item.type==='listening'){
+      var s=DB.content.sentences.find(function(x){return x.id===item.id});
+      if(s){DB.content.words.forEach(function(w){if(w.w&&s.en.toLowerCase().indexOf(w.w.toLowerCase())>=0&&w.cn)pool.push(w)})}
+    }else if(item.type==='synonym'){
+      var syn=DB.content.synonyms.find(function(x){return x.id===item.id});
+      if(syn){var w=DB.content.words.find(function(x){return x.w===syn.w});if(w&&w.cn)pool.push(w)}
+    }
+  });
+  var seen={},uniq=[];
+  pool.forEach(function(w){if(!seen[w.id]){seen[w.id]=1;uniq.push(w)}});
+  return uniq;
+}
+function startMatchGame(){
+  var pool=getMatchWordPool();
+  if(pool.length<10){
+    var extra=shuffle(DB.content.words.filter(function(w){return w.cn&&w.w})).slice(0,50);
+    pool=pool.concat(extra);
+    var seen={},uniq=[];
+    pool.forEach(function(w){if(!seen[w.id]){seen[w.id]=1;uniq.push(w)}});
+    pool=uniq;
+  }
+  if(pool.length<10){toast('词库不足，无法开始');return}
+  var allPairs=shuffle(pool).slice(0,Math.min(pool.length,50));
+  var levels=[];
+  for(var i=0;i<allPairs.length;i+=10){levels.push(allPairs.slice(i,i+10))}
+  state.match={levels:levels,currentLevel:0,matchedPairs:[],flipped:[],lock:false,completed:false,cards:null,totalPairs:allPairs.length};
+  render();
+}
+function renderMatch(main){
+  var m=state.match;
+  if(m.completed){
+    main.innerHTML='<div class="card result"><div class="big">🎉</div><h2>消消乐通关！</h2><div class="muted">共消除 '+m.totalPairs+' 对单词</div><div class="muted" style="margin-top:6px">今天状态真好，明天见！</div></div><div class="card"><button class="btn primary block" id="againBtn">再来一轮</button><button class="btn ghost block" id="homeBtn" style="margin-top:9px">返回今日关卡</button></div>';
+    $('#againBtn',main).onclick=function(){state.match=null;startMatchGame()};
+    $('#homeBtn',main).onclick=function(){state.match=null;state.view='today';render()};
+    return;
+  }
+  var level=m.levels[m.currentLevel];
+  var totalLevels=m.levels.length;
+  if(!m.cards){
+    var raw=[];
+    level.forEach(function(w,i){
+      raw.push({pair:i,type:'en',text:w.w});
+      raw.push({pair:i,type:'cn',text:w.cn});
+    });
+    m.cards=shuffle(raw);
+  }
+  var cards=m.cards;
+  var html='<div class="card"><div class="row between"><div><div style="font-size:12px;color:#6b7280;font-weight:700">🎮 单词消消乐</div><div style="font-size:18px;font-weight:800;margin-top:2px">第 '+(m.currentLevel+1)+' / '+totalLevels+' 关</div></div><button class="btn ghost" id="quitMatch" style="padding:6px 12px;min-height:36px">退出</button></div>';
+  html+='<div class="muted" style="margin-top:8px">已消除 '+m.matchedPairs.length+' / 10 对 · 点英文再点中文</div>';
+  html+='<div class="bar" style="margin-top:10px"><i style="width:'+(m.matchedPairs.length/10*100).toFixed(1)+'%"></i></div>';
+  html+='</div>';
+  html+='<div class="card"><div class="match-grid" id="matchGrid">';
+  cards.forEach(function(c,i){
+    var isMatched=(m.matchedPairs.indexOf(c.pair)>=0);
+    var isFlipped=(m.flipped.indexOf(i)>=0);
+    var cls='match-card';
+    if(isMatched)cls+=' matched';else if(isFlipped)cls+=' flipped';
+    var display=(isMatched||isFlipped)?esc(c.text):'?';
+    html+='<div class="'+cls+'" data-idx="'+i+'" data-pair="'+c.pair+'" data-type="'+c.type+'">'+display+'</div>';
+  });
+  html+='</div></div>';
+  html+='<div class="card" style="text-align:center"><div class="muted" style="font-size:12px">全部消除后自动进入下一关</div></div>';
+  main.innerHTML=html;
+  $$('#matchGrid .match-card',main).forEach(function(el){
+    el.onclick=function(){
+      if(m.lock)return;
+      var idx=+el.dataset.idx,pair=+el.dataset.pair;
+      if(m.matchedPairs.indexOf(pair)>=0)return;
+      if(m.flipped.indexOf(idx)>=0)return;
+      m.flipped.push(idx);
+      if(m.flipped.length===1){render();return}
+      if(m.flipped.length===2){
+        var a=cards[m.flipped[0]],b=cards[m.flipped[1]];
+        if(a.pair===b.pair&&a.type!==b.type){
+          m.matchedPairs.push(a.pair);m.flipped=[];
+          if(m.matchedPairs.length>=10){
+            m.currentLevel++;
+            m.matchedPairs=[];
+            m.flipped=[];
+            m.cards=null;
+            if(m.currentLevel>=m.levels.length){m.completed=true}
+          }
+          render();
+        }else{
+          m.lock=true;el.classList.add('wrong');render();
+          setTimeout(function(){m.flipped=[];m.lock=false;render()},600);
+        }
+      }
+    };
+  });
+  $('#quitMatch',main).onclick=function(){if(confirm('退出消消乐？进度不保存')){state.match=null;state.view='today';render()}};
+}
+function renderWordBank(main){
+  var R=cur(),words=DB.content.words,today=todayStr();
+  var due=words.filter(function(w){var s=R.srs[w.id];return s&&s.due<=today}).length;
+  var fresh=words.filter(function(w){return !R.srs[w.id]}).length;
+  var mastered=words.filter(function(w){var s=R.srs[w.id];return s&&s.stage>=4}).length;
+  var html='<div class="card"><h2>单词库</h2><div class="grid3" style="margin-bottom:14px"><div><div class="stat-num">'+words.length+'</div><div class="stat-lab">总量</div></div><div><div class="stat-num" style="color:#3b6df6">'+fresh+'</div><div class="stat-lab">未学</div></div><div><div class="stat-num" style="color:#f59e0b">'+due+'</div><div class="stat-lab">待复习</div></div></div><div class="grid3"><div><div class="stat-num" style="color:#10b981">'+mastered+'</div><div class="stat-lab">已掌握</div></div><div><div class="stat-num">'+DB.content.sentences.length+'</div><div class="stat-lab">例句</div></div><div><div class="stat-num">'+DB.content.synonyms.length+'</div><div class="stat-lab">同义词组</div></div></div></div>';
+  html+='<div class="card"><h2>全部单词（'+words.length+'）</h2>';
+  words.slice(0,200).forEach(function(w){var s=R.srs[w.id];var st=!s?'新':(s.due<=today?'待复习':'S'+s.stage);var stCls=!s?'badge a':(s.due<=today?'badge b':'badge');html+='<div class="list-item"><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:15px">'+esc(w.w)+' <span class="'+stCls+'">'+st+'</span></div><div class="muted" style="font-size:12.5px">'+esc(w.ph||'')+' '+esc(w.pos||'')+' '+esc(w.cn)+'</div></div><button class="spk" data-spk="'+esc(w.w)+'" style="width:36px;height:36px;font-size:15px">🔊</button></div>'});
+  if(words.length>200)html+='<div class="muted" style="margin-top:10px">（仅显示前 200 条，全部 '+words.length+' 条）</div>';
+  html+='</div>';
+  main.innerHTML=html;
+  $$('[data-spk]',main).forEach(function(b){b.onclick=function(){speak(b.dataset.spk)}});
+}
+function renderCalendar(main){
+  var myRole=DB.current, peerRole=myRole==='A'?'B':'A';
+  var myLogs=DB.roles[myRole].logs||{};
+  var peerLogs=getPeerLogs(peerRole)||{};
+  var logsA = myRole==='A'?myLogs:peerLogs;
+  var logsB = myRole==='B'?myLogs:peerLogs;
+  var statsA = myRole==='A'?roleStats(DB.roles.A):getPeerStats('A');
+  var statsB = myRole==='B'?roleStats(DB.roles.B):getPeerStats('B');
+  var ym=state.calMonth.split('-'),y=+ym[0],m=+ym[1];
+  var first=new Date(y,m-1,1),startDow=first.getDay(),daysInMonth=new Date(y,m,0).getDate(),prevDays=new Date(y,m-1,0).getDate();
+  var monthA=0,monthB=0,monthBoth=0;
+  var cells='';
+  for(var i=startDow-1;i>=0;i--)cells+='<div class="cal-cell out">'+(prevDays-i)+'</div>';
+  for(var d=1;d<=daysInMonth;d++){
+    var ds=y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var aOn=!!(logsA[ds]&&logsA[ds].answered>0);
+    var bOn=!!(logsB[ds]&&logsB[ds].answered>0);
+    if(aOn)monthA++;if(bOn)monthB++;if(aOn&&bOn)monthBoth++;
+    var cls='cal-cell';
+    if(ds===todayStr())cls+=' today';
+    if(ds===state.calSel)cls+=' sel';
+    if(aOn&&bOn)cls+=' done-both';else if(aOn)cls+=' done-a';else if(bOn)cls+=' done-b';
+    var emojis='';
+    if(aOn)emojis+='🐱';
+    if(bOn)emojis+='🐶';
+    cells+='<div class="'+cls+'" data-d="'+ds+'"><div class="dt">'+d+'</div>'+(emojis?'<div class="day-emojis">'+emojis+'</div>':'<div class="day-emojis" style="opacity:.2">·</div>')+'</div>';
+  }
+  var rest=(7-((startDow+daysInMonth)%7))%7;
+  for(var j=1;j<=rest;j++)cells+='<div class="cal-cell out">'+j+'</div>';
+  var sel=state.calSel;
+  var selA=logsA[sel],selB=logsB[sel];
+  var streakA=statsA.streak,streakB=statsB.streak;
+  var fA=fireLevel(streakA),fB=fireLevel(streakB);
+  var daysA=statsA.days,daysB=statsB.days;
+  var html='';
+  html+='<div class="card" style="padding:14px 17px"><h2 style="margin-bottom:10px">🔥 双人连续打卡</h2>';
+  html+='<div class="fire-row a"><span class="avatar-mini a">🐱</span><span class="name">'+NAMES.A+'</span><span class="fire-icon '+fA.cls+'">'+fA.icon+'</span><span class="days">'+streakA+' 天</span><div class="track"><i style="width:'+fA.bar+'%"></i></div>'+(streakA>=14?'<span class="crown">👑</span>':'')+'</div>';
+  html+='<div class="fire-row b"><span class="avatar-mini b">🐶</span><span class="name">'+NAMES.B+'</span><span class="fire-icon '+fB.cls+'">'+fB.icon+'</span><span class="days">'+streakB+' 天</span><div class="track"><i style="width:'+fB.bar+'%"></i></div>'+(streakB>=14?'<span class="crown">👑</span>':'')+'</div>';
+  html+='<div class="muted" style="font-size:12px;margin-top:8px;text-align:center">本月 '+y+'年'+m+'月 · '+NAMES.A+' '+monthA+' 天 · '+NAMES.B+' '+monthB+' 天 · 双人共 '+monthBoth+' 天</div></div>';
+  html+='<div class="card"><div class="cal-hd"><button class="btn ghost" id="prevM" style="padding:6px 12px;min-height:36px">‹</button><b>'+y+' 年 '+m+' 月</b><button class="btn ghost" id="nextM" style="padding:6px 12px;min-height:36px">›</button></div><div class="cal-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div><div class="cal-grid">'+cells+'</div>';
+  html+='<div class="row" style="justify-content:center;gap:16px;margin-top:12px;font-size:12px;color:#6b7280;font-weight:700;flex-wrap:wrap">';
+  html+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e8effe;border:1px solid #c9d8ff;margin-right:5px;vertical-align:middle"></span>🐱 阿娇</span>';
+  html+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#fef4e5;border:1px solid #ffd9a3;margin-right:5px;vertical-align:middle"></span>🐶 阿波</span>';
+  html+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#e8effe,#fef4e5);border:1px solid #d5c7ff;margin-right:5px;vertical-align:middle"></span>双打卡</span>';
+  html+='</div><div class="muted" style="margin-top:10px;text-align:center;font-size:12px">📡 '+NAMES[peerRole]+' 数据同步于 '+getPeerSyncTime(peerRole)+'</div></div>';
+  html+='<div class="card"><h2>'+sel+' 详情</h2><div class="grid2"><div><span class="badge a">'+NAMES.A+'</span><div class="stat-num" style="margin-top:6px">'+(selA?selA.answered:0)+'</div><div class="stat-lab">'+(selA?'正确率 '+Math.round(selA.right/selA.answered*100)+'%':'无记录')+'</div></div><div><span class="badge b">'+NAMES.B+'</span><div class="stat-num" style="margin-top:6px">'+(selB?selB.answered:0)+'</div><div class="stat-lab">'+(selB?'正确率 '+Math.round(selB.right/selB.answered*100)+'%':'无记录')+'</div></div></div></div>';
+  html+='<div class="grid2"><div class="card" style="background:linear-gradient(135deg,#eef4ff,#fff)"><h3>🐱 '+NAMES.A+' 累计</h3><div class="stat-num">'+daysA+' <span style="font-size:13px;color:#6b7280">天</span></div><div class="stat-lab">'+fA.icon+' 连续 '+streakA+' 天 · '+fA.label+'</div></div><div class="card" style="background:linear-gradient(135deg,#fff8ec,#fff)"><h3>🐶 '+NAMES.B+' 累计</h3><div class="stat-num">'+daysB+' <span style="font-size:13px;color:#6b7280">天</span></div><div class="stat-lab">'+fB.icon+' 连续 '+streakB+' 天 · '+fB.label+'</div></div></div>';
+  main.innerHTML=html;
+  $('#prevM',main).onclick=function(){var yy=y,mm=m-1;if(mm<1){mm=12;yy--}state.calMonth=yy+'-'+String(mm).padStart(2,'0');render()};
+  $('#nextM',main).onclick=function(){var yy=y,mm=m+1;if(mm>12){mm=1;yy++}state.calMonth=yy+'-'+String(mm).padStart(2,'0');render()};
+  $$('[data-d]',main).forEach(function(el){el.onclick=function(){state.calSel=el.dataset.d;render()}});
+}
+function renderCompare(main){
+  var myRole=DB.current,peerRole=myRole==='A'?'B':'A';
+  var A=roleStats(DB.roles.A);
+  var B=roleStats(DB.roles.B);
+  if(myRole!=='A')A=getPeerStats('A');
+  if(myRole!=='B')B=getPeerStats('B');
+  var win=function(a,b){return a>b?'a':(b>a?'b':'tie')};
+  var rows=[
+    {lab:'正确率',icon:'🎯',a:A.accuracy,b:B.accuracy,suf:'%'},
+    {lab:'累计答题',icon:'📝',a:A.answered,b:B.answered,suf:''},
+    {lab:'学习天数',icon:'📅',a:A.days,b:B.days,suf:'天'},
+    {lab:'连续打卡',icon:'🔥',a:A.streak,b:B.streak,suf:'天'},
+    {lab:'掌握单词',icon:'📚',a:A.mastered,b:B.mastered,suf:''},
+    {lab:'完整通关',icon:'🏆',a:A.completedDays,b:B.completedDays,suf:'天'}
+  ];
+  var aWin=0,bWin=0;
+  rows.forEach(function(r){var w=win(r.a,r.b);if(w==='a')aWin++;else if(w==='b')bWin++});
+  var leader=aWin>bWin?'A':(bWin>aWin?'B':null);
+  var html='<div class="vs-top-duel">';
+  html+='<div style="font-size:11px;opacity:.75;letter-spacing:2px;margin-bottom:14px">团队「波&娇」对决</div>';
+  html+='<span class="pl"><div class="av '+(leader==='A'?'lead':'')+'">🐱'+(leader==='A'?'<span class="crown">👑</span>':'')+'</div><div class="nm">'+NAMES.A+'</div><div class="score '+(leader==='A'?'gold':'')+'">'+aWin+'</div></span>';
+  html+='<span class="vs-word">VS</span>';
+  html+='<span class="pl"><div class="av '+(leader==='B'?'lead':'')+'">🐶'+(leader==='B'?'<span class="crown">👑</span>':'')+'</div><div class="nm">'+NAMES.B+'</div><div class="score '+(leader==='B'?'gold':'')+'">'+bWin+'</div></span>';
+  html+='<div class="banner '+(leader?'':'tie')+'">'+(leader==='A'?'🐱 '+NAMES.A+' 暂时领先':(leader==='B'?'🐶 '+NAMES.B+' 暂时领先':'势均力敌，继续加油'))+'</div>';
+  html+='</div>';
+  html+='<div class="card"><h2>逐项对决</h2>';
+  rows.forEach(function(r){
+    var w=win(r.a,r.b);
+    var total=r.a+r.b;
+    var pa=total>0?Math.max(r.a/total*100,0):0;
+    var pb=total>0?Math.max(r.b/total*100,0):0;
+    var leadDiff=Math.abs(r.a-r.b);
+    html+='<div class="vs-block"><div class="vs-head"><span><span class="icon">'+r.icon+'</span>'+r.lab+'</span>';
+    if(w==='tie'&&total===0)html+='<span class="muted" style="font-size:11px;font-weight:700">双方暂无数据</span>';
+    else if(w==='tie')html+='<span class="muted" style="font-size:11px;font-weight:700">双方持平</span>';
+    else html+='<span class="lead-badge">'+(w==='a'?NAMES.A:NAMES.B)+' 领先 '+leadDiff+r.suf+'</span>';
+    html+='</div><div class="vs-bar">';
+    if(r.a===0&&r.b===0){
+      html+='<div class="vs-left"><span class="vs-empty">还没开始</span></div><div class="vs-mid">VS</div><div class="vs-right"><span class="vs-empty">还没开始</span></div>';
+    }else{
+      html+='<div class="vs-left"><i class="'+(w==='a'?'win':'')+'" style="width:'+pa+'%"></i>'+(r.a>0?'<span class="vs-val">'+r.a+r.suf+'</span>':'')+'</div>';
+      html+='<div class="vs-mid">VS</div>';
+      html+='<div class="vs-right">'+(r.b>0?'<span class="vs-val">'+r.b+r.suf+'</span>':'')+'<i class="'+(w==='b'?'win':'')+'" style="width:'+pb+'%"></i></div>';
+    }
+    html+='</div></div>';
+  });
+  html+='</div>';
+  html+='<div class="card" style="text-align:center"><div class="sync-badge" style="font-size:12px;padding:6px 14px"><i></i>📡 '+NAMES[peerRole]+' 数据更新于 '+getPeerSyncTime(peerRole)+'</div></div>';
+  main.innerHTML=html;
+}
+function renderData(main){
+  var html='<div class="card"><h2>数据管理</h2><div class="muted" style="margin-bottom:10px">当前：单词 '+DB.content.words.length+' · 例句 '+DB.content.sentences.length+' · 同义词 '+DB.content.synonyms.length+' · 语法 '+DB.content.grammar.length+'</div><div class="grid2"><button class="btn ghost" id="expBtn">导出备份</button><button class="btn ghost" id="impBtn">导入备份</button></div><input type="file" id="fileIn" accept=".json" style="display:none"><button class="btn bad block" id="resetBtn" style="margin-top:10px">清空所有数据</button></div>';
+  html+='<div class="card"><h2>导入单词</h2><div class="muted" style="margin-bottom:10px">每行：单词 | 音标 | 词性 | 中文 | 例句 | 例句中文</div><textarea id="taW" placeholder="applicant | /ˈæplɪkənt/ | n. | 申请人 | ... | ..."></textarea><button class="btn primary block" id="impW" style="margin-top:10px">导入单词</button></div>';
+  html+='<div class="card"><h2>导入听力例句</h2><div class="muted" style="margin-bottom:10px">每行：英文原句 | 中文译文</div><textarea id="taT" placeholder="The shipment will be delayed. | 货物将被延迟。"></textarea><button class="btn primary block" id="impT" style="margin-top:10px">导入例句</button></div>';
+  html+='<div class="card"><h2>导入同义词</h2><div class="muted" style="margin-bottom:10px">每行：单词 | 音标 | 中文 | 同义词1;同义词2 | 例句</div><textarea id="taS" placeholder="purchase | /pɜːrtʃəs/ | 购买 | buy;acquire | ..."></textarea><button class="btn primary block" id="impS" style="margin-top:10px">导入同义词</button></div>';
+  html+='<div class="card"><h2>导入语法题</h2><div class="muted" style="margin-bottom:10px">每行：题目 | A | B | C | D | 正确序号(1-4) | 解析 | 标签(可选)</div><textarea id="taG" placeholder="All reports must be submitted ___ Friday. | by | until | since | for | 1 | by表示截止时间 | 介词"></textarea><button class="btn primary block" id="impG" style="margin-top:10px">导入语法题</button></div>';
+  main.innerHTML=html;
+  var uid=function(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+  $('#impW',main).onclick=function(){var lines=$('#taW',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.words.forEach(function(x){exist[x.w.toLowerCase()]=1});var n=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<2)return;if(exist[p[0].toLowerCase()])return;DB.content.words.push({id:uid('w'),w:p[0],ph:p[1]||'',pos:p[2]||'',cn:p[3]||p[1]||'',ex:p[4]||'',exCn:p[5]||''});exist[p[0].toLowerCase()]=1;n++});save();toast('导入 '+n+' 个单词');render()};
+  $('#impT',main).onclick=function(){var lines=$('#taT',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.sentences.forEach(function(x){exist[x.en.toLowerCase()]=1});var n=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<2)return;if(exist[p[0].toLowerCase()])return;DB.content.sentences.push({id:uid('t'),en:p[0],cn:p[1]});exist[p[0].toLowerCase()]=1;n++});save();toast('导入 '+n+' 条例句');render()};
+  $('#impS',main).onclick=function(){var lines=$('#taS',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.synonyms.forEach(function(x){exist[x.w.toLowerCase()]=1});var n=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<4)return;if(exist[p[0].toLowerCase()])return;DB.content.synonyms.push({id:uid('s'),w:p[0],ph:p[1]||'',cn:p[2],syns:(p[3]||'').split(/[;；、,，]/).map(function(s){return s.trim()}).filter(Boolean),ex:p[4]||''});exist[p[0].toLowerCase()]=1;n++});save();toast('导入 '+n+' 组同义词');render()};
+  $('#impG',main).onclick=function(){var lines=$('#taG',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var n=0,bad=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<6){bad++;return}var ans=Math.max(0,Math.min(3,(+p[5]||1)-1));DB.content.grammar.push({id:uid('g'),q:p[0],opts:[p[1],p[2],p[3],p[4]],ans:ans,ex:p[6]||'',tag:p[7]||''});n++});save();toast('导入 '+n+' 道语法题'+(bad?'（'+bad+' 行格式有误）':''));render()};
+  $('#expBtn',main).onclick=function(){var blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='toeic-backup-'+todayStr()+'.json';a.click();toast('已导出备份')};
+  $('#impBtn',main).onclick=function(){$('#fileIn',main).click()};
+  $('#fileIn',main).onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var data=JSON.parse(r.result);if(!data.roles||!data.content)throw 0;DB=data;fixDB();save();state.session=null;state.pk=null;state.onlinePK=null;state.match=null;toast('恢复成功');render()}catch(err){toast('文件格式不正确')}};r.readAsText(f)};
+  $('#resetBtn',main).onclick=function(){if(!confirm('确定清空所有数据吗？'))return;localStorage.removeItem(KEY);loadDB();state.session=null;state.pk=null;state.onlinePK=null;state.match=null;toast('已重置');render()};
+}
+function renderPK(main){
+  if(state.pk)return renderPKGame(main);
+  var onlineCard='<div class="stage" data-online-pk="1" style="background:linear-gradient(135deg,#10b981,#059669);border-color:#10b981;color:#fff"><div class="ic" style="background:#fff">🌐</div><div class="tx"><b style="color:#fff">跨设备在线PK</b><span style="color:rgba(255,255,255,.85)">两台设备，一房间，实时抢答</span></div><div class="st" style="background:#fff;color:#059669">新</div></div>';
+  var games=[{key:'quiz',icon:'⚡',name:'单词抢答赛',desc:'看英文，谁最快选出中文'},{key:'cn2en',icon:'🔤',name:'中译英对决',desc:'看中文，谁最快选出英文'},{key:'listen',icon:'🎧',name:'听音抢答',desc:'听发音，谁最快选出单词'},{key:'syn',icon:'🔗',name:'同义词对决',desc:'看单词，谁最快选出同义词'},{key:'memory',icon:'🃏',name:'记忆翻牌',desc:'英中配对，回合制翻牌'}];
+  var html='<div class="card" style="background:linear-gradient(135deg,#1e3a8a,#3b6df6);color:#fff;text-align:center"><div style="font-size:11px;opacity:.85;letter-spacing:2px">DOUBLE PLAYER</div><div style="font-size:22px;font-weight:800;margin-top:4px">双人PK</div><div style="font-size:12.5px;opacity:.85;margin-top:4px">'+NAMES.A+' vs '+NAMES.B+'</div></div>';
+  html+='<div class="card"><h2>跨设备对战</h2>'+onlineCard+'</div>';
+  html+='<div class="card"><h2>本地游戏（同一设备）</h2>';
+  games.forEach(function(g){html+='<div class="stage active" data-pk-start="'+g.key+'"><div class="ic">'+g.icon+'</div><div class="tx"><b>'+g.name+'</b><span>'+g.desc+'</span></div><div class="st">开始</div></div>'});
+  html+='</div>';
+  html+='<div class="card"><h2>玩法说明</h2><div class="tip">· 本地游戏：左右两人共用一台设备<br>· 在线PK：两台设备通过房间码连接，实时同步<br>· 抢答模式：谁先选对 +1 分，选错 -1 分并冻结自己<br>· 分高者胜</div></div>';
+  main.innerHTML=html;
+  $$('[data-pk-start]',main).forEach(function(el){el.onclick=function(){startPK(el.dataset.pkStart)}});
+  var ob=$('[data-online-pk]',main);if(ob)ob.onclick=function(){onlinePKInit()};
+}
+function renderPKGame(main){var s=state.pk;if(s.phase==='finished')return renderPKResult(main);if(s.game==='memory')return renderPKMemory(main);return renderPKQuiz(main)}
+function startPK(game){
+  if(game==='memory'){startPKMemory();return}
+  var pool=shuffle(DB.content.words).slice(0,50);if(pool.length<4){toast('词库至少需要4个单词');return}
+  state.pk={game:game,name:{quiz:'单词抢答赛',cn2en:'中译英对决',listen:'听音抢答',syn:'同义词对决'}[game],words:pool,idx:0,scoreA:0,scoreB:0,phase:'playing',frozenA:false,frozenB:false,reveal:false,question:null};
+  nextPKQuestion();render();
+}
+function nextPKQuestion(){
+  var s=state.pk;if(s.idx>=s.words.length){s.phase='finished';return}
+  var q;
+  if(s.game==='quiz'){var w=s.words[s.idx];var wrongs=shuffle(DB.content.words.filter(function(x){return x.id!==w.id})).slice(0,3).map(function(x){return x.cn});while(wrongs.length<3)wrongs.push('other'+wrongs.length);var opts=shuffle([w.cn].concat(wrongs));q={stem:w.w,ph:w.ph||'',opts:opts,ans:opts.indexOf(w.cn),speak:w.w,listen:false}}
+  else if(s.game==='cn2en'){var w2=s.words[s.idx];var wrongs2=shuffle(DB.content.words.filter(function(x){return x.id!==w2.id})).slice(0,3).map(function(x){return x.w});while(wrongs2.length<3)wrongs2.push('other'+wrongs2.length);var opts2=shuffle([w2.w].concat(wrongs2));q={stem:w2.cn,ph:'',opts:opts2,ans:opts2.indexOf(w2.w),speak:'',listen:false}}
+  else if(s.game==='listen'){var w3=s.words[s.idx];var wrongs3=shuffle(DB.content.words.filter(function(x){return x.id!==w3.id})).slice(0,3).map(function(x){return x.w});while(wrongs3.length<3)wrongs3.push('other'+wrongs3.length);var opts3=shuffle([w3.w].concat(wrongs3));q={stem:'🔊',ph:'听音频选单词',opts:opts3,ans:opts3.indexOf(w3.w),speak:w3.w,listen:true};setTimeout(function(){speak(w3.w)},300)}
+  else if(s.game==='syn'){var pool=DB.content.synonyms;if(!pool.length){toast('同义词库为空');state.pk=null;return}var syn=pool[s.idx%pool.length];var correct=syn.syns[0]||syn.cn;var wrongs4=[];pool.forEach(function(x){if(x.id!==syn.id)x.syns.forEach(function(v){if(v&&v!==correct&&syn.syns.indexOf(v)<0)wrongs4.push(v)})});wrongs4=shuffle(wrongs4.filter(function(v,i,arr){return arr.indexOf(v)===i})).slice(0,3);while(wrongs4.length<3)wrongs4.push('other'+wrongs4.length);var opts4=shuffle([correct].concat(wrongs4));q={stem:syn.w,ph:syn.ph,opts:opts4,ans:opts4.indexOf(correct),speak:syn.w,listen:false}}
+  s.question=q;s.frozenA=false;s.frozenB=false;s.reveal=false;
+}
+function pkAnswer(player,i){
+  var s=state.pk;if(s.reveal)return;if(player==='A'&&s.frozenA)return;if(player==='B'&&s.frozenB)return;
+  var isCorrect=i===s.question.ans;
+  if(isCorrect){if(player==='A')s.scoreA++;else s.scoreB++;s.reveal=true;setTimeout(function(){s.idx++;nextPKQuestion();render()},1400)}
+  else{if(player==='A'){s.scoreA--;s.frozenA=true}else{s.scoreB--;s.frozenB=true}if(s.frozenA&&s.frozenB){s.reveal=true;setTimeout(function(){s.idx++;nextPKQuestion();render()},1400)}}
+  render();
+}
+function renderPKQuiz(main){
+  var s=state.pk,q=s.question;if(!q)return;
+  var html='<div class="card" style="background:linear-gradient(135deg,#1e3a8a,#3b6df6);color:#fff;padding:14px 17px"><div class="row" style="justify-content:space-between;align-items:center"><div style="text-align:center;flex:1"><div style="font-size:11px;opacity:.85">'+NAMES.A+'</div><div style="font-size:32px;font-weight:800;line-height:1.1">'+s.scoreA+'</div></div><div style="text-align:center;flex:1.2"><div style="font-size:11px;opacity:.85">第 '+(s.idx+1)+' / '+s.words.length+'</div><div style="font-size:13px;opacity:.95;font-weight:700">🎮 '+s.name+'</div></div><div style="text-align:center;flex:1"><div style="font-size:11px;opacity:.85">'+NAMES.B+'</div><div style="font-size:32px;font-weight:800;line-height:1.1">'+s.scoreB+'</div></div></div></div>';
+  html+='<div class="card" style="text-align:center;padding:22px 17px"><div style="font-size:11px;color:#6b7280;font-weight:700">抢答！选对 +1 分，选错 -1 分并冻结</div>';
+  if(q.listen)html+='<button class="spk center" id="pkSpeak" style="width:64px;height:64px;font-size:26px;margin:14px auto">🔊</button>';
+  else html+='<div style="font-size:'+(s.game==='cn2en'?'28px':'38px')+';font-weight:800;margin:14px 0 6px;word-break:break-word;color:'+(s.game==='cn2en'?'#3b6df6':'#111827')+'">'+esc(q.stem)+'</div>';
+  if(q.ph&&!q.listen)html+='<div style="font-size:14px;color:#6b7280">'+esc(q.ph)+'</div>';
+  if(s.reveal)html+='<div style="margin-top:14px;font-size:15px;color:#10b981;font-weight:700">✅ 正确答案：'+esc(q.opts[q.ans])+'</div>';
+  html+='</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html+=renderPKPlayer('A',q,s);html+=renderPKPlayer('B',q,s);
+  html+='</div>';
+  html+='<div class="card" style="padding:11px 17px"><button class="btn ghost block" id="pkQuit">退出游戏</button></div>';
+  main.innerHTML=html;
+  var spk=$('#pkSpeak',main);if(spk)spk.onclick=function(){speak(q.speak)};
+  $$('[data-pk-player]',main).forEach(function(el){el.onclick=function(){pkAnswer(el.dataset.pkPlayer,+el.dataset.pkOpt)}});
+  $('#pkQuit',main).onclick=function(){if(confirm('确定退出本局吗？')){state.pk=null;render()}};
+}
+function renderPKPlayer(player,q,s){
+  var frozen=player==='A'?s.frozenA:s.frozenB;var color=player==='A'?'#3b6df6':'#f59e0b';var bg=player==='A'?'#e8effe':'#fef4e5';
+  var html='<div style="background:'+bg+';border:2px solid '+color+';border-radius:14px;padding:12px">';
+  html+='<div style="text-align:center;font-weight:800;color:'+color+';margin-bottom:10px;font-size:14px">'+NAMES[player]+(frozen?' ❄️':'')+'</div>';
+  q.opts.forEach(function(o,i){var cls='opt';if(s.reveal&&i===q.ans)cls+=' right';var st='padding:10px 12px;font-size:13px;margin-bottom:7px;border-radius:10px;background:#fff';if(frozen)st+=';opacity:.4;pointer-events:none';html+='<div class="'+cls+'" data-pk-player="'+player+'" data-pk-opt="'+i+'" style="'+st+'"><div class="k" style="width:20px;height:20px;font-size:11px">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
+  html+='</div>';return html;
+}
+function renderPKResult(main){
+  var s=state.pk;
+  var total = s.words ? s.words.length : (s.cards ? s.cards.length/2 : 0);
+  var unit = s.game==='memory' ? '对' : '题';
+  var winner=s.scoreA>s.scoreB?NAMES.A:(s.scoreB>s.scoreA?NAMES.B:'平局');
+  var emoji=s.scoreA>s.scoreB?'🏆':(s.scoreB>s.scoreA?'🏆':'🤝');
+  var html='<div class="card result"><div class="big">'+emoji+'</div>';
+  if(winner==='平局')html+='<h2 style="margin-top:8px">平局！</h2>';
+  else html+='<h2 style="margin-top:8px">'+winner+' 获胜！</h2>';
+  html+='<div class="mini-stats"><div><b style="color:#3b6df6">'+s.scoreA+'</b>'+NAMES.A+'</div><div><b style="color:#f59e0b">'+s.scoreB+'</b>'+NAMES.B+'</div></div>';
+  html+='<div class="muted">共 '+total+' '+unit+' · '+s.name+'</div></div>';
+  html+='<div class="card"><button class="btn primary block" id="pkAgain">再来一局</button><button class="btn ghost block" id="pkBack" style="margin-top:9px">返回游戏菜单</button><button class="btn ghost block" id="pkHome" style="margin-top:9px">返回今日关卡</button></div>';
+  main.innerHTML=html;
+  $('#pkAgain',main).onclick=function(){startPK(s.game)};
+  $('#pkBack',main).onclick=function(){state.pk=null;render()};
+  $('#pkHome',main).onclick=function(){state.pk=null;state.view='today';render()};
+}
+function startPKMemory(){
+  var pool=shuffle(DB.content.words).slice(0,8);if(pool.length<8){toast('词库至少需要8个单词');return}
+  var cards=[];pool.forEach(function(w,i){cards.push({pair:i,type:'en',text:w.w,matched:false,flipped:false});cards.push({pair:i,type:'cn',text:w.cn,matched:false,flipped:false})});
+  cards=shuffle(cards);
+  state.pk={game:'memory',name:'记忆翻牌',cards:cards,scoreA:0,scoreB:0,turn:'A',first:null,lock:false,phase:'playing'};
+  render();
+}
+function renderPKMemory(main){
+  var s=state.pk;var totalPairs=s.cards.length/2;var donePairs=s.cards.filter(function(c){return c.matched}).length/2;
+  if(donePairs>=totalPairs){s.phase='finished';render();return}
+  var html='<div class="card" style="background:linear-gradient(135deg,#1e3a8a,#3b6df6);color:#fff;padding:14px 17px"><div class="row" style="justify-content:space-between;align-items:center"><div style="text-align:center;flex:1"><div style="font-size:11px;opacity:.85">'+NAMES.A+'</div><div style="font-size:28px;font-weight:800">'+s.scoreA+'</div></div><div style="text-align:center;flex:1.2"><div style="font-size:11px;opacity:.85">已配对 '+donePairs+' / '+totalPairs+'</div><div style="font-size:13px;font-weight:700;margin-top:2px">🃏 记忆翻牌</div></div><div style="text-align:center;flex:1"><div style="font-size:11px;opacity:.85">'+NAMES.B+'</div><div style="font-size:28px;font-weight:800">'+s.scoreB+'</div></div></div></div>';
+  html+='<div class="card"><div style="text-align:center;margin-bottom:12px;font-weight:800;color:'+(s.turn==='A'?'#3b6df6':'#f59e0b')+'">轮到 '+NAMES[s.turn]+' 翻牌</div>';
+  html+='<div class="mem-grid">';
+  s.cards.forEach(function(c,i){var cls='mem-card';if(c.matched)cls+=' matched';else if(c.flipped)cls+=' flipped';var display=(c.flipped||c.matched)?esc(c.text):'?';html+='<div class="'+cls+'" data-mem="'+i+'">'+display+'</div>'});
+  html+='</div></div>';
+  html+='<div class="card" style="padding:11px 17px"><button class="btn ghost block" id="memQuit">退出游戏</button></div>';
+  main.innerHTML=html;
+  $$('[data-mem]',main).forEach(function(el){el.onclick=function(){memFlip(+el.dataset.mem)}});
+  $('#memQuit',main).onclick=function(){if(confirm('退出本局？')){state.pk=null;render()}};
+}
+function memFlip(i){
+  var s=state.pk;if(s.lock)return;var c=s.cards[i];if(c.matched||c.flipped)return;
+  c.flipped=true;
+  if(s.first===null){s.first=i;render();return}
+  var first=s.cards[s.first];
+  if(first.pair===c.pair){first.matched=true;c.matched=true;if(s.turn==='A')s.scoreA++;else s.scoreB++;s.first=null;render()}
+  else{s.lock=true;render();setTimeout(function(){first.flipped=false;c.flipped=false;s.first=null;s.lock=false;s.turn=s.turn==='A'?'B':'A';render()},1000)}
+}
+/* ===== 在线PK ===== */
+function onlinePKInit(){
+  state.onlinePK={status:'idle',role:null,roomCode:null,myPlayer:'A',mqttClient:null,words:[],total:0,idx:0,currentQ:null,myAnswer:null,opponentAnswer:null,scoreA:0,scoreB:0,reveal:false};
+  render();
+}
+function renderOnlinePK(main){var s=state.onlinePK;if(s.status==='idle')return renderOnlineIdle(main);if(s.status==='connecting')return renderOnlineConnecting(main);if(s.status==='waiting')return renderOnlineWaiting(main);if(s.status==='playing')return renderOnlinePlaying(main);if(s.status==='finished')return renderOnlineFinished(main)}
+function renderOnlineIdle(main){
+  var html='<div class="card" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff"><div style="font-size:11px;opacity:.85;letter-spacing:2px">ONLINE BATTLE</div><div style="font-size:22px;font-weight:800;margin-top:4px">跨设备在线PK</div><div style="font-size:12.5px;opacity:.9;margin-top:6px">一台创建房间，另一台输房间码加入。50题实时抢答。</div></div>';
+  html+='<div class="card"><h2>创建房间</h2><div class="muted" style="margin-bottom:12px">你是 '+NAMES[DB.current]+'</div><button class="btn primary block" id="createRoom">🌐 创建房间</button></div>';
+  html+='<div class="card"><h2>加入房间</h2><div class="muted" style="margin-bottom:10px">输入对方给你的 6 位房间码</div><input id="roomInput" placeholder="例如：A8K3F2" maxlength="6" style="text-transform:uppercase;font-size:22px;text-align:center;letter-spacing:6px;font-weight:800"><button class="btn ok block" id="joinRoom" style="margin-top:10px">🔗 加入房间</button></div>';
+  html+='<div class="card"><div class="tip">⚠️ 两台设备需要联网。房间码由创建方发给加入方。游戏期间请保持页面打开。</div></div>';
+  html+='<div class="card"><button class="btn ghost block" id="backToPkMenu">返回游戏菜单</button></div>';
+  main.innerHTML=html;
+  $('#createRoom',main).onclick=function(){onlinePKHost()};
+  $('#joinRoom',main).onclick=function(){var code=$('#roomInput',main).value.trim().toUpperCase();if(code.length!==6){toast('请输入 6 位房间码');return}onlinePKJoin(code)};
+  $('#backToPkMenu',main).onclick=function(){state.onlinePK=null;render()};
+}
+function genRoomCode(){var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';var s='';for(var i=0;i<6;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s}
+function mqttConnect(roomCode,onMessage,onConnected,onError){
+  if(typeof mqtt==='undefined'){onError&&onError('MQTT库加载失败');return null}
+  var clientId='toeic_'+Math.random().toString(16).slice(2,12);
+  var topic=PK_TOPIC_PREFIX+roomCode;
+  var client=mqtt.connect('wss://broker.emqx.io:8084/mqtt',{clientId:clientId,clean:true,connectTimeout:10000,reconnectPeriod:0});
+  client.on('connect',function(){client.subscribe(topic,{qos:0},function(err){if(err){onError&&onError('订阅失败');return}onConnected&&onConnected()})});
+  client.on('message',function(topic,payload){try{var msg=JSON.parse(payload.toString());onMessage&&onMessage(msg)}catch(e){}});
+  client.on('error',function(err){onError&&onError('连接错误：'+(err.message||err))});
+  return client;
+}
+function sendMsg(msg){var s=state.onlinePK;if(!s||!s.mqttClient)return;s.mqttClient.publish(PK_TOPIC_PREFIX+s.roomCode,JSON.stringify(msg),{qos:0})}
+function onlinePKHost(){
+  var s=state.onlinePK;var code=genRoomCode();s.roomCode=code;s.role='host';s.myPlayer='A';s.status='connecting';render();
+  var client=mqttConnect(code,function(msg){onHostMessage(msg)},function(){s.status='waiting';render()},function(err){s.error=err;s.status='idle';toast(err);render()});
+  s.mqttClient=client;
+}
+function onlinePKJoin(code){
+  var s=state.onlinePK;s.roomCode=code;s.role='client';s.myPlayer='B';s.status='connecting';render();
+  var client=mqttConnect(code,function(msg){onClientMessage(msg)},function(){sendMsg({type:'join',name:NAMES[DB.current]});s.status='waiting';render()},function(err){s.error=err;s.status='idle';toast(err);render()});
+  s.mqttClient=client;
+}
+function onHostMessage(msg){
+  var s=state.onlinePK;if(!s)return;
+  if(msg.type==='join'){sendMsg({type:'welcome',name:NAMES[DB.current]});setTimeout(function(){startOnlineGame()},800);render()}
+  else if(msg.type==='answer'){if(msg.idx!==s.idx||s.reveal)return;if(s.opponentAnswer===null)s.opponentAnswer=msg.choice;checkOnlineBothAnswered()}
+}
+function onClientMessage(msg){
+  var s=state.onlinePK;if(!s)return;
+  if(msg.type==='welcome'){
+    render();
+  }else if(msg.type==='start'){
+    s.total=msg.total||0;
+    if(!s.words||!s.words.length)s.words=new Array(s.total);
+    s.status='playing';
+    s.idx=0;s.scoreA=0;s.scoreB=0;
+    render();
+  }else if(msg.type==='question'){
+    s.idx=msg.idx;
+    s.total=s.total||msg.total||0;
+    if(!s.words||!s.words.length)s.words=new Array(s.total||(msg.idx+1));
+    s.currentQ={stem:msg.stem,ph:msg.ph||'',opts:msg.opts,ans:msg.ans,listen:msg.listen,speak:msg.speak};
+    s.myAnswer=null;s.opponentAnswer=null;s.reveal=false;
+    s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;
+    s.status='playing';
+    if(msg.listen)setTimeout(function(){speak(msg.speak)},300);
+    render();
+  }else if(msg.type==='result'){
+    s.reveal=true;s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;render();
+  }else if(msg.type==='finish'){
+    s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;s.status='finished';render();
+  }
+}
+function startOnlineGame(){
+  var s=state.onlinePK;var pool=shuffle(DB.content.words).slice(0,50);if(pool.length<4){toast('词库至少需要4个单词');return}
+  s.words=pool;s.idx=0;s.scoreA=0;s.scoreB=0;s.total=pool.length;s.status='playing';
+  sendMsg({type:'start',total:s.total});
+  setTimeout(function(){sendNextOnlineQuestion()},500);
+  render();
+}
+function sendNextOnlineQuestion(){
+  var s=state.onlinePK;
+  if(s.idx>=s.words.length){sendMsg({type:'finish',scoreA:s.scoreA,scoreB:s.scoreB});s.status='finished';render();return}
+  var w=s.words[s.idx];var wrongs=shuffle(DB.content.words.filter(function(x){return x.id!==w.id})).slice(0,3).map(function(x){return x.cn});while(wrongs.length<3)wrongs.push('other'+wrongs.length);var opts=shuffle([w.cn].concat(wrongs));
+  var q={stem:w.w,ph:w.ph||'',opts:opts,ans:opts.indexOf(w.cn),listen:false,speak:w.w};
+  s.currentQ=q;s.myAnswer=null;s.opponentAnswer=null;s.reveal=false;
+  sendMsg({type:'question',idx:s.idx,total:s.words.length,stem:q.stem,ph:q.ph,opts:q.opts,ans:q.ans,listen:false,speak:q.speak,scoreA:s.scoreA,scoreB:s.scoreB});
+  render();
+}
+function onlineAnswer(player,choice){
+  var s=state.onlinePK;if(!s||s.reveal)return;
+  var isMe=(player===s.myPlayer);
+  if(isMe){
+    if(s.myAnswer!==null)return;
+    s.myAnswer=choice;
+  }else{
+    if(s.opponentAnswer!==null)return;
+    s.opponentAnswer=choice;
+  }
+  if(s.role==='client' && isMe){
+    sendMsg({type:'answer',idx:s.idx,choice:choice});
+  }
+  checkOnlineBothAnswered();
+  render();
+}
+function checkOnlineBothAnswered(){
+  var s=state.onlinePK;if(s.role!=='host')return;if(s.myAnswer===null||s.opponentAnswer===null)return;
+  var q=s.currentQ;var aRight=s.myAnswer===q.ans;var bRight=s.opponentAnswer===q.ans;
+  if(aRight&&!bRight)s.scoreA++;else if(bRight&&!aRight)s.scoreB++;else if(aRight&&bRight){s.scoreA++;s.scoreB++}
+  s.reveal=true;
+  sendMsg({type:'result',idx:s.idx,correctIdx:q.ans,scoreA:s.scoreA,scoreB:s.scoreB});
+  render();
+  setTimeout(function(){s.idx++;if(s.idx>=s.words.length){sendMsg({type:'finish',scoreA:s.scoreA,scoreB:s.scoreB});s.status='finished';render();return}sendNextOnlineQuestion()},1800);
+}
+function renderOnlineConnecting(main){main.innerHTML='<div class="card" style="text-align:center;padding:40px 20px"><div style="font-size:48px">🌐</div><h2 style="margin-top:12px">正在连接服务器...</h2><div class="muted">房间码：<b style="font-size:20px;letter-spacing:3px;color:#3b6df6">'+state.onlinePK.roomCode+'</b></div></div>'}
+function renderOnlineWaiting(main){
+  var s=state.onlinePK;
+  var html='<div class="card" style="text-align:center;padding:30px 20px"><div style="font-size:48px">🎮</div><h2 style="margin-top:12px">等待对手加入</h2><div style="margin:20px 0"><div class="muted" style="margin-bottom:8px">把房间码发给对方</div><div style="font-size:38px;font-weight:800;letter-spacing:8px;color:#10b981;background:#f0fdf4;padding:16px;border-radius:16px;border:2px dashed #10b981">'+s.roomCode+'</div></div><button class="btn ghost" id="copyCode" style="margin-bottom:12px">📋 复制房间码</button><div class="muted" style="margin-top:14px">对方打开网页 → 双人PK → 跨设备在线PK → 输入房间码</div></div>';
+  html+='<div class="card"><button class="btn bad block" id="cancelOnline">取消</button></div>';
+  main.innerHTML=html;
+  $('#copyCode',main).onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(s.roomCode);toast('房间码已复制：'+s.roomCode)};
+  $('#cancelOnline',main).onclick=function(){if(s.mqttClient)s.mqttClient.end();state.onlinePK=null;render()};
+}
+function renderOnlinePlaying(main){
+  var s=state.onlinePK,q=s.currentQ;
+  if(!q){main.innerHTML='<div class="card" style="text-align:center;padding:40px 20px"><div style="font-size:40px">⏳</div><div class="muted" style="margin-top:10px">准备中...</div></div>';return}
+  var total=s.total||(s.words?s.words.length:0);
+  var html='<div class="card" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:14px 17px"><div class="row" style="justify-content:space-between;align-items:center"><div style="text-align:center;flex:1"><div style="font-size:11px;opacity:.85">'+NAMES.A+'</div><div style="font-size:32px;font-weight:800;line-height:1.1">'+s.scoreA+'</div></div><div style="text-align:center;flex:1.3"><div style="font-size:11px;opacity:.85">房间 '+s.roomCode+'</div><div style="font-size:13px;opacity:.95;font-weight:700;margin-top:2px">第 '+(s.idx+1)+' / '+total+'</div></div><div style="text-align:center;flex:1"><div style="font-size:11px;opacity:.85">'+NAMES.B+'</div><div style="font-size:32px;font-weight:800;line-height:1.1">'+s.scoreB+'</div></div></div></div>';
+  html+='<div class="card" style="text-align:center;padding:22px 17px"><div style="font-size:11px;color:#6b7280;font-weight:700">抢答！谁先选对谁得分</div><div style="font-size:36px;font-weight:800;margin:14px 0 6px;word-break:break-word">'+esc(q.stem)+'</div>';
+  if(q.ph)html+='<div style="font-size:14px;color:#6b7280">'+esc(q.ph)+'</div>';
+  if(s.reveal)html+='<div style="margin-top:14px;font-size:15px;color:#10b981;font-weight:700">✅ 正确答案：'+esc(q.opts[q.ans])+'</div>';
+  html+='</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html+=renderOnlinePlayerArea('A',q,s);html+=renderOnlinePlayerArea('B',q,s);
+  html+='</div>';
+  html+='<div class="card" style="padding:11px 17px"><button class="btn ghost block" id="onlineQuit">退出对战</button></div>';
+  main.innerHTML=html;
+  $$('[data-online-player]',main).forEach(function(el){el.onclick=function(){onlineAnswer(el.dataset.onlinePlayer,+el.dataset.onlineOpt)}});
+  $('#onlineQuit',main).onclick=function(){if(confirm('退出对战？')){if(s.mqttClient)s.mqttClient.end();state.onlinePK=null;render()}};
+}
+function renderOnlinePlayerArea(player,q,s){
+  var color=player==='A'?'#3b6df6':'#f59e0b';
+  var bg=player==='A'?'#e8effe':'#fef4e5';
+  var ans=(player===s.myPlayer)?s.myAnswer:s.opponentAnswer;
+  var name=player==='A'?NAMES.A:NAMES.B;
+  var isMe=(player===s.myPlayer);
+  var html='<div style="background:'+bg+';border:2px solid '+color+';border-radius:14px;padding:12px">';
+  html+='<div style="text-align:center;font-weight:800;color:'+color+';margin-bottom:10px;font-size:14px">'+name+(isMe?' 👈':'')+'</div>';
+  q.opts.forEach(function(o,i){
+    var cls='opt';
+    if(s.reveal&&i===q.ans)cls+=' right';
+    else if(s.reveal&&ans===i&&i!==q.ans)cls+=' wrong';
+    var st='padding:10px 12px;font-size:13px;margin-bottom:7px;border-radius:10px;background:#fff';
+    if(!isMe)st+=';pointer-events:none;opacity:.85';
+    if(isMe&&ans!==null)st+=';pointer-events:none';
+    if(s.reveal)st+=';pointer-events:none';
+    html+='<div class="'+cls+'" data-online-player="'+player+'" data-online-opt="'+i+'" style="'+st+'"><div class="k" style="width:20px;height:20px;font-size:11px">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>';
+  });
+  html+='</div>';return html;
+}
+function renderOnlineFinished(main){
+  var s=state.onlinePK;
+  var total=s.total||(s.words?s.words.length:0);
+  var winner=s.scoreA>s.scoreB?NAMES.A:(s.scoreB>s.scoreA?NAMES.B:'平局');var emoji=s.scoreA>s.scoreB?'🏆':(s.scoreB>s.scoreA?'🏆':'🤝');
+  var html='<div class="card result"><div class="big">'+emoji+'</div>';
+  if(winner==='平局')html+='<h2 style="margin-top:8px">平局！</h2>';else html+='<h2 style="margin-top:8px">'+winner+' 获胜！</h2>';
+  html+='<div class="mini-stats"><div><b style="color:#3b6df6">'+s.scoreA+'</b>'+NAMES.A+'</div><div><b style="color:#f59e0b">'+s.scoreB+'</b>'+NAMES.B+'</div></div>';
+  html+='<div class="muted">共 '+total+' 题 · 跨设备在线对战</div></div>';
+  html+='<div class="card"><button class="btn primary block" id="pkAgain2">再来一局</button><button class="btn ghost block" id="pkBack2" style="margin-top:9px">返回游戏菜单</button></div>';
+  main.innerHTML=html;
+  $('#pkAgain2',main).onclick=function(){if(s.mqttClient)s.mqttClient.end();state.onlinePK=null;onlinePKInit()};
+  $('#pkBack2',main).onclick=function(){if(s.mqttClient)s.mqttClient.end();state.onlinePK=null;render()};
+}
+$$('#roles button').forEach(function(b){b.onclick=function(){
+  DB.current=b.dataset.r;save();
+  state.session=null;state.pk=null;state.onlinePK=null;state.match=null;
+  render();
+  if(syncClient){try{syncClient.end()}catch(e){}syncClient=null}
+  if(syncTimer){clearInterval(syncTimer);syncTimer=null}
+  initSync();
+}});
+$$('#tabs button').forEach(function(b){b.onclick=function(){state.view=b.dataset.v;state.session=null;state.pk=null;state.onlinePK=null;state.match=null;render()}});
+$$('#login .player').forEach(function(el){el.onclick=function(){DB.current=el.dataset.r;save();$('#login').style.display='none';render();initSync()}});
+
+/* 战报关闭按钮 */
+document.addEventListener('click',function(e){
+  if(e.target&&e.target.id==='reportClose'){
+    var el=$('#reportModal');if(el)el.classList.remove('show');
+  }
+},true);
+
+/* ===== 启动：每次都显示登录页，让用户选角色 ===== */
+loadDB();
+render();
+initSync();
+</script>
+</body>
+</html>
