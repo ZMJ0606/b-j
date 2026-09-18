@@ -12,7 +12,6 @@
 html,body{margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;padding-bottom:40px}
 .wrap{max-width:820px;margin:0 auto;padding:0 14px}
-/* 补丁2：iPhone 刘海安全区域 */
 header{background:linear-gradient(135deg,#1e3a8a,#3b6df6);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 0 12px;position:sticky;top:0;z-index:60}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .logo{font-weight:800;font-size:17px}
@@ -43,8 +42,6 @@ h3{font-size:13px;margin:0 0 6px;font-weight:800;color:var(--muted)}
 .btn.warn{background:#f59e0b;color:#fff}
 .btn.ghost{background:transparent;border:1.5px solid var(--line);color:#4b5563}
 .btn.block{width:100%;display:flex}
-
-/* ===== 阶段卡片：统一浅色底 ===== */
 .stage{display:flex;align-items:center;gap:12px;padding:13px;border-radius:14px;background:#f8faff;border:1.5px solid var(--line);margin-bottom:10px;cursor:pointer;min-height:66px}
 .stage.done{background:#f8faff;border-color:#b7ecd6}
 .stage.active{background:#fff;border-color:var(--line)}
@@ -56,9 +53,7 @@ h3{font-size:13px;margin:0 0 6px;font-weight:800;color:var(--muted)}
 .stage .st{font-size:11px;font-weight:800;padding:4px 11px;border-radius:99px;background:#eef1f7;color:#6b7280;white-space:nowrap}
 .stage.done .st{background:var(--ok);color:#fff}
 .stage.active .st{background:var(--A);color:#fff}
-.stage.done .ic{background:#fff}
 .stage.done .st::before{content:'✓ '}
-
 .pbar{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:8px}
 .bar{height:6px;background:#eef1f7;border-radius:99px;overflow:hidden;margin-bottom:18px}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,#3b6df6,#7ba4ff);border-radius:99px;transition:.3s}
@@ -92,14 +87,20 @@ h3{font-size:13px;margin:0 0 6px;font-weight:800;color:var(--muted)}
 .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px}
 .cal-week span{text-align:center;font-size:11px;color:var(--muted);font-weight:700}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.cal-cell{aspect-ratio:1;border-radius:11px;background:#f7f9fc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12.5px;font-weight:700;color:#4b5563;cursor:pointer;min-height:36px}
+.cal-cell{aspect-ratio:1;border-radius:11px;background:#f7f9fc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12.5px;font-weight:700;color:#4b5563;cursor:pointer;min-height:36px;position:relative;overflow:hidden}
 .cal-cell.out{opacity:.3;cursor:default}
 .cal-cell.today{outline:2px solid var(--A);outline-offset:-2px}
-.cal-cell.sel{background:#e8effe}
+.cal-cell.sel{outline:2px solid var(--A);outline-offset:-2px}
 .cal-cell .dots{display:flex;gap:3px}
 .cal-cell .dots i{width:6px;height:6px;border-radius:50%;background:#e2e7ef;display:block}
 .cal-cell .dots i.a.on{background:var(--A)}
 .cal-cell .dots i.b.on{background:var(--B)}
+.cal-cell.done-a{background:#e8effe;border:1px solid #c9d8ff}
+.cal-cell.done-b{background:#fef4e5;border:1px solid #ffd9a3}
+.cal-cell.done-both{background:linear-gradient(135deg,#e8effe 0%,#fef4e5 100%);border:1px solid #d5c7ff;font-weight:800}
+.cal-cell.today{animation:pulseToday 2.2s infinite}
+@keyframes pulseToday{0%,100%{box-shadow:0 0 0 0 rgba(59,109,246,.55)}50%{box-shadow:0 0 0 8px rgba(59,109,246,0)}}
+.cal-cell .day-emojis{display:flex;gap:1px;justify-content:center;font-size:12px;line-height:1;margin-top:1px;letter-spacing:-2px}
 .badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:800}
 .badge.a{background:#e8effe;color:var(--A)}
 .badge.b{background:#fef4e5;color:#b45309}
@@ -113,7 +114,6 @@ h3{font-size:13px;margin:0 0 6px;font-weight:800;color:var(--muted)}
 .mini-stats b{display:block;font-size:20px;font-weight:800}
 .list-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .list-item:last-child{border-bottom:none}
-/* 补丁1：输入框改为 16px，避免 iOS 放大页面 */
 textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:16px;outline:none;background:#fbfcfe;min-height:110px;resize:vertical;line-height:1.7}
 input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:16px;outline:none;background:#fbfcfe}
 #toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);background:rgba(17,24,39,.94);color:#fff;padding:12px 22px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.28s;z-index:999;font-weight:700;max-width:86vw;text-align:center}
@@ -174,20 +174,13 @@ input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:12px;pa
 .fire-row.a .track i{background:linear-gradient(90deg,#6f9bff,#3b6df6)}
 .fire-row.b .track i{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
 .fire-row .crown{font-size:16px;margin-left:2px}
-.cal-cell{position:relative;overflow:hidden}
-.cal-cell.done-a{background:#e8effe;border:1px solid #c9d8ff}
-.cal-cell.done-b{background:#fef4e5;border:1px solid #ffd9a3}
-.cal-cell.done-both{background:linear-gradient(135deg,#e8effe 0%,#fef4e5 100%);border:1px solid #d5c7ff;font-weight:800}
-.cal-cell.today{animation:pulseToday 2.2s infinite}
-@keyframes pulseToday{0%,100%{box-shadow:0 0 0 0 rgba(59,109,246,.55)}50%{box-shadow:0 0 0 8px rgba(59,109,246,0)}}
-.cal-cell .day-emojis{display:flex;gap:1px;justify-content:center;font-size:12px;line-height:1;margin-top:1px;letter-spacing:-2px}
-.cal-cell.sel{outline:2px solid var(--A);outline-offset:-2px}
 .stage.theme-1{--tc:#3b6df6}
 .stage.theme-2{--tc:#10b981}
 .stage.theme-3{--tc:#8b5cf6}
 .stage.theme-4{--tc:#f59e0b}
 .stage.theme-5{--tc:#06b6d4}
 .stage.theme-6{--tc:#ec4899}
+.stage.theme-7{--tc:#ef4444}
 .stage[class*="theme-"]{border-left:4px solid var(--tc);background:#f8faff}
 .stage.done[class*="theme-"]{background:#f8faff}
 .stage.active[class*="theme-"]{background:#fff;border-color:var(--line);border-left-color:var(--tc);box-shadow:0 4px 16px -6px rgba(0,0,0,.08)}
@@ -303,7 +296,6 @@ input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:12px;pa
 </div></div>
 
 <main><div class="wrap" id="main"></div></main>
-
 <script>
 function $(s,r){return (r||document).querySelector(s)}
 function $$(s,r){return [...(r||document).querySelectorAll(s)]}
@@ -324,49 +316,113 @@ var STAGES=[
   {key:'build',icon:'🧩',name:'阶段3 · 拼句子',desc:'20 句自主拼句'},
   {key:'synonym',icon:'🔗',name:'阶段4 · 同义词替换',desc:'20 组同义选择'},
   {key:'listening',icon:'🎧',name:'阶段5 · 听力例句',desc:'20 句打卡'},
-  {key:'grammar',icon:'✏️',name:'阶段6 · 语法词汇',desc:'20 道托业真题'}
+  {key:'grammar',icon:'✏️',name:'阶段6 · 语法词汇',desc:'20 道托业真题'},
+  {key:'phrases',icon:'📚',name:'阶段7 · 词组搭配',desc:'20 题词组填空'}
 ];
 
-var WORDS_RAW='appointment|||约会，约定\nattendance|||出席人数；出席\ncabinet|||橱柜\ncalendar|||日历；月历\nclerk|||办事员\nmonitor|||检测；监视\npartition|||分隔\npostage|||邮费\npunctuality|||准时\nschedule|||时间表\nshift|||换班；轮班\nstaff|||全体职员\nstrike|||罢工\ntask|||工作，任务\nwork force|||劳动人口\nassignment|||分配；工作\nbulletin|||公报；告示\ncalculator|||计算器\ncarbon copy|||复写副本\ncolleague|||同事\ndocument|||文件\nextension|||分机；延期\nintercom|||对讲机\nmemo|||备忘录\noperator|||接线生\novertime|||加班\nportfolio|||公事包\nreceptionist|||接待员\nsecretary|||秘书\nstapler|||订书机\nallocate|||分配\nauthorize|||授权\nbonus|||奖金\ncapability|||能力\ncollaboration|||合作\ncurriculum vitae|||履历\neligible|||合格的\nemployer|||雇主\nexecutive|||行政人员\nincome|||收入\nlay off|||解雇\noccupation|||职业\npermanent|||永久的\npromote|||升迁；促销\nrecruit|||征募\nresume|||履历表\nsalary|||薪水\nappoint|||任命\nbenefit|||受益\ncandidate|||候选人\ncertificate|||证书\ncompetent|||有能力的\ncoordinate|||协调\ndeadline|||截至期限\nemployee|||受雇者\nevaluation|||评价\nexpertise|||专门技术\ninterview|||面谈\npension|||养老金\npersonnel|||人事部门\nrecommendation|||推荐\nresign|||辞职\nretire|||退休\nsubstitute|||代理人\nacquisition|||获得\namplify|||放大；加强\nasset|||优点；长处\ncorporation|||公司\ncutback|||减少\nenterprise|||企业\nfranchise|||经销权\nlaunch|||开办；发起\nmonopoly|||垄断\nphase|||阶段\nproposition|||提案\nrival|||竞争者\nsubsidiary|||子公司\nacquire|||获得\nassess|||评估\nbenchmark|||基准\ncarry out|||执行\ncut down|||削减\nentrepreneur|||企业家\nexpand|||扩张\nfirm|||公司\nintegrate|||整合\nmerger|||合并\npending|||待决定的\npreliminary|||初步的\npropose|||提议\nprosperity|||繁荣\nscheme|||计划\nthrive|||兴旺\naccount|||帐户\nbalance|||余额\nbond|||债券\ncredit|||信用\ndebt|||债务\ndeficit|||赤字\nendorse|||背书；支持\nexempt|||豁免的\nexpense|||消费\ninflation|||通货膨胀\nprofit|||利润\nrevenue|||收益\nstock|||股票\nwithdrawal|||提款\naccountant|||会计师\nbankrupt|||破产的\ncapital|||资金\nconvert|||转换\ncurrency|||货币\ndeduction|||扣除\ndeposit|||押金\ndiscrepancy|||差异\nestimate|||估价\nexpenditure|||开销\nfiscal|||财政的\nfund|||基金\nledger|||分类帐\noverdue|||过期未付的\nshareholder|||股东\nyield|||收益\nbid|||投标\ncommercial|||商用的\ncompetitor|||竞争者\nconsolidate|||合并\ncontract|||合同\ncorporate|||公司的\ncredible|||可信的\nearnings|||收益\nexport|||出口\nimport|||进口\ninvoice|||发票\npayment|||付款\nquote|||报价\nsupply|||供应品\ntariff|||关税\nvoucher|||凭证\ncommodity|||商品\nconsumer|||消费者\ncontractor|||承包商\ndealer|||商人\ndue|||到期的\nforward|||转寄\nheadquarters|||总部\ninventory|||存货\norder|||订单\npatent|||专利\nquota|||配额\nshipment|||一批货\nsurplus|||盈余\ntrademark|||注册商标\nwarehouse|||仓库\nadjourn|||休会；延期\nagreement|||协议\namendment|||修正\napproval|||同意\nattentive|||专心的\nboard|||董事会\nbrainstorm|||集思广益\nconcede|||让步\nconference|||会议\nconvention|||大会\nconvince|||使信服\ndelegate|||代表\ndemand|||要求\ndispute|||争端\nnegotiation|||谈判\npersuade|||说服\npostpone|||延期\nreconcile|||调解\nsettlement|||协议\nagenda|||议程\nalternative|||可替代的\nannounce|||宣布\nattorney|||律师\nbreakthrough|||突破\ncompromise|||妥协\nconsensus|||共识\ncriterion|||标准\ndecline|||下降\ndiplomacy|||交际手段\non behalf of|||代表\npetition|||请愿\npremise|||前提\nseminar|||研讨会\nstatement|||声明\nadvance|||进展\ncapacity|||容量\ncomponent|||零件\ndevice|||装置\nengineer|||工程师\nfacilitate|||促进\nfuel|||燃料\ngenerator|||发电机\ninnovative|||革新的\ninventor|||发明家\nmalfunction|||故障\nmode|||模式\noperate|||操作\noutlet|||销售店；插座\nportable|||便携的\nraw material|||原料\nsatellite|||卫星\nspecification|||说明\nconsecutive|||连续的\ndevise|||设计\nequipment|||设备\nfacility|||设施\ninspect|||检查\nlaboratory|||实验室\nmaintenance|||维护\nmanual|||手册\nnetwork|||网络\noutage|||断电\npetroleum|||石油\nprocedure|||程序\nreverse|||相反的\nsolar|||太阳的\nstatic|||静电的\naccess|||使用；取得\nautomatically|||自动的\ncable|||电缆\ncompliance|||服从\ndelete|||删除\ndigital|||数字的\ndownload|||下载\nhacker|||黑客\ninput|||输入\nInternet|||互联网\nlaptop|||笔记本电脑\nmultimedia|||多媒体\nsearch engine|||搜索引擎\nshut down|||关闭\nterminology|||术语\nup-to-date|||最新的\nactivate|||激活\nbrowse|||浏览\ncommand|||指令\ndatabase|||数据库\ndesktop|||桌上型\ndowngrade|||降级\nhyperlink|||超链接\ninstall|||安装\nknow-how|||技能\nmodem|||调制解调器\nomit|||忽略\nscanner|||扫描仪\nserver|||服务器\nspreadsheet|||电子表格\nswitch|||开关\ntransmission|||传输\nupgrade|||升级\nvirus|||病毒\nadvertisement|||广告\nappendix|||附录\nattach|||附上\ncampaign|||宣传活动\ncohesive|||有凝聚力的\nconfidential|||机密的\ncorrespondence|||通信\ndictate|||口述\nelaborate|||详尽的\ninquire|||询问\njot down|||记下\nleaflet|||传单\nnotify|||通知\npublicity|||公开\nresponse|||回应\nrevise|||修订\nslogan|||标语\nurgent|||紧急的\naffirm|||确认\nASAP|||越快越好\nbanner|||旗帜\ncircular|||通告\ncomposition|||作品\nconvene|||开会\ncourier|||快递员\ndraft|||草稿\nenclose|||装入\ninform|||告知\nissue|||发布\nlayout|||编排\nlegible|||易读的\nproofread|||校对\nregarding|||关于\nrestate|||重述\nsignature|||签名\nstationery|||文具\nwrite-up|||报告书\naccommodation|||住宿\nboarding pass|||登机牌\nbrochure|||小册子\ncheckout|||退房\nconfirmation|||确认\ncustoms|||海关\ndeparture|||出发\nen route|||在途中\nexpedition|||探险\nflight|||航班\nitinerary|||行程表\nlodge|||旅馆\nluxurious|||奢华的\nmotel|||汽车旅馆\npacking|||打包\npeak season|||旺季\nreservation|||预订\nsightseeing|||观光\nsuite|||套房\nvalid|||有效的\nbaggage claim|||行李提领处\nbreathtaking|||惊人的\ncarry-on|||手提行李\nconcierge|||门房\ncruise|||乘船游览\ndeluxe|||豪华的\ndestination|||目的地\nexotic|||异国的\nfasten|||系紧\nflight attendant|||空服员\njet lag|||时差\nluggage|||行李\nmetal detector|||金属探测器\noverseas|||海外的\npassenger|||乘客\nporter|||脚夫\nround-trip|||双程的\nstopover|||中途停留\nvacant|||空的\nvoyage|||航行\naccelerate|||加速\naircraft|||飞机\narrival|||到达\nbuckle up|||系安全带\ncargo|||货物\nconvertible|||敞篷车\ndelay|||延迟\nforbid|||禁止\nground crew|||地勤人员\nnavigate|||航行\npilot|||飞行员\nroute|||路径\nseat belt|||安全带\nsubway|||地铁\ntaxicab|||计程车\ntransit|||运输\nvehicle|||交通工具\nairliner|||大型客机\naviation|||航空学\ncabin|||客舱\ncommuter|||通勤者\ncrossroads|||十字路口\nferry|||渡轮\nfreight|||货运\nintersection|||十字路口\nlife vest|||救生衣\npedestrian|||行人\nrestriction|||限制\nrunway|||飞机跑道\nshortcut|||近路\ntake off|||起飞\ntimetable|||时间表\ntransport|||运输\nvia|||经由\naffordable|||负担的起的\nbazaar|||市场\nclient|||顾客\ncustomer|||顾客\ndiscount|||折扣\ndistributor|||经销商\nexpiration|||期满\nitemize|||详细列举\nlatest|||最新的\npickpocket|||扒手\npushcart|||手推车\nreceipt|||收据\nreimburse|||偿还\nrequest|||请求\nsample|||样品\nsolicit|||请求\ntrendy|||时髦的\nVIP|||贵宾\nwholesale|||批发\nbargain|||便宜货\ncoupon|||折价券\ndefective|||有瑕疵的\ndisplay|||陈列\ndrugstore|||药房\nflea market|||跳蚤市场\nlabel|||标签\nmodify|||修改\npatron|||顾客\npurchase|||购买\nquantity|||数量\nrefund|||退款\nreplacement|||替换\nretailer|||零售商\nshopping mall|||购物中心\nthrift|||节俭\nvender|||小贩\nwarranty|||保证书\nworkmanship|||手艺\nalcohol|||酒精\nappetite|||食欲\nartificial|||人造的\nbland|||淡而无味的\nchef|||主厨\ncrave|||渴望\ndelicacy|||佳肴\ndigest|||消化\nfragrant|||芳香的\ningredient|||成分\nliquor|||烈酒\nmunch|||用力嚼\npalatable|||美味的\nportion|||一份\nravenous|||饥饿的\nrefreshment|||茶点\nsilverware|||银器\nspecialty|||专长\nstarve|||挨饿\naperitif|||饭前酒\nappetizer|||开胃菜\nbeverage|||饮料\nbuffet|||自助餐\nchopsticks|||筷子\ncuisine|||烹调\ndessert|||餐后甜点\nentree|||主菜\nleftovers|||剩饭剩菜\nmenu|||菜单\nnapkin|||餐巾\npastry|||小甜点心\npreservative|||防腐剂\nrecipe|||食谱\nseasoning|||调味品\nsnack|||小吃\nspice|||香料\nvegetarian|||素食者\nacceptance|||接受\nacquaintance|||相识的人\nanniversary|||周年纪念日\nassociate|||同事\nbanquet|||宴会\ncommitment|||承诺\ncourtesy|||礼貌\ndistinguished|||卓越的\nembrace|||拥抱\netiquette|||礼节\nfarewell|||告别\ngreeting|||问候\nhug|||拥抱\nlavish|||大方的\nnosy|||好管闲事的\noffensive|||冒犯的\nprotocol|||外交礼仪\nregards|||问候\nsalute|||向…致敬\nacknowledge|||承认\naggressive|||挑衅的\napologize|||道歉\nattractive|||有吸引力的\nbarrier|||障碍\ncompliment|||赞扬\ncriticize|||批评\neloquent|||雄辩的\nencounter|||偶遇\nextend|||延伸\nfavorable|||有利的\ngossip|||闲话\nhilarious|||令人捧腹的\nintrude|||闯入\nmodest|||谦逊的\nnuisance|||讨厌的人\nprompt|||准时的\nquarrel|||争吵\nrun into|||偶遇\nscandal|||丑闻';
+var WORDS_RAW='appointment | 约会，约定\nattendance | 出席人数；出席\ncabinet | 橱柜\ncalendar | 日历；月历；行事历\nclerk | 办事员，书记\ndirectory | 人名住址薄\nduplicate | 复制；副本\nfiling | 归档\nin-tray | 待处理文件盒\nmonitor | 检测；监视；追踪\nout-tray | 已处理文件盒\npartition | 分隔；分隔物（如墙壁等）\npostage | 邮费\npunctuality | 准时；守时\nschedule | 时间表；计划表\nshift | 换班；轮班；值班\nstaff | 全体职员\nstrike | 罢工\ntask | 工作，任务\nwork force | 工作人员；劳动人口\nassignment | 分配；工作，分派\nbulletin | 公报；告示；定期报告书\ncalculator | 计算器\ncarbon copy | 用复写纸复制的副本\ncolleague | 同事，同僚\ndocument | 文件，证件\nextension | 分机（电话）；延期\nintercom | 对讲机\nmemo | 便条；便笺；备忘录\noperator | 接线生\novertime | 加班的时间\nportfolio | 作品夹，公事包\nprinted matter | 印刷品\nreceptionist | 接待员\nsecretary | 秘书\nshorthand | 速记，速记法\nstapler | 订书机\ntardy | 迟缓；迟到的；迟延的\ntypist | 打字员\nXerox | 影印\nallocate | 拨出；分配；配置\napplicant | 申请人\nauthorize | 授权；委托\nbonus | 红利；额外津贴；奖金\ncapability | 能力；才干；潜力；性能\ncollaboration | 合作；通敌\nconsultation | 咨询；商量；商议；会议\ncurriculum vitae | 履历\neligible | 合格的，合适的\nemployer | 雇主\nexecutive | 行政或管理人员\nincome | 收入或所得\nlay off | （暂时）解雇\noccupation | 职业\npart-time | 兼任的；兼职的\npermanent | 不变的，永久的\npromote | 升迁；促销\nrecruit | 吸收；征募\nresume | 履历表\nsalary | 薪水\namateur | 业余技术家；外行人；非专家\nappoint | 任命；指定\nbenefit | 有益于；受益\ncandidate | 候选人\ncertificate | 凭证；证书\ncompetent | 有能力的，胜任的\ncoordinate | 协调；调整\ndeadline | 截至期限\nemployee | 受雇者\nevaluation | 评价；估价\nexpertise | 专门技术或知识\ninterview | 会面；面谈\nnovice | 生手；新手；初学者\novertime | 超时\npension | 养老金；退休金\npersonnel | 全体人员；人事部门\nrecommendation | 推荐；推荐书；劝告\nresign | 辞职\nretire | 退休\nsubstitute | 代理人；代用品\naccrue | 产生；增加\nacquisition | 获得；习得\namplify | 放大；加强；扩展\nasset | 有用的东西；优点；长处\nbuyout/buy out | 买进全部产权或股权；收购全部\ncorporation | 法人；公司\ncutback | 减少；取消\nenterprise | 企业\nequity | 公平；公正；扣除抵押、税金后的剩余财产价值\nfinancier | 财政家；金融业者；资本家；投资者\nfranchise | 经销权；加盟权\nlaunch | 开办；展开；发起；开始\nmonopoly | 垄断；独占；专卖\nphase | 阶段\nprofile | 侧面；略转；引人瞩目的状态\nproposition | 提案；建议；计划\nprospectus | 计划书；说明书；募股书\nrival | 竞争者；对手；匹敌者；势均力敌者\nsubsidiary | 子公司\ntrack record | 过去的记录\nacquire | 获得\naffiliate | 支部；分会；子公司\nassess | 评估（财产价值）；评定\nbenchmark | 基准；水准点；标准\ncarry out | 执行；贯彻；完成\ncut down | 削减；缩短\nembezzle | 盗用；挪用；侵占（公款等）\nentrepreneur | 企业家；主办人\nexpand | 扩张；扩大\nfirm | 公司；商行\nintegrate | 统合；整合\nmerger | 合并；并吞\npending | 未决定的；待决定的；即将发生\npreliminary | 初步的，开始的\npropose | 提议；建议\nprospect | 期望或预见的事；展望；期望\nprosperity | 繁荣；成功；兴隆\nscheme | 计划；设计；图谋\nthrive | 茂盛；兴旺；繁荣\nundervalue | 低估价值；看轻\naccount | 帐目；帐单；帐户\nbalance | 余额；差额\nbond | 债券\nchamber of commerce | 商会\ncredit | 信任；信用；信誉；功劳；荣誉；存款数额；融资；赊销\ndebt | 债；债务\ndeficit | 赤字；亏损额\ndepreciation | 跌价；贬值\ndevaluation | 贬值\nendorse | 赞同；支持；签名；背书\nexempt | 被免除的；豁免的\nexpense | 消耗；消费\nfluctuation | 波动；起伏；涨落\ngross | 总共的；全部的\ninflation | 物价飞涨；通货膨胀\noverdraft | 透支；透支额\nprofit | 利润；收益；营利\nrevenue | 收益；岁入；税收\nstock | 公债；证券；股票\nwithdrawal | 收回；取回；撤回；提款\naccountant | 会计师；会计员\nbankrupt | 破产的；倒闭的\ncapital | 资金；资本\nconvert | 转换；改变\ncurrency | 货币；流通；通用\ndeduction | 扣除；扣除额\ndeposit | 付押金；付保证金\ndepression | 不景气；忧伤；消沉；沮丧\ndiscrepancy | 差异；不同；不一致\nestimate | 估计；估价\nexpenditure | 消费；开销\nfiscal | 财政的；会计的\nfund | 基金；专款\nholding | 土地；财产（常用复数）\nledger | 总帐；分类帐\noverdue | 过期未付的\nremuneration | 报酬；酬\nshareholder | 股东\nstockbroker | 证券和股票经纪人\nyield | 生产量；收益；生产；产生\nbid | 出价；投标；喊价\ncommercial | 商业化；商用的；营利的\ncompetitor | 竞争者；对手\nconsolidate | 结合；合并；强化；巩固\ncontract | 契约；合同\ncorporate | 全体的；团体的；公司的；法人的\ncredible | 可信的；可靠的\ndebit | 借方；借项\nearnings | 薪水；工资；收益\nexport | 输出；出口\nhaggle | 讨价还价\nimport | 输入；进口\ninvoice | 发票；发货清单\nlong-range | 长期的；远程的\nstock | 现货；存货\npayment | 支付；付款\nquote | 报价\nsupply | 供应品；供应物；库存\ntariff | 关税\nvoucher | 保证人；凭证；凭单；折价券\nbill of lading | 提货单\ncommodity | 商品；农产品\nconsignee | 收件人；受托人\nconsumer | 消费者；顾客\ncontractor | 立契约人；承包商\ncost-effective | 符合成本效益的\ndealer | 商人；业者\ndue | 应付的；到期的；该发生的\nendorse | 背书；支持；赞同\nforward | 送到，转号\nheadquarters | 总公司；总部；司令部\ninventory | 详细目录；清单；存货\nletter of credit | 信用证\norder | 汇单；订货；订单；汇票\npatent | 专利；取得…的专利\nquota | 定量；定额；配额\nshipment | 一批货\nsurplus | 过剩的量；盈余；过剩的；剩余的\ntrademark | 注册商标\nwarehouse | 仓库；货价；大商店\nadjourn | 暂时；休会；延期\nAgreement | 同意；协定\namendment | 修正\napproval | 赞成；同意\nattentive | 注意的；留心的；专心的\nboard | 理事会；委员会；董事会\nbrainstorm | 脑力激荡，集思广益\nconcede | 容忍；容许；让步\nconference | 会议；协商；讨论会\nconvention | 惯例；常会议；大会\nconvince | 使信服\ncross-reference | 前后参照\ndelegate | 代表\ndemand | 要求；强求\ndispute | 争端；争执；纠纷\nnegotiation | 协规；习俗；商；谈判\npersuade | 说服；劝服\npostpone | 延迟；延期\nreconcile | 调和；调解\nsettlement | 协议；支付\nagenda | 议程\nalternative | 可供选择的事物、方式等\nannounce | 通告；宣布；宣告；公诸于众\narticulate | 能清楚有力表达思想感情的；表达能力强的\nattorney | 律师\nbreakthrough | 突破；重大进展\ncompromise | 妥协；折衷；和解\nconclusive | 决定性的；勿庸置疑的\nconsensus | 一致的意见；共识\nconverse | 谈话；交谈\ncriterion | 规范；标准\ndecline | 衰落；衰退；下降\ndemonstration | 示范；实证；（游行）示威\ndiplomacy | 外交手腕；交际手段\ndissuade | 劝阻\non behalf of | 代表\npetition | 请愿（书）；请愿\npremise | 前提\nseminar | 研讨会；讨论课；讲习会\nstatement | 声明；陈述\nadvance | 前进；进展\ncapacity | 容量；才能；能力\ncomponent | 构成要素；成分；零件\ndevice | 装置；设备；图案；设计\nengineer | 工程师\nfacilitate | 促进；使（更）容易\nfuel | 燃料\ngenerator | 发电机；产生器\ninnovative | 创新；革新的\ninventor | 发明家\nleading edge | 居领先优势的\nmalfunction | 发生故障，机能失常\nmode | 样式；模式；方式；风尚；时尚\noperate | 操作；运转；经营\noutlet | 出口；排水口；销售店；商行；插座；销路\nportable | 可携带的；轻便的\nraw material | 原料\nsatellite | 卫星\nspecification | 说明；详述\nsubstandard | 标准以下的，不合规格的；次等的\nautomaton | 自动操作装置；机器人\ncell(ular) phone | 移动电话；手机\nconsecutive | 连续的；连贯的\ndevise | 设计；发明；策划\nequipment | 装备；设备\nfacility | 便利的设施；设备\ngadget | 小巧的机械装置；小玩意\nhands-on | 实地操作的；亲身体验的\ninspect | 检查；审查；视察\nlaboratory | 实验室\nmaintenance | 维护；保养\nmanual | 使用手册，指南；手工的\nnetwork | 网络系统；广播、电视网；电脑网\noutage | 电力中断；断电\npetroleum | 石油\nprocedure | 程序；手续\nreverse | 相反的；颠倒的\nsolar | （源自）太阳的；依太阳而运行的\nstatic | 静电干扰；静止的；静态的；静电的\nturn down | 关小（声音）\naccess | 进入；接近；使用；取得\nautomatically | 无意识的；不自觉的；自动的\ncable | 缆线；电缆\ncompliance | 顺从；服从；附和；屈从\ncutting edge | 尖刻；尖锐；先锋地位；尖端的\ndelete | 删除\ndigital | 数位的；数字显示的\ndownload | 下载\nhacker | 热衷电脑的人，黑客\ninput | 输入电脑\nInternet | 国际互联网\nlaptop | 笔记本电脑\nmultimedia | 多媒体\nretrieval | 取回；恢复\nsearch engine | 搜索引擎\nshut down | 使关闭；使停业\nstate-of-the-art | 使用最先进技术的；达到最高水准的\nterminology | 专业术语；专有名词\ntroubleshooting | 检修；解决困难的\nup-to-date | 最近的；最新的\nactivate | 使活动；触发；激活\nbrowse | 浏览；随便翻阅\ncommand | 指令；命令；掌握\nconfiguration | 结构；构造；配置\ndatabase | 数据库\ndesktop | 桌上型的\ndowngrade | 降级；使降职\nfloppy (disk) | 软盘\nhyperlink | 超链接\ninstall | 安装；安置\nknow-how | 技能；专业知识；窍门\nmodem | 调制解调器\nomit | 忽略；删除；疏忽\nscanner | 扫描仪\nserver | 服务器\nspreadsheet | 电子表格\nswitch | 开关；骤变\ntransmission | 传输；传送\nupgrade | 升级；提升\nvirus | 滤过性病毒；电脑病毒\nadvertisement | 广告\nappendix | 附录\nattach | 贴上；附上；附加\ncampaign | 战役；竞选活动；宣传活动\ncohesive | 有粘着力的；有结合力的；凝聚性的\nconfidential | 秘密的；机密的\ncorrespondence | 通信；信件\ndictate | 口述；支配；命令\nelaborate | 详尽说明；详尽的；精心制作的\nforward | 转寄；发送\ninquire | 调查；询问\njot down | 略记下；匆匆记下\nleaflet | 传单\nnotify | 通知；告知\npromote | 发扬；晋升；促进\npublicity | 公开；尽人皆知\nresponse | 回应\nrevise | 修订；修改；校订\nslogan | 口号；标语\nurgent | 紧急的；急迫的\naffirm | 坚称；声明；断言；确认\nASAP = as soon as possible | 越快越好\nbanner | 标语；旗帜\ncircular | 广告；传单；通告\ncomposition | 写作；作品；作文；作曲\nconvene | 集合；聚集；开会\ncourier | 递送急件的信差；邮物专递公司\ndraft | 草稿；汇票\nenclose | 装入；放入封套\ninform | 通知；告知\nissue | 流出；放出；发行；发布\nlayout | 规划；设计；编排\nlegible | （字迹）可以辨认的；易读的\npostage | 邮资\nproofread | 校正；校对\nregarding | 关于；有关\nrestate | 再声明；重新叙述；（换一种方式）重说\nsignature | 签字；签名\nstationery | 文具；信纸；信笺\nwrite-up | 报告书；write up 详细记述\naccommodation | 适应；住所；膳宿\nboarding pass | 登机牌\nbrochure | 小册子\ncheckout | 结帐退房的时间；check out 办理退房；结帐离开\nconfirmation | 确认\ncustoms | 海关；关税\ndeparture | 离开；出发\nen route | 在途中\nexpedition | 探险；远征队\nflight | 飞行；航班；航程\nitinerary | 行程表；旅程\nlodge | 小屋；旅馆\nluxurious | 奢华的；非常舒适的\nmotel | 汽车旅馆\npacking | 包装；打包\npeak season | 旺季\nreservation | 预约；预订；保留\nsightseeing | 观光；游览\nsuite | （旅馆的）套房\nvalid | 依法有效的；有效的\nbaggage claim | 行李提领处\nbreathtaking | 惊人的；惊艳的；惊险的\ncarry-on | 登机行李；手提行李\nconcierge | 管理员；门房\ncruise | 乘船游览\ndeluxe | 豪华的；高级的\ndestination | 目的地\nexotic | 异国风情的；异国的\nfasten | 系紧；拴住；扣住\nflight attendant | 空中服务员\njet lag | 时差\nluggage | 行李\nmetal detector | 金属探测器\noverseas | 在海外的，国外的\npassenger | 乘客；旅客\nporter | 脚夫；门房\nround-trip | 来回的，双程的\nstopover | 中途停留\nvacant | 空的，未被占用的\nvoyage | 旅行；航行\naccelerate | 加速；促进；前进\naircraft | 飞机；飞行器；航空器\narrival | 到达；抵达\nbuckle up | 系安全带\ncargo | 货物\nconvertible | 敞篷车\ncrash landing | 迫降\ndelay | 耽搁；延迟\nforbid | 禁止\nground crew | 地勤人员\njaywalk | 不遵守交通规则穿越马路；闯红灯\nlaunch | 发射；开始\nnavigate | 航行；驾驶\npilot | 飞行员\nroute | 路径；路线\nseat belt | 安全带\nsubway | 地铁\ntaxicab | 计程车\ntransit | 运输；通过\nvehicle | 交通工具；车辆\nacrophobia | 恐高症\nairliner | 大型客机\naviation | 飞行；航空学\ncabin | 小屋；客舱；机舱\ncommuter | 通勤者\nconveyance | 运输；交通工具\ncrossroads | 十字路口\nferry | 渡轮\nfreight | 货运；货物\nintersection | 交集；十字路口\njeopardy | 风险；危险；危难\nlife vest | 救生衣\npedestrian | 行人；步行者\nrestriction | 限制；约束\nrunway | 飞机跑道\nshortcut | 近路；捷径\ntake off | 起飞\ntimetable | 时间表；时刻表\ntransport | 运输；交通工具；运输系\nvia | 经由；借由\naffordable | 负担的起的\nbazaar | 市场；集市\nclient | 顾客；委托人\ncustomer | 顾客；客户\ndiscount | 折扣\ndistributor | 供应商；经销商\nexpiration | 终结；期满\nitemize | 详细列举；分条列举\nlatest | 最新的\nneon sign | 霓虹灯招牌\npickpocket | 扒手\npushcart | 手推车\nreceipt | 收据\nreimburse | 偿还；补偿\nrequest | 请求；要求\nsample | 样品；样本\nsolicit | 请求；恳求；祈求\ntrendy | 时髦的；流行的\nVIP = very important person | 贵宾\nwholesale | 批发的；批发地\nbargain | 便宜货；廉价品\ncash register | 手银机\ncoupon | 折价券；赠奖券\ndefective | 有毛病的；有问题的，有瑕疵的\ndisplay | 陈列；展示品\ndrugstore | 兼卖杂货的药房\nflea market | 跳蚤市场\nlabel | 标签；标记\nmodify | 修改；变更\npatron | 顾客；赞助人\npurchase | 购买；购得之物\nquantity | 量；数量\nrefund | 退款；退还；赔偿\nreplacement | 代替；替换\nretailer | 零售商\nshopping mall | 大型购物中心\nthrift | 节俭；节约\nvender | 小贩\nwarranty | 保证；保证书\nworkmanship | 技巧；手艺\nalcohol | 酒精\nappetite | 胃口，食欲\nartificial | 人造的；仿真的\nbland | 淡而无味的；温和的；无刺激性的\nchef | 主厨；大厨\ncrave | 渴望\ndelicacy | 佳肴\ndigest | 消化\nfragrant | 有香味的；芳香的\ningredient | 成分；配料；配方\nliquor | 烈酒\nmunch | 用力嚼；大声咀嚼\npalatable | 美味的；顺耳的；怡人的\npass up | 放过；错过\nportion | 部分；一份\nravenous | 饥饿的；贪婪的\nrefreshment | 茶点\nsilverware | 银器；镀银餐具\nspecialty | 专攻；专业；专长；特制品\nstarve | 饿死；挨饿\naperitif | 饭前酒\nappetizer | 开胃菜\nbeverage | 饮料\nbuffet | 自助餐\nchopsticks | 筷子\ncuisine | 烹调\ndessert | 餐后甜点\nentree | 主菜\nhors d\'oeuvre | 开胃小菜\nleftovers | 剩饭剩菜\nmenu | 菜单\nnapkin | 餐巾\nparched | 焦干的；极渴的\npastry | 用面团和油酥烤成的小甜点心\npreservative | 防腐剂\nrecipe | 食谱；烹饪法；秘诀\nseasoning | 调味品；佐料\nsnack | 小吃；点心；吃点心\nspice | 香料；调味品\nvegetarian | 素食者\nacceptance | 接受；赞同\nacquaintance | 相识但不熟的人\nanniversary | 周年纪念日\nassociate | 同事；伙伴；联想；交往\nbanquet | 酒席；正式的宴会\ncommitment | 承诺；许诺\ncourtesy | 礼貌；礼仪；好意；殷勤\ndistinguished | 卓越的；杰出的；著名的\nembrace | 拥抱；围绕；包括\netiquette | 礼节；规范\nfarewell | 一路平安；再见；告别\nget-together | （非正式的社交）聚会\ngreeting | 致敬；问候\nhug | 拥抱；紧抱\nlavish | 过分大方的；浪费的；丰富的\nnosy | 好管闲事的；爱打听的\noffensive | 令人不快的；讨厌的；冒犯的\nprotocol | 外交礼仪；草约\nregards | 问候；致意\nsalute | 向……打招呼；向……行军礼；向……表示敬意\nacknowledge | 承认；承认……之存在、权力；表示感谢\naggressive | 挑衅的；有侵略性的；有进取心的；积极的\napologize | 道歉\nattractive | 有吸引力的；迷人的\nbarrier | 障碍；障碍物；隔阂\ncompliment | 赞扬；恭维\ncriticize | 批评；评论\neloquent | 口才好的；雄辩的\nencounter | 相遇；遭遇偶然碰见；面临\nextend | 延伸延续；扩大；延长；给予；提供\nfavorable | 令人满意的；博得赞许的；有帮助的；有利的\ngossip | 闲话；流言；说闲话\nhilarious | 狂欢的；令人捧腹的\nintrude | 闯入；侵入；把……强加诸于\nmodest | 谦逊的；适度的；朴实的；端庄的\nnuisance | 讨厌之人、事、物\nprompt | 准时的；按时的；迅速的；立刻行动的\nquarrel | 争吵；争论吵架\nrun into | 偶遇；碰上\nscandal | 丑闻；引人愤慨之事\namuse | 使欢乐；使愉快；使发笑\naudience | 听众；观众\nballet | 芭蕾舞\ncable TV | 有线电视\ncelebrity | 名人；名声\ncinema | 电影；影片；电影院；电影艺术；电影业\ncomposer | 作曲家\nconductor | 指挥家\ncue | 暗示；提示\ndrama | 戏剧；剧本\nfare | 车费；票价\nheadline | （报纸的）标题\nnewscast | 新闻广播\nperiodical | 杂志；期刊\npremiere | 首次公演；首映\nrate | 分级；分等\nscenario | 戏剧的情节\nscriptwriter | 剧作家；编剧\nsymphony | 交响曲\nticket office | 售票处\napplaud | 鼓掌\naudition | 试听；试演\nbroadcast | 广播；宣传\ncarnival | 狂欢；欢宴；嘉年华会；巡回娱乐表演\nchoreography | 舞蹈设计；编舞\ncircus | 马戏团\nconcert | 音乐会\ncritic | 批评家；评论家；吹毛求疵的人\ncurtain call | 谢幕\neditorial | 社论\nfinale | 结局；乐曲的最后部分\nmedia | 媒体\nperformance | 演出；表现；性能\nplaywright | 剧作家\npreview | 试映；预告片\nrehearsal | 预演；排练\nscreen | 隔板；荧幕；荧光屏\nstunt | 特技；噱头\ntheater | 戏院；剧院\nviolin | 小提琴\naerobics | 有氧运动\ncoach | 教师；教练\ncompete | 竞争；比赛\ndefeat | 失败；击败\nfitness | 适合；恰当；身体健康\ngym | 健身房；体育馆\nleague | 联盟；同盟\nmarathon | 马拉松；耐力比赛\nmountaineering | 登山运动\nparticipate | 参与；参加\nrecreation | 娱乐；消遣\nrelaxation | 松弛；缓和\nrigor | 严格；严苛；艰苦\nsoccer | 足球\nstadium | 体育场\nstroll | 散步；闲逛\nsurrender | （向敌人）投降；放弃\ntime-out | 暂停\ntrophy | 奖品；奖杯；战利品\nusher | 引座员；招待员\nalleviate | 减轻；缓和\nbacteria | 细菌\ncollision | 碰撞；抵触\ncompensation | 补偿；赔偿\ncontagious | 接触传染的\ncrash | 相撞；碰撞\nemergency room | 急诊室\nexpiration date | 有效期限\ngeneral hospital | 综合医院\nimmune | 免除的；免疫的\ninfection | 感染\ninvestigator | 调查员\nmandatory | 命令的；强制的；义务的\noption | 选择权；选择之自由；可选择的东西\noutpatient | 门诊病人\npremium | 奖品；额外费用\nsevere | 严苛的；严格的；严重的\nstroke | 脑血管破裂或阻塞；中风\nterms | 条文；条款；付款条件；价钱\nvital | 非常必要的；极其重要的；攸关生命的\nantibiotic | 抗生素\nclaim | 要求；声称\ncommission | 佣金\ncomprehensive | 全面的；广泛的\ncoverage | 报道范围；保险范围\ndiagnose | 诊断；判断\nexcruciating | 极痛苦的；极度的\nfraud | 诈骗；骗局；骗子\nhandicap | 残障；不利条件；障碍\nindemnity | 损害保障；损害赔偿\nintensive care unit | 加护病房\nliable | 有义务的；易于……的；倾向于……的\nnutrition | 营养之供给或摄取；营养\norgan donor | 器官捐赠者\npharmaceutical | 制药的；药品的\npurification | 洗净；净化\nside effect | （药物之）副作用\nsurgery | 外科手术\ntrauma | 外伤；心灵的伤\nwaive | 放弃；弃权\nappliance | 设备；器具；工具；家用电器\nburglar | 窃贼；夜间入屋行窃的小偷\ncommunity | 社区\nelectronics | 电子学\nfire extinguisher | 灭火器\nfurniture | 家具\ngarbage disposal | 垃圾处理机\nlandlord | 地主；房东\nlaundry | 洗衣店；要洗或已洗好的衣物\nlease | 租约；出租；租用\nmattress | 床垫\nmortgage | 抵押贷款\nornament | 装饰品\nplumbing | 水管设施\npossession | 所有；个人财产\nreal estate | 不动产\nrenovate | 更新；修复；恢复\nrural | 乡下；田园\nsuburb | （常用复数）郊区；近郊\nurban | 都市的；都市式\nbalcony | 阳台；包厢\nchore | 家务难事；困难繁琐无趣的工作\ndown payment | 头期款；预付金；定金\nfire alarm | 火灾警报器\nfurnishings | 家具；室内陈设\ngarage | 车库；修车厂\nkitchenware | 厨房用具\nLaundromat | 自助洗衣店\nlawn | 草坪；草地\nloan shark | 放高利贷者\nmessy | 杂乱的；肮脏的\nneighborhood | 街坊；住宅区\nplayground | 运动场；游戏场；游乐场\nporch | 门廊；游廊\nproperty | 财产；地产\nrelocate | 重新安置；迁徙\nresidence | 住所；公馆；居住\nstorage | 储藏；藏室\ntenant | 房客；承租人；佃户\nutility | 公共实业；实用\naffection | 感情；钟爱\nanticipate | 预见；期待；在……之前行动；预先考虑；提前使用\nbrag | 自夸；吹嘘\ndelighted | 欣喜的；愉快的\ndetest | 憎恶；痛恨；嫌恶\ndisgust | 作呕；厌恶；反感导致反感\ndistress | 悲痛；贫困；危难\nenthusiastic | 热心的；狂热的\nesteem | 好评；尊敬；极看重；尊重\nfascination | 入迷；着迷；强烈吸引力；魅力\ngloomy | 幽暗的；令人沮丧的；忧郁的；没有希望的\nimpartial | 不偏袒；无偏见的；公正的\nimpulsive | 冲动的\nirritated | 被激怒的；发炎的；疼痛的\nmad | 发疯的；疯狂的；着迷的；愚蠢的；生气的\nobjective | 目标；客观的\npanic | 恐慌；使恐慌\nprejudice | 偏见；歧视\nrepulsive | 使人反感的；令人厌恶的\ntranquility | 平静的；安宁\naspect | 面貌；方向；朝向\nassumption | 假定；假设\nattempt | 企图；攻击；努力尝试；企图\ncall waiting | 电话插播\ndeclaration | 宣布；公布；宣言\nendeavor | 努力；尽力试图；尝试\nexceed | 超过；超出；超越\nidentity | 身份；本体；相同；同一\nimplication | 含义；暗示；牵连\ninspire | 鼓舞；激发；引发\nintention | 意图；目的\ninterrupt | 打断；中断\nmanipulate | 操作；操纵\nobstacle | 障碍物；阻碍\npriority | 优先权；优先考虑的事\nprohibit | 禁止；防止；阻止\nreassure | 使安心；使放心；使恢复信心；再保证\nremind | 提醒；使想起\nsustain | 维持；持续；支撑；蒙受\nundertake | 承担；许诺；保证\nalter | 改变；修改\nassurance | 保证；担保；自信；把握\nclarify | 澄清；使纯净\ndiscard | 抛弃；丢弃\nentitle | 定名；使有资格\nexhibition | 展览会；表现\nimpact | 碰撞力；影响；行动\nincentive | 鼓励；诱因\ninstruct | 教授；指导；下命令；指示\ninterfere | 妨害；扰乱；介入；干涉\ninvolve | 使卷入；牵涉；伴随\nmerit | 功劳；价值；优点\npermit | 许可证；执照；准许；许可\nproceed | 着手；继续进行\nprotest | 抗议；反对\nregister | 登记簿；注册簿；记录；注册；登记姓名\nrisk | 风险；危险；使遭受危险；冒……的危险\nsubmit | 认输；使服从；提出\nspeculate | 沉思；思索；猜测；推测；投机\nverify | 证明；证实；确认\nabsurd | 荒谬的；不合理的；违反常理的\nadequate | 足够的；适当的\nample | 广大的；宽敞的；充足的\ndecent | 合宜的；得体的；适当的\ndreadful | 令人恐怖的；令人害怕的\nexceptional | 异常的；特别优秀\nexquisite | 精细的；精美的；敏锐的；细致的\nfarfetched | 牵强的；不大可信的；不自然的\nin light of | 按照；根据\ningenious | 有巧思的；有创意的\ninstant | 立即的；（食品）快速方便的\nlegitimate | 合法的；正当的；婚生的\nmoderate | 中等的；适度的；有节制的；温和的\noblivious | 遗忘的；不注意的；不在意的\nrandom | 随便的；无目的的\nrelevant | 有关的；切题的；有实际价值或重要性的\nsubstantially | 相当大的；基本上；本质的\ntemporary | 暂时的；临时的\nunprecedented | 史无前例的；空前的\nversatile | 多才多艺的\ndynamic | 有活力的，有生机的\nprosperous | 繁荣的\nbrisk | 兴隆的\nvolatile | 不稳定的，活跃浮动的\nbleak | 惨淡凄凉的\ndeclining | 下滑的，衰退的\nslump | 委靡的\nsluggish | 不景气，萧条的\nstagnant | 停滞不前的，萧条的\nmerchandise | 商品（集合名词，单数）\ngoods | 货物（复）\ncommodity | 商品，期货 futures\nproduct | 产品\nproduce | 农产品\nfreight | 运输的货物；运费\ncargo | （船、飞机）装载的货物\nconvoke | 召集\nrally | 集合\ngathering | 聚会\nfunction | 集会，仪式；event, happening\nadjourn | 延会，休会\nconfer | 商谈\nmug | 抢劫（从背后袭击）\nsteal | 偷\nloot | 抢夺\npickpocket | 扒手\nburglary | 夜盗\nsmuggle | 走私\nby cash | 现金\nby check | 支票\nby credit card | 信用卡\nby money order | 汇票\nby installment | 分期付款\nby mail | 邮寄\noutgoing | 外向活泼\nsociable | 善于交际\nadaptable | 适应性强\nambitious | 有野心\nhard-working | 工作努力\nenergetic | 有活力\nenterprising | 富于进取，有创业精神\nhonest | 诚实\nreserved | 保守，稳重\nresponsible | 负责\noptimistic | 乐观\nindependent | 独立\ninflation | 通货膨胀\ndeflation | 通货紧缩\nfeasibility | 可行性\noverhaul | 彻底检查\ncustom | 海关\nbruise | 擦伤\nindices | index 的复数\ncommotion | 暴动，骚乱\ninterest rate | 利率\ndisposition | 性情气质；处理\ncarat, karat | 克拉\nhallmark | 质证明，纯正之证明\nasylum | 收容所，养老院\norphanage | 孤儿院\nmorale | 士气，人心\npennant | 锦旗\nvicinity | 附近\ninterrogation | 询问，审讯\nintersection | 交点\nintermission | 休息时间\nphysician | 内科医生\nsurgeon | 外科医生，军医，船医\nbreadwinner | 养家糊口的人\nrecipe | 食谱，方法\ntender | 招标\nsyllabus | 课程纲要\nSpaniard | 西班牙人\ndispassion | 冷静客观\nlevity | 轻率\nexpulsion | 开除，除籍\ndefamation | 诽谤\npayroll | 薪水册，工资表\ncontraction | 收缩\nrenewal | 更新\ndeduction | 扣除（额）\nescalator | 电动扶梯\nelevator | 电梯，升降梯（美）\nlift | 电梯（英）\nemblem | 象征标志\ndereliction | 玩忽职守\nmilk shake | 奶昔\nendorsement | 背书保证\napprobation | 批准许可\nprobation | 试用\ndeference | 顺从尊重\nminor infraction | 轻微违法\nmajor violation | 重大违规\nvacate | 疏散\nevacuation | 疏散\nanarchy | 无政府\ncollusion | 共谋，勾结\ndownturn | 下滑\nspa | 温泉\nfreelance writer | 自由撰稿人\narticles | 用品，商品\nmanagement | 资方\nunion | 工会\nturnover | 运转，周转\nturnout | 出席者\nannuity | 养老金\npension | 养老金\nextension | 分机\ninnovation | 革新翻新\nrenovation | 装修\ndosage | 剂量\nrash | 疹子\nclientele | 顾客，老主顾\nleave | 请假\npartition | 隔间，区分\njunk | 垃圾\npunk | 朋克\nmenopause | 更年期\nrazor | 剃刀\ncrop strains | 作物品种\nheadphone | 耳机\nearphone | 耳机\nautomated teller machine | 自动提款机 ATM\ncivilians | 平民\nsubsidiary | 子公司\nstrip mining | 露天采矿\nnational | 国民\nmortgage | 抵押\ncompartment | 隔间\nhelping | 一份\nsubcontractor | 转包商\nspeculation | 投机\navocation | 副业\nkickback | 回扣\nspectator | 观众\naudience | 听众\nstroller | 婴儿车；漫步者\nseniority | 年长，资深\ntoner | 调色剂\nluncheon | 正式午餐\nfaçade | 建筑物正面\ndecoy | 欺骗，引诱\nenvoy | 使者，代表\nalloy | 合金\nconvoy | 护送陪伴\ninterface | 交互界面\nboutiques | 小店精品店\nbanquet | 宴会\nbouquet | 花束\ncasino | 俱乐部，游乐场\ncomplex | 整套设施\ncommencement ceremony | 授学位典礼\ninception | 开始\ninduction | 入伍\nmodem | 调制解调器\nfraud | 诈骗\nmagnate | 工业巨头\ngourmet | 美食家\nordinance | 法令\ncursor | 光标\nliaison | 交流合作\nportfolio | 公文包，文件夹\ncorrosives | 易腐蚀品\ncorporation | 企业\nminute | 会议录\nrecreation | 娱乐，休闲\nstrand | 使搁浅，陷入困境\nrelate | 叙述\nfacilitate | 使便利\nexcel | 优出胜出\nremit | 汇款，宽恕\nhighlight | 强调\ninoculate | 接种\nvaccinate | 接种疫苗\nremedy | 补救\nundermine | 诋毁\nreverse | 颠倒\nslam | 使劲关\nequip | 配备\ncapsize | 倾覆（船）\nsimmer | 炖，煨\nretrench | 减少，节约\ndiscredit | 使失去权威性，破坏名誉\ncurb | 阻止，控制\nprocess | 加工\nintercept | 中途拦截\nsegregate | 隔离，分开分离\nquarantine | 隔离检疫\nseclude | 隔绝，隐退，隐秘\nappeal | 呼吁，恳求，上诉\nlift | 解除，提起精神\nrescind | 废止，取消\naudit | 查帐\ncondemn | 非难，判罪\ncondone | 宽恕，容忍\ndeviate | 偏离，跑题\ndisabuse | 解惑，矫正\ndisavow | 否认\ntransfuse | 输血\nmingle | 交往，混合\nforfeit | 没收\nconfiscate | 没收\nstaple | 用订书器钉；主要的\nderegulate | 解除对……的管制\nblock | 阻挡；楼\nlaunch | 推出新产品\nhouse | 为……提供住房\nexpel | 开除，驱除\nreimburse | 报销，付款\nobserve | 遵守\nsyndicate | 多家报刊上同时发表\ncommute | 通勤\nrotate | 旋转，循环\nimplement | 实行\nliquidate | 清算，清偿债务\naccrue | 增长，自然增殖\nfragile | 易碎的\nlatter | 后者\nlatest | 最新的\nlater | 过一会，过后\neligible | 合格的\nillegible | 难懂的\nedible | 可食用的\naudible | 可听到的\nduplicate | 副本的，复制的\nPotomac | 河川的\nfaulty | 有错误的\nsupersonic | 超音速的\nforemost | 首要的\naffluent | 富足的\nexplicit | 明晰的\nimplicit | 暗含的\nhustle-bustle | 熙来攘往\nobese | 肥胖的\nmanifold | 各样的，多种\nimprudent | 轻率的\neffete | 疲惫枯竭\nebullient | 沸腾的，热情洋溢的\nenervated | 无力的衰弱的\nspacious | 宽敞的\nselective | 精挑细选的\nprecocious | 早熟的，过早的\nremiss | 疏忽的\nfacile | 容易的，流畅的\nintangible | 无形的\nillicit | 不合法的\ndiagonal | 对角线的\nmethodically | 有条不紊的\ndefinitive | 限定的，决定的\nplausible | 似合理的\npropitious | 吉祥的，有利的\nauspicious | 吉祥的\nintelligible | 可识别的\ninflammable | 易燃的\nnonflammable | 不易燃的\nquality | 质量好的\nstate-of-the-art | 最新水平\nillegitimate | 不合法的，私生的\ntailored | 定制的\ncustom-made | 特制的\ntailor-made | 特制的\nmandatory | 强制性的\nprovisional | 暂时的，临时的\ntemporary | 暂时的，临时的\nluxurious | 奢侈的\nbear market | 熊市\nbull market | 牛市\nhygienic | 卫生的\nsanitary | 干净的\ntricky | 棘手的，复杂的\nlanguishing | 衰弱下去的\na handful of people | 少数的人\nadjacent to | 与……临近\nput on airs | 摆架子\ndischarge from hospital | 出院\nhalt buses and subway all day | 使公车地铁一天停止\ngraphic design | 平面设计\n3D design | 三维设计\nmedical insurance coverage | 保险项目，范围\ndefault rate | 拖欠债务率\nfull professor | 正教授\npotent antibiotics | 强效抗生素\nmake a rule of doing something | 形成……习惯\nchamber of commerce | 商会\nletter of credit (L/C) | 信用证\nstock dividend | 股息\ndevaluation of the currency | 货币贬值\nsprain one’s ankle | 扭伤脚踝\nholistic medicine | 整体医学\ninsurance premium | 保险费用\nhis hair receding from his forehead | 从前额掉头发\nexpress train | 快车\nlimited train | 特快车\nprobation/trial period | 试用期\ntake a hard line with | 强权策略\ntrade mission | 贸易代表团\nlong term objective | 长期目标\nthe audit department | 审计部\nInternational Herald Tribune | 国际先驱论坛\ntop copy | 复印原件\ntake steps to do | 着手落实\npertaining to | 适合，合宜，关于\na panorama of | 齐全，品种繁多\n24 hours a day = 7 days a week | 24小时营业，无休息\ndog days | 三伏\ncolumn writer | 栏目作者\nstaff appraisal | 员工评估\nat one’s fingertips | 在手头，目前\nlodge and accommodation | 膳宿\nfringe benefit | 福利，补贴\ngo into liquidation | 倒闭\nlag behind | 落后\nphase something out | 逐步废止\nwrite-offs | 破旧的无从修理\nabide strictly by | 严格恪守\nclearance sale | 清仓大处理\nhave/take title to | 有……特权\nstaff attendant | 员工出勤情况\ndown payment | 定金，分期付款的首次款\nknow-how | 专项技能，窍门\ncross-reference | 互相参照\nlabor-intensive industry | 劳动密集型行业';
+var PHRASES_RAW='internship | n.(学生或毕业生的) 实习；实习期\nlaw internship | 法律实习\ninternship opportunity | 实习机会\ninternship program | 实习计划\ncandidate | n.(竞选或求职的) 候选人；应试者\njob candidate | 求职者\npromising candidate | 有希望的候选人\nrecommend a candidate | 推荐候选人\nentrepreneur | n. 企业家；创业者\nsmall-business entrepreneur | 小型企业企业家\nlocal entrepreneur | 当地企业家\nskilled/expert entrepreneur | 企业专家\nvoucher | n. 代币券；购物券\ntravel voucher | 出行优惠券；旅行优惠券\ndiscount voucher | 折扣优惠券\nredeem voucher | 兑换代金券\nplumbing | n. 管路系统；自来水管道\nplumbing company | 水管公司\nplumbing experience | 水管维修经验\nplumbing issue | 管道问题\nbeverage | n. 饮料\nalcoholic beverage | 酒精饮料\nserve beverage | 提供饮料\nbeverage company | 饮料公司\nfitness | n. 健康；健壮；适合\nfitness program | 健身项目\nfitness facility | 健身场馆\nfitness instructor | 健身教练\nelectronic | adj. 电子的；电子设备的\nelectronic edition | 电子版\nelectronic engineer | 电子工程师\nelectronic form | 电子表格\nadvertising | n. 广告业\nadvertising campaign | 宣传活动\nadvertising agency | 广告公司\nadvertising strategy | 宣传策略\nappointment | n. 约会；预约；任命；委托\nkeep an appointment | 准时赴约\nset up an appointment | 安排一次会谈\nrecent appointment | 新近的任命\ninterior | n.& adj. 内部 (的)\ninterior design | 室内设计\ninterior furniture | 室内家具\ninterior wall | 内墙\nnumerous | adj. 众多的；许多的\nnumerous public events | 许多公共活动\nnumerous attempts | 多次尝试\nnumerous orders | 多个订单\nadditional | adj. 附加的；额外的\nadditional charges | 额外费用\nadditional staff | 额外员工\nadditional resources | 额外资源\nselection | n. 选择；可供选择事物\nrandom selection | 随机抽取\nselection process | 选拔过程\nselection criteria | 选拔标准\nqualification | n. 资格；学历\nacademic qualification | 学术资历\nacquire qualifications | 获得资历\nhave qualification to do sth | 有资格或资历做某事\nloyalty | n. 忠诚；忠实\nstaff loyalty | 员工忠诚度\nloyalty card | 积分卡\nbrand loyalty | 品牌忠诚度\npamphlet | n. 小手册；小册子\nhand out pamphlets | 分发手册\ninformation pamphlet | 资料手册\ncomplimentary pamphlet | 免费手册\npamphlet cover | 手册封面\nemployee | n. 雇员；员工\nemployee recruitment | 员工招募\nemployee handbook | 员工手册\ntemporary employee | 临时员工\npermanent employee | 正式员工\npositive | adj. 积极的；正向的\npositive outlook | 乐观的前景；积极的态度\npositive review | 正面评价\npositive influence | 积极影响\nbe positive the result | 对结果有把握\nvalid | adj. 有效的；合理的\nvalid identification | 有效证件\nvalid password | 有效密码\nvalid reason | 充分的理由\nvalid period | 有效期\nmanagement | n. 管理；经营；经营者\nbusiness management | 企业管理\nproject management | 项目管理\nrisk management | 风险管理\nsenior management | 高层\nappliance | n. 设备；（家用）电器\nhousehold appliance | 家用电器\nelectrical appliance | 电器\nappliance store | 电器商店\nkitchen appliance | 厨房用具\ndecoration | n. 装饰品\ninterior decoration | 室内装潢\nhome decoration | 家居装潢\nelaborate decoration | 精美装饰\narchitectural decoration | 建筑装饰\nleadership | n. 领导才能；领导应有的品质\nleadership qualities | 领导素质\nleadership skills | 领导技巧\nstrong leadership | 强有力的领导才能\nleadership style | 领导风格\nadjustment | n. 调整；调节\nmake a few adjustments to the sketch | 对构图做了几处调整\nconstant adjustment | 不断调整；适应；习惯\nstructural adjustment | 结构调整\nprice adjustment | 价格调整\nrefund | vt. 退还；退 (款) n. 退款；返还款；偿还金额\ntax refund | 税金退款\nclaim/demand/request a refund | 要求退款\nreceive a refund | 收到退款\ncash refund | 现金退款\nmerchandise | n. 商品；货物\na broad assortment of merchandise | 多种多样的产品\npurchase merchandise | 购买商品\nmerchandise credit | 商品积分\nadministration | n. 政府；管理部门；行政部门\nthe day-to-day administration of a company | 公司的日常管理工作\nadministration fee | 管理费\nsales Administration Department | 销售管理部门\nrenovation | n. 翻新；整修\nbe in need of renovation | 需要重新装修\nbe under renovation | 正在翻修\nextensive renovation | 大规模翻修\ndeposit | vt. 将 (钱) 存入银行；付（订金） n. 存款；订金\npay a deposit | 付订金\nsecurity deposit | 保证金\ndeposit account | 存款账户\ncraft | n. 手艺；工艺；技能 v.(手工) 精心制作\ntraditional craft | 传统工艺\ncraft fair | 工艺品展销\ncraft workshop | 工艺车间\nalternative | adj. 可供替代的 n. 可供选择的事物\nalternative energy | 替代能源\nalternative solution | 可选择的解决方案\ntake an alternative route | 走另一条路\npublish | v. 出版；发行；刊登\npublish advertisement | 发布广告\npublishing company | 出版公司\ncomplex | adj. 复杂的 n. 建筑群\ncomplex issue | 复杂的问题\nsports complex | 体育场馆\ndepartment | n. 部门；院系\ndepartment store | 百货商店\nshoes department | 售鞋区\nheadquarters | n. 总部；总公司\nregional headquarters | 地区总部\ncompany headquarters | 公司总部\nworkshop | n. 研讨会；车间；工厂\nsign up for a workshop | 报名参加研讨会\nattend a workshop | 参加研讨会\npavilion | n.(展览用的) 临时建筑物；看台\ninternational pavilion | 国际展馆\npavilion at the trade fair | 贸易会展馆\nexposition | n. 阐述；展览\ntrade exposition | 贸易博览会\nbusiness exposition | 商务博览会\nsales exposition | 销售博览会\nexposition attendee | 博览会与会者\nvehicle exposition | 汽车博览会\nexecutive | adj. 高级的；有执行权的；经营管理的 n.(公司或机构的) 经理；管理人员\nexecutive decision | 管理决策\nexecutive duty | 管理职责\nexecutive job | 管理工作\nexecutive position | 管理职位\nexecutive board | 执行董事会\nexecutive body | 执行机构\nexecutive committee | 执行委员会\nexecutive officer | 执行官\nexecutive lounge | 贵宾休息室\nexecutive suite | 贵宾套房\nadvertising executive | 广告主管\nbusiness executive | 业务主管\nsales executive | 销售主管\ndevice | n. 器具；设备\nelectronic device | 电子设备\ninnovative device | 创新设备\nmarketing device | 营销手段\nrenowned | adj. 有名的；闻名的\nrenowned specialist | 著名专家\nrenowned composer | 著名作曲家\nrenowned author | 著名作家\nindependent | adj. 独立的；自主的\nindependent sector | 独立部门\nindependent inquiry | 独立调查\nfinancially independent | 经济独立\nconfidential | adj. 保密的；秘密的\nconfidential materials | 保密资料\nconfidential information | 机密信息\nconfidential tone | 悄声\nhistoric | adj. 有重大历史意义的\nhistoric monument | 历史纪念碑\nhistoric construction | 历史建筑\nhistoric site | 古迹\nprior | adj. 先前的；较早的；优先的\nprior arrangement | 事先安排\nprior to | 在…… 之前\nprior notice | 事先通知\ndelivery | n. 交付；递送\ndelivery service | 送货服务\nexpress delivery | 快递\novernight delivery fee | 隔夜送货费\nagenda | n.(会议的) 议程表；议事日程\nconference agenda | 会议议程\nagenda item | 议程项目\nplan an agenda | 计划议程\nbanquet | n. 宴会；盛宴\narrange a banquet | 安排一场宴会\nbanquet hall | 宴会厅\nawards banquet | 颁奖盛宴\nprompt | adj. 立即；迅速的；及时的\nthe prompt action | 立即采取行动\nprompt response | 快速响应\nprompt payment | 立即付款\ndomestic | adj. 国内的；家用的\ndomestic flight | 国内航班\ndomestic appliances | 家用器具\ndomestic service | 家政服务\nprevious | adj. 先前的；以往的\nprevious job | 上一份工作\nprevious experience | 以往经验\nprevious studies | 先前研究\ngarage | n. 车库；汽车修理厂\nunderground garage | 地下停车库\ngarage mechanic | 汽车修理工\nparking garage | 停车场\nfabric | n. 织物；布料\nfurnishing fabric | 装饰织物\nfabric manufacturer | 织物制造商 / 纺织厂\ncotton fabric | 棉织物\nprospective | adj. 潜在的；预期的；可能的\nprospective buyer | 潜在购买者\nprospective client | 潜在客户\nprospective intern | 准实习生\ndowntown | adj.& adv. 市中心\ndowntown area | 市中心\nwork downtown | 在市中心工作\ndowntown business district | 中心商务区\nsnack | n. 点心；小吃；快餐\nsnack lunch | 快餐午饭\nsugary snack | 含糖零食\nquick snack | 快餐\nsnack bar | 快餐柜\nexamine | v. 仔细检查；诊察\nexamine patients | 为病人做检查\nexamine procedures | 审查流程\nexamine loan application | 审查贷款申请\nexamine possible alternatives | 检查可用替代方案\nmarket | n. 市场 v. 推销\ntarget market | 目标市场\nspecialized market | 专业市场\nmarket research | 市场调研\nmarket the latest lines | 推广新产品\nproperty | n. 不动产；房地产；所有物；财产\nproperty owner | 业主；产权人\nproperty developer | 房地产开发商\nproperty right | 产权\nproperty tax | 财产税\ninterview | n.& v. 面试；面谈\npreliminary interview | 第一轮面试\narrange an interview | 组织面试\njob interview | 工作面试\nconduct an interview | 进行采访 / 面试\nexpertise | n. 专门知识；专门技能；专长\nexpertise area | 专业领域\nhave the expertise to do sth | 有做某事的专业知识或技能\ntechnical expertise | 技术专长\nscientific expertise | 科技知识\ninnovative | adj. 革新的；创新的\ninnovative product | 创新产品\ninnovative design | 创新设计\ninnovative technology | 创新科技\ninnovative architecture | 创新性建筑\nmanufacturer | n. 生产商；制造商\ncomputer manufacturer | 计算机制造商\nelectronics manufacturer | 电子制造商\nappliance manufacturer | 电器制造商\nautomobile manufacturer | 汽车制造厂\ntour | n. 旅行；游览；访问学习 v. 在…… 巡回演出；周游\nsightseeing tour | 观光旅行\ntour guide | 导游\ntour agency | 旅行社\nfactory tour | 工厂参观\nincome | n. 收入；收益；所得\nhigher/middle/lower income groups | 较高 / 中等 / 较低收入阶层\ngenerate income | 产生收入\ndisposable income | 可支配收入\nincome tax | 所得税\nrefreshment | n.(售卖的) 饮料小食\nprovide complimentary refreshment | 提供免费茶点\nrefreshment room | 小吃部\nrefreshment tent | 活动小吃摊\nreimbursement | n. 偿还；补偿\ndemand for reimbursement | 索赔\ntravel reimbursements | 旅费报销\nreimbursement form | 报销单\npresentation | n. 介绍会；展示会；出示\ngive a presentation on new products | 举行一次新产品推介会\ndelay a presentation | 推迟介绍会\nattend a presentation | 参加介绍会\ncooperation | n. 合作；协作\nimprove cooperation among employees | 加强员工间的合作\nclose cooperation | 密切合作\nbargain | n. 减价品；便宜货 v. 和…… 讨价还价；讲价\nbargain prices | 廉价\nmake a bargain | 达成协议\nbargain with | 和…… 讨价还价\naccount | n. 账户；账目；老主顾 v. 认为是；视为\nsavings account | 储蓄账户\nopen a bank account | 开立银行账户\nprivate account | 私人账户\naccommodate | v. 容纳；顾及；适应\naccommodate new employees | 接纳新员工\naccommodate travel need | 满足旅行需要\nauthorize | vt. 批准；授权\nauthorized user | 授权用户\nauthorized signature | 授权签字\nflavor | n. 味道\nfruit flavor | 水果味\nflavor combination | 风味组合\napplicant | n. 申请人 (求职；进高校等)\npotential job applicant | 潜在求职者\nqualified applicant | 符合条件的申请人\ntestimonial | n. 证明信；介绍信；推荐信\ncheck out testimonials | 查看推荐信\nglowing testimonial | 充满赞誉的推荐信\ninventory | n. 库存；存货 vt. 开列清单\ntake inventory | 清点库存\ninventory management | 库存管理\nbusiness | n. 企业；商业；行业；贸易；业务\nbusiness card | 名片\nbusiness use | 商用\nbusiness operations | 企业经营活动\nbusiness management | 企业管理\nbusiness events | 商务活动\nout of business | 歇业；停业\npatron | n. 资助人；老主顾\npatron services | 客户服务';
 
-var SENT_RAW='People are applauding the players.|人们正在为演奏者鼓掌。\nThe lawns are being watered.|草地正在被浇水。\nThe man is putting on his glasses.|这个男人正在戴眼镜。\nShe is carrying two buckets.|她提着两个桶。\nShe is digging in the ground.|她正在挖地。\nThey are moving in opposite directions.|他们正在向相反的方向走去。\nThe men are mowing lawns.|男人们正在割草。\nThe road is being paved.|道路正在被铺。\nThe woman is paying for an item.|这个女人正在给商品付款。\nTrees are being planted.|树木正在被栽种。\nA woman is pointing at something on a drawing.|一个女人正在指着画上的什么东西。\nA man is taking a picture.|一个男人正在照相。\nA waiter is pouring water into cups.|一个服务生正在往杯子里倒水。\nHe is putting on a laboratory coat.|他正在穿实验室服。\nThey are taking off their uniforms.|他们正在脱他们的制服。\nThe man is reaching for his wallet.|这个男人正在掏钱包。\nThe ladder is being repaired.|梯子正在被修理。\nHe is working on the roof.|他正在屋顶上干活。\nA woman is shopping around in the supermarket.|一个女人在超市买东西。\nThey are strolling arm in arm.|他们正在挽着臂散步。\nThey are seated across from each other.|他们面对面地坐着。\nThe place is crowded with spectators.|这个地方挤满了观众。\nThe papers have been stacked up next to the copier.|纸已经被堆在复印机边上。\nThe bed needs to be made.|床需要铺一下。\nThe table is placed between the sofa and the lamp.|桌子被放在沙发和台灯中间。\nThere is a flower vase next to the stairway.|楼梯的旁边有一个花瓶。\nThe women have their legs crossed.|这些女人交叉着腿。\nThey are seated in a circle.|他们围坐成一圈。\nThe cars are all parked in a line.|汽车停成一排。\nThe boxes are lined up in a row.|箱子排成一排。\nThe man is leaning against the fence.|这个男人靠着篱笆。\nThe lawn has been neatly mowed.|草地被修剪得很平整。\nHe is standing at the newsstand.|他站在报刊亭。\nThe vehicles are parked next to each other.|车一辆挨着一辆地停放着。\nGarden furniture is set up outdoors.|花园家具被放在外面。\nThe shelves are packed with packages.|架子上摆满了包装盒。\nTwo men are watching at the parade.|两个男人正在看游行。\nLabels have been attached to some of the parts.|标签已经被贴在一些部件上。\nThe tables are partially shaded.|桌子被遮住了一部分。\nThere are no pedestrian on the side walk.|人行道上没有行人。\nFallen leaves have been piled up near the trees.|落叶堆在树边。\nOne of the doors has been left open.|其中一个门开着。\nThe floor has been polished to a shine.|地板被擦得发亮。\nThe woman is resting her chin on her hand.|这个女人用手托着下巴。\nThe files are scattered around the office.|文件散落在办公室。\nThe men are all wearing short-sleeved shirts.|男人们都穿着短袖衬衫。\nThe chairs are being painted.|椅子正在被涂漆。\nThey are all lined up side by side.|她们肩并肩站在一排。\nThe boxes are stacked up by the sink.|箱子堆在污水槽旁。\nAll the equipment has been removed from the site.|所有的设备已经被移出现场了。\nThere are skyscrapers on the other side of the river.|河的另一边有摩天大楼。\nThe building is only one story high.|这个建筑只有一层。\nThere are buildings of various heights.|这里有各种高度的建筑。\nPlease do not sit in the aisle.|请不要坐在走廊里。\nThe public phones are unoccupied.|公共电话没有被使用。\nStore all emergency items in a safe place.|把所有紧急物资储藏在一个安全的地方。\nNotices have been posted on the memo board.|通知被粘在了留言板上。\nPlease, clean the premises after use.|使用完场地后请打扫干净。\nHis greatest achievement was completing the report.|他最大的成就是完成了这个报告。\nPlease do not alter the report.|请不要改动这个报告。\nI am not done with the annual report yet.|我还没完成年度报告。\nThe budget proposal for next quarter is due on Wednesday.|下个季度预算计划书的最后期限是星期三。\nI have to revise my first draft today.|我今天必须要修订我的第一个草案。\nPut the flyer on my desk.|把传单放在我的桌子上。\nGoing over those documents will take some time.|浏览这些文件需要一些时间。\nCan you look through this for me?|你能帮我浏览一下这个吗？\nCan you help me with this cost proposal?|你能帮我做一下这个费用计划书吗？\nCan you review this report for me please?|能请你帮我审查一下这份报告吗？\nCould you also send the copy to the sales department?|你能再把这个复印件送去销售部吗？\nThe schedule charts are being distributed to the employees.|日程表正在被分发给员工。\nHe is sorting through some papers.|他正在给文件分类。\nDid you submit the spreadsheet by the due date?|你如期提交数据报表了吗？\nWhat time does the airport shuttle depart?|机场穿梭巴士几点出发？\nPlease use the alternative route.|请走另外一条路。\nThe subway is filled with passengers.|地铁里挤满了乘客。\nIf you park here, your car will be towed away.|如果你在这里停车，车将会被拖走。\nHow do I get to the subway station?|我怎么去地铁站？\nI want to give Mary a ride to the library.|我想搭载玛丽去图书馆。\nDue to heavy traffic, I will be delayed by an hour.|由于交通拥堵，我会晚到一个小时。\nA woman is using a public phone.|一个女人正在使用公共电话。\nThe traffic is jammed due to road work.|交通出现拥堵是由于道路施工。\nDo you know the shortcut to the airport?|你知道去机场的近路吗？\nThere are no spaces left in the parking lot.|停车场里没有车位了。\nThe bus has stopped by for passengers to board.|公共汽车停下让乘客上下车。\nMore people should use the public transportation.|更多的人应该使用公共交通工具。\nThe copy machine will be out of order until Friday.|复印机到星期五才能用。\nThe machine was missing a key component.|这个机器丢失了一个重要的零件。\nThe product was damaged during delivery.|产品在运送过程中被损坏了。\nThe product was defective.|这个产品不合格。\nThere is an error in this program.|这个程序中有一个错误。\nMy car is in the garage having the oil changed.|我的汽车正在修理厂里换机油。\nYou need to install the right software.|你需要安装正确的软件。\nThe machine keeps jamming papers all day long.|这个机器一整天都在不停地卡纸。\nThey are using lawnmowers.|他们正在使用割草机。\nThe boat is out of service and is being repaired.|船坏了，正在被修理。\nAn overhead projector has been set up on the table.|桌子上安装了一个高射投影仪。\nThe workers are replacing the windows.|工人们正在更换窗户。\nThe computer files need to be updated.|电脑数据需要更新。';
-
-var SYN_RAW='produce|/prəˈduːs/|生产；制造|manufacture;make|The company produces electronic components.\nmanufacture|/ˌmænjuˈfæktʃər/|制造|produce;fabricate|The factory manufactures car parts.\nproduct|/ˈprɑːdʌkt/|产品|merchandise;commodity|Our new product will launch next month.\nmerchandise|/ˈmɜːrtʃəndaɪz/|商品；货物|goods;commodity|All merchandise is discounted this week.\ncommodity|/kəˈmɑːdəti/|商品|product;goods|Oil is a valuable commodity.\ngoods|/ɡʊdz/|货物|merchandise;cargo|The goods arrived on time.\ncargo|/ˈkɑːrɡoʊ/|货物|freight;shipment|The cargo was loaded onto the ship.\ncomplete|/kəmˈpliːt/|完成|finish;finalize|Please complete the form by Friday.\nfinish|/ˈfɪnɪʃ/|完成|complete;conclude|We need to finish the project today.\nclient|/ˈklaɪənt/|客户|customer;patron|Our client is very satisfied with the service.\ncustomer|/ˈkʌstəmər/|顾客|client;consumer|The customer complained about the delay.\ndepartment|/dɪˈpɑːrtmənt/|部门|division;sector|She works in the marketing department.\ndivision|/dɪˈvɪʒn/|部门；分部|department;sector|He manages the sales division.\nsector|/ˈsektər/|部门；行业|department;industry|The public sector is hiring more staff.\nsection|/ˈsekʃn/|部门；部分|department;division|Please contact the accounting section.\nreference|/ˈrefrəns/|推荐；参考|recommendation|She provided a reference from her former employer.\nassign|/əˈsaɪn/|分配|allocate;distribute|The manager assigned the task to me.\nallocate|/ˈæləkeɪt/|分配|assign;distribute|Funds were allocated to each department.\nhire|/ˈhaɪər/|招聘|employ;recruit|We need to hire more staff.\nemploy|/ɪmˈplɔɪ/|雇佣|hire;recruit|The company employs over 500 people.\nrecruit|/rɪˈkruːt/|招聘|hire;employ|They are recruiting new graduates.\ncontract|/ˈkɑːntrækt/|合同|agreement|Please sign the contract before Friday.\nagreement|/əˈɡriːmənt/|协议|contract;deal|The two companies reached an agreement.\napplicant|/ˈæplɪkənt/|申请人|candidate|Each applicant must submit a resume.\nrevise|/rɪˈvaɪz/|修改|modify;amend|Please revise the draft before submitting.\nmodify|/ˈmɑːdɪfaɪ/|修改|revise;change|We need to modify the design.\nupdate|/ˌʌpˈdeɪt/|更新|revise;upgrade|Please update your contact information.\nrenovate|/ˈrenəveɪt/|翻新|remodel;upgrade|The hotel will be renovated next year.\nreturn|/rɪˈtɜːrn/|退货|refund;exchange|You can return the item within 30 days.\nrefund|/ˈriːfʌnd/|退款|reimburse;repay|The store issued a full refund.\nreplace|/rɪˈpleɪs/|更换|substitute;swap|We need to replace the broken printer.\nrepair|/rɪˈper/|修理|fix;service|The technician will repair the machine.\norder|/ˈɔːrdər/|订购|purchase;buy|I ordered new office supplies online.\nbuy|/baɪ/|购买|purchase;acquire|She bought a new laptop for work.\npurchase|/ˈpɜːrtʃəs/|购买|buy;acquire|You can purchase tickets at the door.\ndelivery|/dɪˈlɪvəri/|配送|shipment;distribution|The delivery will arrive tomorrow.\nshipment|/ˈʃɪpmənt/|货物；装运|delivery;cargo|The shipment was delayed due to weather.\nretailer|/ˈriːteɪlər/|零售商|store;vendor|The retailer offers competitive prices.\nsupplier|/səˈplaɪər/|供应商|provider;vendor|We switched to a new supplier.\nendorse|/ɪnˈdɔːrs/|认可|approve;support|The manager endorsed the proposal.\napprove|/əˈpruːv/|批准|endorse;authorize|The board approved the budget.\nfile|/faɪl/|文件|document;record|Please save the file on the server.\ndocument|/ˈdɑːkjumənt/|文件|file;paper|All documents must be signed.\nplant|/plænt/|工厂|factory;facility|The plant will be closed for maintenance.\nfactory|/ˈfæktəri/|工厂|plant;manufactory|The factory produces 1,000 units per day.\nestimate|/ˈestɪmeɪt/|评估|assess;evaluate|We need to estimate the project cost.\nevaluate|/ɪˈvæljueɪt/|评估|assess;appraise|We evaluate performance every quarter.\nsubmit|/səbˈmɪt/|提交|turn in;hand in|Please submit your report by Friday.\nrequire|/rɪˈkwaɪər/|需要|need;demand|This position requires fluent English.\ndecrease|/dɪˈkriːs/|减少|go down;drop|Sales decreased by 10% last quarter.\nannual|/ˈænjuəl/|每年的|yearly|The annual report is due next month.\nitinerary|/aɪˈtɪnəreri/|行程表|schedule;travel plan|Please review the itinerary before departure.\nexpire|/ɪkˈspaɪər/|到期|run out|Your passport will expire next year.\ndetermine|/dɪˈtɜːrmɪn/|确定|find out;ascertain|We need to determine the cause of the error.\nturn in|/tɜːrn ɪn/|上交|submit;hand in|Please turn in your assignment by Monday.\nput off|/pʊt ɔːf/|推迟|postpone;delay|The meeting was put off until next week.\ncut down|/kʌt daʊn/|削减|reduce;decrease|We need to cut down on expenses.\ninform|/ɪnˈfɔːrm/|通知|notify;announce|Please inform all staff of the change.\ncarry out|/ˈkæri aʊt/|执行|execute;implement|We will carry out the plan next week.\nadapt|/əˈdæpt/|适应|adjust;modify|You need to adapt to the new environment.\nadjust|/əˈdʒʌst/|调整|adapt;modify|Please adjust the settings on your computer.\nestablish|/ɪˈstæblɪʃ/|建立|found;set up|The company was established in 2005.';
+var SENT_RAW='### Day 1\nPeople are applauding the players. | 人们正在为表演者鼓掌。\nThe lawns are being watered. | 草地正在浇水。\nThe man is putting on his glasses. | 这名男子正在戴眼镜。\nShe is carrying two buckets. | 她提着两个桶。\nShe is digging in the ground. | 她正在挖地。\nThey are moving in opposite directions. | 他们正朝相反的方向走。\nThe men are mowing lawns. | 男人们正在修剪草坪。\nHe is playing a musical instrument on stage. | 他正在台上演奏乐器。\nThe road is being paved. | 道路正在铺设中。\nThe woman is paying for an item. | 这名女子正在为一件商品付款。\nThe pharmacist is handing some medicine to the patient. | 药剂师正在给患者递药。\nTrees are being planted. | 树木正在被栽种。\nThey’re playing on a swing in the playground. | 他们正在操场上荡秋千。\nA woman is pointing at something on a drawing. | 一名女子正指着图纸上的某处。\nA man is taking a picture. | 一名男子正在拍照。\nA waiter is pouring water into cups. | 一名服务生正往杯子里倒水。\nHe is putting on a laboratory coat. | 他正在穿实验服。\nThey are taking off their uniforms. | 他们正在脱制服。\nThe man is reaching for his wallet. | 这名男子伸手去拿钱包。\nThe ladder is being repaired. | 梯子正在修理中。\nHe is working on the roof. | 他正在屋顶上作业。\nShe is handing the schedule to her friend. | 她正把日程表递给朋友。\nA woman is shopping around in the supermarket. | 一名女子正在超市里逛。\nThey are strolling arm in arm. | 他们正挽着胳膊散步。\nA microscope has been placed symmetrically. | 一台显微镜被对称摆放着。\nThe horse is walking along the edge of the water. | 这匹马正沿着水边行走。\n### Day 2\nThey are seated across from each other. | 他们面对面坐着。\nThe man is standing next to the armchair. | 这名男子站在扶手椅旁边。\nThe place is crowded with spectators. | 这个地方挤满了观众。\nThe papers have been stacked up next to the copier. | 文件已经堆在复印机旁边。\nThe bed needs to be made. | 床铺需要整理。\nThe table is placed between the sofa and the lamp. | 桌子摆在沙发和台灯中间。\nThere is a flower vase next to the stairway. | 楼梯旁有一个花瓶。\nThe women have their legs crossed. | 这些女士跷着二郎腿。\nThey are seated in a circle. | 他们围坐成一圈。\nThe cars are all parked in a line. | 汽车都停成一排。\nThe boxes are lined up in a row. | 箱子排成一行。\nThe road splits in two directions. | 这条路分成两个方向。\nThe man is leaning against the fence. | 这名男子靠在篱笆上。\nThe lawn has been neatly mowed. | 草坪已经修剪得整整齐齐。\nHe is standing at the newsstand. | 他站在报刊亭旁。\nThe vehicles are parked next to each other. | 车辆一辆挨着一辆停放着。\nGarden furniture is set up outdoors. | 花园家具摆放在室外。\nThe shelves are packed with packages. | 架子上堆满了包装盒。\nTwo men are watching the parade. | 两名男子正在观看游行。\nLabels have been attached to some of the parts. | 标签已经贴在部分部件上。\nThe tables are partially shaded. | 桌子被遮住了一部分。\nThere are no pedestrians on the sidewalk. | 人行道上没有行人。\nFallen leaves have been piled up near the trees. | 落叶堆在树旁。\nOne of the doors has been left open. | 其中一扇门开着。\nThe floor has been polished to a shine. | 地板被擦得发亮。\nShe is looking at her face reflected in the mirror. | 她看着镜子里映照出的自己的脸。\n### Day 3\nThe woman is resting her chin on her hand. | 这名女子用手托着下巴。\nThe files are scattered around the office. | 文件散落在办公室各处。\nThe men are all wearing short-sleeved shirts. | 男人们都穿着短袖衬衫。\nThe chairs are being painted. | 椅子正在刷漆。\nThey are all lined up side by side. | 她们肩并肩排成一排。\nThe boxes are stacked up by the sink. | 箱子堆在水槽边。\nThe woman is sitting near the men. | 这名女子坐在那些男士旁边。\nAll the equipment has been removed from the site. | 所有设备都已搬离现场。\nThere are skyscrapers on the other side of the river. | 河的对岸有摩天大楼。\nThe boxes are stacked on top of one another. | 箱子一层摞着一层。\nPotted plants have been set out on the stairs. | 盆栽摆放在楼梯上。\nThey are standing in line at the front desk of the hotel. | 他们在酒店前台前排成一队。\nThe shelves have been stocked with products. | 货架上摆满了商品。\nThe building is only one story high. | 这栋建筑只有一层高。\nThere are buildings of various heights. | 这里有高低不一的建筑。\nWe hope we can accommodate your request. | 我们希望可以满足你的要求。\nPlease do not sit in the aisle. | 请勿坐在过道上。\nA strict dress code applies. | 执行严格的着装规范。\nThe new rule applies to all employees. | 新规定适用于所有员工。\nThe public phones are unoccupied. | 公用电话无人使用。\nStore all emergency items in a safe place. | 把所有应急物品存放在安全的地方。\nIn the event of a fire please gather in the car park. | 如遇火灾，请到停车场集合。\nNotices have been posted on the memo board. | 通知已经贴在留言板上。\nPlease clean the premises after use. | 使用完毕后请打扫场地。\nThe management would like to remind everyone of the company’s internet policy. | 管理层谨提醒全体人员注意公司的网络使用规定。\n### Day 4\nHis greatest achievement was completing the report. | 他最大的成就是完成了这份报告。\nPlease do not alter the report. | 请勿改动这份报告。\nI am not done with the annual report yet. | 我还没完成年度报告。\nThe budget proposal for next quarter is due on Wednesday. | 下季度预算提案的截止日期是周三。\nI have to revise my first draft today. | 我今天必须修改初稿。\nTurn your expense report in before the end of the year. | 年底前提交你的费用报告。\nAn extension is needed if he wants to meet the deadline. | 如果他想赶在截止日期前完成，就需要延期。\nPut the flyer on my desk. | 把传单放在我桌上。\nGoing over those documents will take some time. | 审阅那些文件需要一些时间。\nLet’s have a look at that report. | 我们来看一下那份报告吧。\nCan you look through this for me? | 你能帮我浏览一下这个吗？\nCan you help me with this cost proposal? | 你能帮我做一下这份成本方案吗？\nWhere is my copy of the new annual report? | 我的那份新年报在哪里？\nCan you review this report for me please? | 能请你帮我审核一下这份报告吗？\nCould you also send the copy to the sales department? | 你能把这份复印件也送到销售部吗？\nWhich chart shows the monthly sales figures for this past fiscal year? | 哪张图表显示了上一财年的月度销售数据？\nAren’t you familiar with the sales forecast report? | 你不熟悉这份销售预测报告吗？\nThe schedule charts are being distributed to the employees. | 日程表正在分发给员工。\nHe is sorting through some papers. | 他正在整理文件。\nDid you submit the spreadsheet by the due date? | 你在截止日期前提交电子表格了吗？\nCan you proofread these briefs for me by the end of next month? | 你能在下月底前帮我校对这些摘要吗？\nHow did your translation work go? | 你的翻译工作进展如何？\nI am really sorry for making a typo. | 非常抱歉出现了打字错误。\n### Day 5（交通）\nWhat time does the airport shuttle depart? | 机场穿梭巴士几点出发？\nPlease use the alternative route. | 请走另一条路线。\nI anticipate the drive will take no more than three hours. | 我预计车程不超过三小时。\nThe subway is filled with passengers. | 地铁里挤满了乘客。\nIf you park here, your car will be towed away. | 如果你在这里停车，车会被拖走。\nHow do I get to the subway station? | 我怎么去地铁站？\nI want to give Mary a ride to the library. | 我想载玛丽去图书馆。\nDue to heavy traffic, I will be delayed by an hour. | 由于交通拥堵，我会晚到一小时。\nThe car accident was due to her negligence. | 这场车祸是她的疏忽造成的。\nThe passengers are being shown to their seats. | 乘客正被引到座位上。\nIs there a place to park my car near the platform? | 站台附近有停车的地方吗？\nA woman is using a public phone. | 一名女子正在使用公用电话。\nThe traffic is jammed due to road work. | 道路施工导致交通拥堵。\nDo you know the shortcut to the airport? | 你知道去机场的近路吗？\nThere are no spaces left in the parking lot. | 停车场已经没有车位了。\nThe speed limit on this road is 70 mph (miles per hour). | 这条路的限速是每小时70英里。\nThe bus has stopped for passengers to board. | 公交车停下来让乘客上车。\nTake a right on 1st street, and follow that all the way down to the stadium. | 在第一大街右转，然后一直走到体育场。\nDo you know where the accident took place? | 你知道事故发生在哪里吗？\nMore people should use public transportation. | 更多人应该使用公共交通。\nThere’ll be a lot of traffic jams in the city, won’t there? | 城里会有很多交通堵塞，不是吗？\nThe traffic light is about to change. | 交通信号灯就要变了。\nIf you have to work late, then I will stop by your office to pick you up. | 如果你要加班，我会顺路去你办公室接你。\n### Day 6\nThe copy machine will be out of order until Friday. | 复印机到周五才能恢复使用。\nThe device should be plugged into a reliable power source. | 这台设备应接入可靠的电源。\nPurchasing a new machine is beyond our budget. | 买一台新机器超出了我们的预算。\nThe machine was missing a key component. | 这台机器少了一个关键部件。\nThe product was damaged during delivery. | 产品在运输途中受损。\nThe product was defective. | 该产品存在缺陷。\nThe old car was no longer efficient. | 这辆旧车已经不再高效了。\nThere is an error in this program. | 这个程序有一处错误。\nThe new car had an obvious fault. | 这辆新车有明显的故障。\nMy computer freezes so often that I can’t work efficiently. | 我的电脑经常死机，导致我无法高效工作。\nMy car is in the garage having the oil changed. | 我的车在修理厂换机油。\nDon’t leave the heater on when you leave the house. | 离开家时别开着暖气。\nYou need to install the right software. | 你需要安装正确的软件。\nThe machine keeps jamming papers all day long. | 这台机器一整天都在卡纸。\nThey are using lawnmowers. | 他们正在使用割草机。\nAre you still online? | 你还在线吗？\nThe press wasn’t operating. | 这台印刷机无法运转。\nThe boat is out of service and is being repaired. | 这艘船停运了，正在修理。\nAn overhead projector has been set up on the table. | 桌子上架好了一台投影仪。\nThe workers are replacing the windows. | 工人们正在更换窗户。\nDo you know if there are any ink cartridges left in the supply cabinet? | 你知道储物柜里还有墨盒吗？\nThe copier is turned off. | 复印机关着。\nThe computer files need to be updated. | 电脑文件需要更新。\n### Day 7\nCustomers have the right to ask for their money back. | 顾客有权要求退款。\nThe computer was only available in white. | 这款电脑只有白色款有货。\nHe could not find a bargain. | 他找不到便宜货。\nHe is not satisfied with their service. | 他对他们的服务不满意。\nIf we don\'t hurry, the tickets will be sold out. | 如果不快点，票就卖完了。\nDo you think we need a shopping cart? | 你觉得我们需要购物车吗？\nCan we send you a catalogue? | 我们可以给您寄一份产品目录吗？\nThey just opened a new chain store downtown. | 他们刚在市中心开了一家新连锁店。\nHere\'s your change, sir. | 先生，这是找您的钱。\nThey might charge you extra for being late. | 你迟到的话，他们可能会加收费用。\nAll proceeds from today’s event will go to a charity. | 今天活动的全部收益将捐给慈善机构。\nThere are many styles to choose from. | 有很多款式可供选择。\nThe consumer is always right. | 顾客永远是对的。\nThe shirt was a good fit. | 这件衬衫很合身。\nIf you purchase our product during this week, we will offer free delivery. | 如果您本周购买我们的产品，我们将提供免费配送。\nGo to the grocery store and buy some milk. | 去杂货店买些牛奶。\nThis product comes with a full five-year guarantee. | 该产品享有整整五年的保修。\nCheck out our list of new products. | 看看我们的新产品清单吧。\nLog on to our website when you feel the time is right. | 方便时请登录我们的网站。\nIt is good to look around before you buy. | 买之前多逛逛是件好事。\nDo you know what to look for? | 你知道要挑什么样的吗？\nThose shoes are already marked down. | 那些鞋子已经降价了。\nWhen is it going to be on sale? | 什么时候打折？\nYou can buy this item only at BBC outlet in California. | 这件商品只能在加利福尼亚的BBC专营店买到。\n### Day 8\nYou’ve got to pay me more because these books are overdue. | 你得多付我钱，因为这些书过期了。\nCan I pay by credit card or do I have to pay in cash? | 我可以用信用卡支付吗，还是必须付现金？\nHe quoted you a price of $500 without tax. | 他给你的报价是500美元，不含税。\nYou can pick one of the cards in the rack. | 你可以从架子上的卡片里选一张。\nWhere can I pick up an iPod 3 player for a reasonable price? | 我在哪里能以合理的价格买到iPod 3播放器？\nCan I have a 20% reduction? | 可以给我打八折吗？\nThe customers need their receipts to return items for a refund. | 顾客退货需要出示收据。\nHave you heard about the refund guarantee? | 你听说过退款保障吗？\nI need to reissue the bill. | 我需要重新开账单。\nWho do I speak to about the return policy? | 我该找谁咨询退货政策？\nHe is reaching for some items on the top of the shelf. | 他伸手去够架子顶层的商品。\nWe went to the shopping mall not far from here to shop for groceries. | 我们去不远处的购物中心买食品。\nHere are some striped ones. | 这里有一些带条纹的。\nWould you please hold my stuff? | 能帮我看一下东西吗？\nHow long did you subscribe to the newspaper? | 你订这份报纸多久了？\nThis tie does not go with my suit. | 这条领带和我的西装不搭。\nDoes the price include tax? | 这个价格含税吗？\nPlease read this ticketing policy carefully before you buy the tickets on the internet. | 在网上购票前，请仔细阅读购票须知。\nWhat is the trend these days? | 最近流行什么？\nThey said they were going to try this on. | 他们说要试穿一下这个。\nSome fruit is being weighed on a scale. | 一些水果正在称重。\nHow much is a yearly subscription? | 订阅一年多少钱？\n### Day 9\nThey added more help to the sales department. | 他们给销售部增派了人手。\nShe was the first female applicant. | 她是第一位女性申请者。\nPlease return a completed application form if you are interested in the job. | 如果你对这份工作感兴趣，请交回填好的申请表。\nYou should apply for the job at that consulting firm Jenny was talking about. | 你应该申请珍妮提到的那家咨询公司的职位。\nWe’re planning to appoint David to the position of vice president. | 我们计划任命大卫为副总裁。\nMy boss is fluent in both Vietnamese and French. | 我的老板越南语和法语都很流利。\nShe is well qualified for the government service. | 她完全胜任这份公职。\nTheir hope was to be transferred overseas. | 他们希望被调往海外工作。\nHe did not want to work in a branch office. | 他不想在分公司工作。\nSarah deserves a promotion. | 萨拉理应获得晋升。\nTom will be designated to head the project. | 汤姆将被任命为该项目负责人。\nJack was unhappy with his poor evaluation. | 杰克对自己的差评很不满意。\nThis job requires at least 2 years of working experience. | 这份工作要求至少两年工作经验。\nStress was a big factor in her resignation. | 压力是她辞职的重要原因。\nWe need to get approval before we proceed. | 我们开始之前需要获得批准。\nIf you do not hand the assignment in on time you will receive a lower grade. | 如果你不按时交任务，评分就会更低。\nDo you want to have an interview with our director? | 你想和我们主管面谈吗？\nJane will be the new head of the marketing department. | 简将出任市场部新主管。\nThey need to hire more temporary staff. | 他们需要雇佣更多临时工。\nThey say he will be the human resources manager. | 据说他将担任人力资源经理。\nMs. Smith hoped to implement a new hiring policy. | 史密斯女士希望推行一项新的招聘政策。\n### Day 10\nYou need to improve your work efficiency if you want a promotion. | 如果你想晋升，就需要提高工作效率。\nI’m sorry, but we are going to have to let you go. | 很抱歉，我们不得不辞退你。\nAre you going to hire temporary workers to help manufacture by the deadline? | 你们打算雇临时工来赶在截止日期前完成生产吗？\nMay I speak to someone in charge of the marketing department? | 我可以和市场部负责人通话吗？\nI heard the mayor of Seoul is retiring next month due to a health problem. | 我听说首尔市长因健康问题将于下月退休。\nIn spite of difficulty, we agreed on a 5% pay raise. | 尽管困难重重，我们还是达成了涨薪5%的共识。\nWhere should I pick up my paycheck? | 我去哪里领工资？\nWhat time did you punch out today? | 你今天几点打卡下班的？\nI\'d like to recommend Eric. | 我想推荐埃里克。\nWho is retiring early this year? | 谁今年提前退休？\nI am doing my best to socialize with the co-workers. | 我正尽力和同事处好关系。\nWhere was the supervisor when the machine broke down? | 机器出故障时，主管在哪里？\nWho has the key to the supply room? | 谁有补给室的钥匙？\nShe was born with a talent for design. | 她天生就有设计天赋。\nI’m being transferred to Paris. | 我要被调往巴黎了。\nThe company is understaffed because of low salaries. | 这家公司因为薪资低而人手不足。\nHas the vacant position in the accounts department been filled? | 财务部的空缺职位有人补上了吗？\nAshley has moved up the ranks over the years to become the head of the sales department. | 经过多年打拼，阿什利晋升为销售部主管。\n### Day 11\nThat scarf is matched well with your shirt. | 这条围巾和你的衬衫很搭。\nI would like to catch up with you soon. | 我希望很快能和你叙叙旧。\nThe stadium is closed for today. | 体育场今天闭馆。\nDial the number, then press 2. | 拨号码，然后按2。\nMy suit is at the drycleaner’s. | 我的西装在干洗店。\nThe power bill is due tomorrow. | 电费账单明天到期。\nCheck the expiration date before you eat that. | 吃之前先看一下保质期。\nHelen hoped to be invited to the farewell party. | 海伦希望能受邀参加欢送会。\nSarah had herbs planted in the flower pot. | 萨拉在花盆里种了香草。\nFuel prices look as if they will increase again. | 燃料价格似乎还会上涨。\nIt will take some time to get settled. | 安定下来还需要一段时间。\nHe is ready to go fishing. | 他准备好去钓鱼了。\nCan you hang the laundry on the line? | 你能把洗好的衣服挂在绳子上吗？\nIt is an honor to meet you. | 很荣幸认识您。\nThey have not seen each other in ages. | 他们很多年没见面了。\nWe apologize for the inconvenience. | 给您带来不便，我们深表歉意。\nCan I see your license, please? | 请出示一下驾照可以吗？\nWould you like me to make coffee for you? | 我给你冲杯咖啡好吗？\nIt\'s a good idea to make use of the weekend. | 好好利用周末是个好主意。\nWe’re sorry, but all our operators are busy at the moment. | 很抱歉，目前所有话务员都在忙。\nHow much is it to make an overseas call? | 打越洋电话多少钱？\nI always go out for a walk with my pet. | 我经常和我的宠物出去散步。\nI placed my books in alphabetical order. | 我把书按字母顺序摆放。\nOur prospects for winning the game are great at the moment. | 目前我们赢得比赛的胜算很大。\nGive my best regards to your family. | 代我向你的家人问好。\n### Day 12\nThe best seats are reserved. | 最好的座位都被预订了。\nI have an appointment to see the doctor at 6 pm. | 我下午六点预约了看医生。\nI will be late because I am stuck in traffic. | 我会迟到，因为堵车了。\nThis site will be under construction for the next two weeks. | 该地点未来两周将进行施工。\nConfirm your reservation as soon as possible. | 请尽快确认你的预订。\nContact me as soon as you can. | 请尽快联系我。\nJames looks forward to meeting you. | 詹姆斯期待与你见面。\nShouldn\'t we make a reservation in advance? | 我们难道不应该提前预订吗？\nHow did your appointment with the marketing director go? | 你和市场部主管的会面怎么样？\nWould you mind if I cancelled the appointment tomorrow? | 你介意我取消明天的会面吗？\nDidn’t Mrs. Yoo notify you of the cancellation? | 柳女士没有通知你取消的事吗？\nLet’s talk about it over a cup of coffee. | 我们边喝咖啡边谈吧。\nIt was postponed due to the bad weather. | 因为天气不好，活动延期了。\nSorry, I already have a previous appointment. | 抱歉，我已经有别的安排了。\nWhat do you want to do with my reservation number? | 你要我的预订号做什么？\nWe’re behind schedule. | 我们比进度晚了。\nThe meeting was scheduled for Monday, but it has been put off till next week. | 会议原定在周一，但已经推迟到下周了。\nAfter all, she didn\'t show up. | 到头来，她还是没露面。\nWe threw a farewell party in honor of Mr. Kim. | 我们为金先生举办了欢送会。\nI really want to go there on time, but something urgent came up. | 我真的很想准时到，但突然出了紧急状况。\n### Day 13\nHow can I open an account? | 我怎样开立账户？\nI have to check my balance at the bank. | 我得去银行查一下余额。\nThe bank was unhappy with his credit history. | 银行对他的信用记录不满意。\nCould you fill out this application for the loan? | 你能填一下这份贷款申请表吗？\nJane was hesitant to take out another loan. | 简犹豫要不要再贷一笔款。\nThe interest rate on his credit card was too high. | 他信用卡的利率太高了。\nI will pay back what I owe as soon as possible. | 我会尽快还清欠款。\nHe left without taking the security deposit at the bank. | 他没取回银行保证金就走了。\nOur team represented our group at the game. | 我们队代表小组参加了比赛。\nWhat field of research are you studying now? | 你现在研究哪个领域？\nFollow these directions, and you will find the bank easily. | 按照这些指示走，你很容易就能找到银行。\nMy younger brother is right-handed. | 我弟弟是右撇子。\nRoll up your left sleeve and make a fist, please. | 请挽起左袖，握紧拳头。\nIt is much safer for the children to wear safety helmets when biking. | 孩子们骑自行车时戴安全帽要安全得多。\nI’m just calling to see if you’re all right. | 我打电话来就是想看看你是否安好。\nI asked the cleaner to remove the stain. | 我让清洁工把污渍除掉。\nI saw you were taking a cab with your girlfriend yesterday. | 我昨天看到你和女朋友坐出租车。\nGo down two blocks, turn right. | 往前走两个街区，右转。\nI went for a walk after dinner this evening. | 今晚晚饭后我去散步了。\nThey walked in different directions. | 他们朝不同的方向走了。\nWho\'s that waving to you? | 朝你挥手的那个人是谁？\nWhy don\'t we straighten up this room? | 我们为什么不整理一下房间呢？\nI wonder if there is a post office around here. | 我想知道这附近有没有邮局。\n### Day 14\nThe letter will arrive by courier. | 这封信将由快递送达。\nPlease send the package by express. | 请用快递寄这个包裹。\nPlease deliver the package to the second floor. | 请把包裹送到二楼。\nMark the box on the left as fragile. | 在箱子左侧标注“易碎”。\nWe will send an invoice in the mail. | 我们会把发票寄过去。\nYour merchandise shipment hasn\'t arrived. | 你订的货物还没到。\nI’ll send a notice out with the minutes from this evening’s meeting. | 我会把今晚的会议记录一并通知下去。\nWhere will you be sending this quality control report? | 你要把这份质量控制报告发到哪里？\nWe will ship the item to you as soon as we can. | 我们会尽快把货物寄给你。\nHow will the shipment be transported? | 这批货物将如何运输？\nThe worker is unloading the shipment. | 工人正在卸货。\nShe lived across the street from me. | 她住在我家街对面。\nThere are buildings along the path. | 沿路有建筑物。\nThe convenience store was damaged in the fire. | 便利店在火灾中受损。\nWe are conveniently located in the city center. | 我们地处市中心，交通便利。\nResidents were excited to establish a health club. | 居民们很高兴能成立一家健身俱乐部。\nMy apartment is for rent. | 我的公寓出租。\nIt was much further than he first thought. | 比他最初想的要远得多。\nThe fences on both sides of the street are being painted white. | 街道两侧的栅栏正在被刷成白色。\nSevere earthquakes often take place in LA. | 洛杉矶经常发生强烈地震。\nIt\'s $700 a month, including utilities. | 每月700美元，含水电费。\nCould you tell me when I have to vacate the room? | 能告诉我什么时候必须腾出房间吗？\n### Day 15\nWe must check and see what’s on this morning’s agenda. | 我们得确认一下今天上午的日程安排。\nThe annual meeting will be held at the city hotel. | 年会将在城市酒店举行。\nIt was a pleasure to attend the annual conference. | 很高兴能参加年度会议。\nEmployees are encouraged to participate in the workshop. | 鼓励员工参加讲习班。\nA board meeting will be held on the first Tuesday of every month. | 每月第一个周二召开董事会。\nThe groundbreaking ceremony will start after all the guests arrive. | 奠基仪式将在所有嘉宾到场后开始。\nLet\'s meet at the conference room downstairs. | 我们在楼下的会议室碰面吧。\nI haven\'t enrolled in the seminar yet. | 我还没报名参加研讨会。\nHer speech on marketing strategies was fascinating. | 她关于营销策略的演讲非常精彩。\nJulie had to give a presentation on Saturday. | 朱莉周六得做一场演示。\nPlease hand out these papers to the audience. | 请把这些资料分发给观众。\nWe were impressed with your presentation. | 你的演示给我们留下了深刻印象。\nThe president will make an address. | 总裁将发表讲话。\nAren\'t you going to the management meeting? | 你不去参加管理层会议吗？\nThe meeting is still ongoing. | 会议仍在进行中。\nRefreshments will be available on the first floor. | 一楼提供茶点。\nNon-members can register at the tables located in the east entrance. | 非会员可在东入口的桌台处注册。\nThe team is presenting the revised report to the board. | 团队正在向董事会汇报修订后的报告。\nI would like to welcome you to our second annual social worker seminar. | 欢迎各位参加我们第二届年度社工研讨会。\nWhy isn’t James coming to the staff meeting? | 詹姆斯为什么不来参加全体员工会议？\nWho will take charge of the company picnic? | 谁来负责公司的野餐活动？\n### Day 16\nMy cousin works in a multinational accounting firm. | 我表哥在一家跨国会计公司工作。\nThe job will be advertised in the paper. | 这个职位将在报纸上刊登招聘广告。\nThe man and the woman signed the agreement. | 这名男子和这名女子签署了协议。\nHis assistant will take care of the calls. | 他的助理会处理这些来电。\nThe monthly audit will be cancelled this month. | 本月的月度审计将取消。\nDue to bad weather, construction is two weeks behind schedule. | 由于天气恶劣，施工比进度晚了两周。\nThat news boosted our stock prices in the market. | 那则消息推高了我们的市场股价。\nShe might be able to earn a higher commission. | 她可能会拿到更高的佣金。\nShe was confident of favorable results. | 她对取得好结果充满信心。\nAlways conform to company policy. | 请始终遵守公司规定。\nThe construction cost was over budget. | 施工费用超出了预算。\nConsult our website for more information. | 更多信息请访问我们的网站。\nAny contribution is appreciated. | 感谢每一份捐助。\nThe corporation made a healthy profit. | 公司获得了可观的利润。\nThe company promised to cover my expenses. | 公司承诺报销我的所有费用。\nCan you cover for me today? | 你今天能替我当班吗？\nThey would have been fired if they did not meet the deadline. | 如果没赶上截止日期，他们就会被解雇。\nI have to display our new arrivals. | 我得陈列我们的新品。\nPlease distribute the flyer among the public. | 请向公众发放传单。\nInvesting overseas is an effective way to make money. | 海外投资是一种高效的赚钱方式。\nIt is best to get permission before you start the project. | 启动项目前最好先获得许可。\nOur headquarters are located in Geneva. | 我们的总部位于日内瓦。\nCan you pay me in advance? | 你可以预付给我钱吗？\n### Day 17\nFollow the instruction to the letter. | 严格遵照说明执行。\nShe is going to make a copy of the document. | 她打算去复印这份文件。\nI am making no progress on this assignment. | 这项任务我没有任何进展。\nWhat is the extension for the management department? | 管理部门的分机号是多少？\nWhat is the average profit margin of the company? | 公司的平均利润率是多少？\nABC Bank merged with ACE Commercial Bank. | ABC银行与ACE商业银行合并了。\nHow often do you work overtime? | 你多久加一次班？\nHow long is this policy good for? | 这项政策的有效期是多久？\nThe product was in stock last week, wasn’t it? | 这款产品上周有货，不是吗？\nWhen do you think we can reach an agreement? | 你觉得我们什么时候能达成协议？\nI don\'t really understand why the first release date was postponed. | 我不太明白为什么首发日期推迟了。\nWhen is the plant scheduled to reopen? | 工厂预计什么时候复工？\nCould you please tell them to return my call? | 能请你转告他们给我回电话吗？\nThe sales representatives, John and Sam, were given $50 and $70, respectively. | 销售代表约翰和萨姆分别拿到了50美元和70美元。\nHow about stocking up on water for emergency? | 储备些水以备不时之需怎么样？\nThe stockholder said that our market shares had increased this quarter by 10%. | 股东表示，本季度我们的市场份额增长了10%。\nThe problem will be taken care of shortly. | 问题很快就会得到处理。\nWhy don’t you talk to the technician about the problem? | 你为什么不和技术人员谈谈这个问题？\nWhy is the stock market tumbling these days? | 最近股市为什么暴跌？\nThe crates are being moved into the warehouse. | 板条箱正被搬进仓库。\nI will do anything to win the contract. | 为了赢得合同，我愿意做任何事。\n### Day 18\nYou can book your accommodations online. | 你可以在网上预订住宿。\nYou should arrange the airline tickets as soon as possible. | 你应该尽快安排机票。\nAt this time of year, it is great to go hiking in the mountains. | 每年这个时候，去山里徒步旅行非常棒。\nThe restaurant will be fully booked on Christmas. | 这家餐厅圣诞节会被订满。\nIt is always necessary to book a seat on the train. | 坐火车通常都需要预订座位。\nThe view was breathtaking. | 景色令人惊叹。\nPlease show your ticket to the conductor. | 请向乘务员出示车票。\nThe customs of the host country confused him. | 东道国的风俗把他搞糊涂了。\nMy passport is about to expire. | 我的护照快到期了。\nJill loved to explore new cities. | 吉尔喜欢探索新城市。\nI need to get some time off to visit my father. | 我需要请假去看望我父亲。\nThe travel itinerary will be emailed to you. | 旅行行程将通过电子邮件发送给你。\nWhen are you going to leave for Vietnam? | 你什么时候动身去越南？\nI wanted to move to another country. | 我想搬到另一个国家。\nTickets are non-refundable and valid only on AB airlines. | 机票不可退票，且仅适用于AB航空公司的航班。\nIt took a long time to pass through immigration at the airport. | 在机场通过入境检查花了很长时间。\nShe is holding her passport in her hand. | 她手里拿着护照。\nWhere did you leave your possessions on the plane? | 你把随身物品放在飞机上什么地方了？\nHe is suffering from jet lag. | 他正在受时差反应的困扰。\nHow about going to the Great Wall of China? | 去中国的万里长城怎么样？\nI made a reservation at a travel agency in advance. | 我已经提前在旅行社预订了。\nThe travel agent suggested that we’d better go there on the weekend. | 旅行社建议我们最好周末去那里。\n### Day 19\nAre you allergic to any medicine? | 你对什么药物过敏吗？\nI’m not feeling well. I think I might call in sick. | 我感觉不舒服，我想我得打电话请病假。\nShe looks like she might come down with a cold. | 她看上去好像要感冒了。\nThe doctor is examining his patient. | 医生正在给病人做检查。\nThe gym had only the best equipment. | 这家健身房只有最顶级的器材。\nEating fatty food can result in heart disease. | 吃油腻食物会引发心脏病。\nBrush your teeth three times a day to protect your teeth. | 每天刷三次牙，保护牙齿。\nI wish you a speedy recovery. | 祝你早日康复。\nI will reduce all the fast food I eat for my health. | 为了健康，我要少吃快餐。\nTake this medicine right after each meal. | 每次饭后立即服用此药。\nI signed up for the fitness club so as to get into shape. | 为了塑形，我报名参加了健身俱乐部。\nShe stressed the necessity of a healthy diet. | 她强调了健康饮食的必要性。\nIt is unlikely that my mom will fully recover. | 我妈妈不太可能完全康复。\nYou should be more concerned about your health. | 你应该更关注自己的健康。\nMy sprained wrist swelled so big. | 我扭伤的手腕肿得很厉害。\nThe patients on the waiting list are in the waiting room. | 候诊名单上的病人都在候诊室里。\nThe audience is watching the man playing a guitar. | 观众正在看这名男子弹吉他。\nThe exhibition will start early next week. | 展览将于下周初开幕。\nWould you like to join us this Friday night to hear the orchestra? | 这周五晚上想和我们一起听管弦乐演出吗？\nYou can take your seats and watch our children perform. | 大家可以就座，观看我们的孩子们表演。\nThe show will include meals. | 演出包含餐食。\nWho’s in the lead role? | 主演是谁？\n### 补充例句\nThe shipment will be delayed. | 货物将被延迟。\nPlease submit your report by Friday. | 请在周五前提交报告。';
+var SYN_RAW='submit | 提交 | turn in;hand in\nimplement | 实施，执行 | carry out;execute\nfulfill | 满足；履行 | meet;satisfy\npromptly | 迅速地；准时地 | immediately;instantly\nsophisticated | 精密的；复杂的 | complex;refined\noutstanding | 杰出的 | exceptional;remarkable\naccessible | 可进入的；可利用的 | available;reachable\npermanently | 永久地 | perpetually;forever\ncontain | 包含；容纳 | include;hold\nnotify | 通知 | inform;advise\ndemonstrate | 证明；示范 | illustrate;show\nsubsequent | 随后的 | following;succeeding\nessential | 必要的 | crucial;vital\nconsider | 考虑；认为 | think about;regard as\nmatter | 问题；事情 | issue;affair\npurchase | 购买 | buy;acquire\ncomplimentary | 免费的 | free of charge;at no cost\ncharge | 收费；要求 | bill;require\nsecure | 获得；确保 | obtain;acquire\nconsume | 消耗 | use up;deplete\nboost | 提高；促进 | enhance;improve\nestimate | 估算 | evaluate;assess\nrefund | 退款 | reimburse;repay\nexpire | 到期 | run out;lapse\ninvoice | 发票 | bill;statement\ncolleague | 同事 | co-worker;staff member\napplicant | 申请人 | candidate;job seeker\nengage | 参与；雇佣 | involve;hire\ninitiative | 计划；倡议 | project;plan\nexpertise | 专业知识 | proficiency;skill\npersonnel | 全体人员 | staff;workforce\nappoint | 任命 | nominate;designate\nredundant | 被裁员的 | laid off;dismissed\nproductive | 有成效的 | fruitful;effective\ncompliant | 顺从的；遵守的 | obedient;conforming\npostpone | 推迟 | delay;put off\nannounce | 宣布 | inform;notify\nsummarize | 总结 | sum up;recap\ncorrespondence | 通信；信件 | letters;communications\nfeedback | 反馈意见 | response;input\nfunction | 活动；集会 | gathering;event\nordinarily | 通常 | typically;usually\njust | 恰好；正好 | exactly;precisely\nbacked | 被支持的 | supported;endorsed\ncapture | 表达；捕捉 | represent;reflect\naccommodations | 住宿 | lodging;places to stay\nitinerary | 行程；路线 | schedule;travel plan\nbeverage | 饮料 | drink;refreshment\nbelongings | 随身物品 | possessions;personal items\navenue | 途径；大道 | means;method\nbiweekly | 每两周一次 | every two weeks;fortnightly\nannual | 每年的 | yearly;per annum\ndecade | 十年 | 10 years;ten-year period\nabide by | 遵守 | comply with;conform to\nagreement | 协议 | contract;arrangement\nterminate | 终止 | end;conclude\nbinding | 有约束力的 | enforceable;obligatory\ndraft | 起草 | prepare;compose\nrenew | 续签 | extend;prolong\nstipulation | 条款 | condition;requirement\nbreach | 违反 | violation;infringement\nassurance | 保证 | guarantee;certainty\nobligate | 使有义务 | compel;bind\nresolve | 解决 | settle;address\nconsequence | 结果；后果 | outcome;result\nreputation | 名声；声誉 | fame;standing\nobtain | 获得 | get;acquire\nrequire | 需要 | need;demand\nprovide | 提供 | offer;supply\nassist | 帮助 | help;aid\nattempt | 尝试 | try;endeavor\ncomplete | 完成 | finish;accomplish\ncommence | 开始 | begin;start\nretain | 保留 | keep;maintain\nselect | 选择 | choose;pick\nverify | 核实 | confirm;validate\nexamine | 检查 | inspect;check\nrepair | 修理 | fix;mend\nparticipate | 参加 | take part in;join\ncancel | 取消 | call off;abort\ndiscuss | 讨论 | talk about;debate\nincrease | 增加 | raise;boost\ndecrease | 减少 | reduce;lower\nsufficient | 足够的 | enough;adequate\nnumerous | 许多的 | many;countless\nadditional | 额外的 | extra;further\nvacant | 空的 | empty;unoccupied\nmandatory | 强制的 | required;compulsory\nprohibited | 禁止的 | not allowed;forbidden\neligible | 有资格的 | qualified;entitled\nconvenient | 方便的 | suitable;handy\nannually | 每年 | yearly;each year\ncurrently | 目前 | now;presently\npreviously | 以前 | before;formerly\napproximately | 大约 | about;roughly\nregarding | 关于 | about;concerning\ndespite | 尽管 | in spite of;notwithstanding\nhowever | 然而 | but;nevertheless\ntherefore | 因此 | so;thus\nfurthermore | 此外 | in addition;moreover\nnevertheless | 尽管如此 | nonetheless;however\nprior to | 在…… 之前 | before;ahead of\ndue to | 由于 | because of;owing to\nin the event of | 如果发生 | in case of;if\nas well as | 以及 | in addition to;along with\na variety of | 各种各样的 | various;assorted\na number of | 许多 | several;many\nbe aware of | 意识到 | know;realize\nbe responsible for | 负责 | handle;manage\nbe subject to | 可能受…… 影响 | may be affected by;liable to\ncomply with | 遵守 | follow;adhere to\ncarry out | 执行 | perform;conduct\ntake over | 接管 | assume control;take charge\nlook into | 调查 | investigate;examine\nset up | 建立 | establish;found\ngo over | 复习；检查 | review;check\nfill out | 填写 | complete;fill in\nturn in | 提交 | submit;hand in\nput off | 推迟 | postpone;delay\ncall off | 取消 | cancel;abort\ncome up with | 想出 | devise;think of\nrun out of | 用完 | exhaust;use up\nlook forward to | 期待 | anticipate;expect\nkeep track of | 跟踪 | monitor;follow\nget in touch with | 联系 | contact;reach\nbe in charge of | 负责 | manage;supervise\non behalf of | 代表 | representing;for\nin accordance with | 根据 | according to;in line with\nwith regard to | 关于 | concerning;regarding\nin advance | 提前 | beforehand;ahead of time\nat no cost | 免费 | free;complimentary\non time | 准时 | punctual;on schedule\nout of stock | 缺货 | unavailable;not available\nup to date | 最新的 | current;modern\naddress | 处理；致辞 | deal with;handle\nanticipate | 预期；预料 | expect;foresee\nallocate | 分配 | distribute;assign\nalter | 改变 | change;modify\nassemble | 组装；集合 | put together;gather\ncalculate | 计算 | compute;estimate\ncollaborate | 合作 | cooperate;work together\nconclude | 结束；得出结论 | finish;infer\nconfirm | 确认 | verify;validate\nconstitute | 构成；组成 | make up;comprise\nconvey | 传达；运输 | communicate;transport\ncounter | 反驳；抵消 | oppose;offset\ndecline | 下降；拒绝 | decrease;refuse\ndeliver | 递送；交付 | send;hand over\ndiminish | 减少；降低 | reduce;decrease\neliminate | 消除；淘汰 | remove;get rid of\nemerge | 出现；兴起 | appear;arise\nensure | 确保 | guarantee;make sure\nestablish | 建立 | set up;found\nexceed | 超过 | surpass;go beyond\nexpand | 扩张；扩大 | grow;enlarge\ngenerate | 产生；生成 | produce;create\ngrant | 授予；允许 | give;award\nhandle | 处理 | deal with;manage\nincur | 招致；遭受 | cause;suffer\nindicate | 表明；指示 | show;suggest\ninquire | 询问 | ask about;investigate\ninspect | 检查 | examine;check\nintegrate | 整合；合并 | combine;unify\ninterpret | 解释；解读 | explain;understand\nlaunch | 推出；发起 | start;introduce\nmaintain | 维持；保养 | keep;preserve\nnegotiate | 谈判 | discuss;bargain\noccur | 发生 | happen;take place\noperate | 运营；操作 | run;work\noversee | 监督；监管 | supervise;monitor\nproceed | 继续进行 | continue;go ahead\npromote | 推广；晋升 | advance;boost\npropose | 提议；建议 | suggest;put forward\npursue | 追求；从事 | seek;engage in\nrecommend | 推荐 | suggest;advise\nrecruit | 招聘 | hire;enlist\nrefer | 参考；提及 | mention;allude to\nreflect | 反映；思考 | show;think about\nregulate | 监管；调节 | control;adjust\nreject | 拒绝 | refuse;turn down\nrelease | 发布；释放 | issue;let go\nremind | 提醒 | prompt;warn\nreplace | 替换 | substitute;exchange\nrepresent | 代表；体现 | stand for;symbolize\nrespond | 回应 | reply;react\nrestrict | 限制 | limit;constrain\nrevise | 修改；修订 | modify;edit\nschedule | 安排；预定 | plan;arrange\nseek | 寻求 | look for;search for\nsolve | 解决 | resolve;work out\nspecify | 详细说明 | state clearly;define\nsponsor | 赞助；主办 | fund;organize\nstaff | 配备人员 | employ;man\nsubstitute | 替代 | replace;stand in for\nsucceed | 成功；继承 | achieve;follow\nsupervise | 监督 | oversee;manage\nsurpass | 超过 | exceed;go beyond\nsuspend | 暂停；中止 | pause;halt\ntransfer | 转移；调动 | move;shift\nupdate | 更新 | modernize;bring up to date\nutilize | 利用 | use;make use of\nwithdraw | 撤回；取款 | pull out;take out\nabundant | 充足的 | plentiful;ample\naccurate | 准确的 | precise;exact\nadvantageous | 有利的 | beneficial;favorable\nappropriate | 合适的 | suitable;proper\nbeneficial | 有益的 | helpful;advantageous\ncompetitive | 有竞争力的 | aggressive;cutting-edge\ncomprehensive | 全面的 | complete;thorough\nconsiderable | 相当大的 | significant;substantial\nconsistent | 一致的；始终如一的 | uniform;steady\ncrucial | 关键的 | critical;vital\ncurrent | 当前的 | present;existing\ndefinite | 明确的 | clear;certain\nefficient | 高效的 | effective;productive\nequivalent | 等同的 | equal;same\nexcessive | 过多的 | too much;unnecessary\nextensive | 广泛的；大规模的 | wide-ranging;large-scale\nfavorable | 有利的；良好的 | positive;advantageous\nflexible | 灵活的 | adaptable;adjustable\nformal | 正式的 | official;conventional\nfrequent | 频繁的 | common;regular\nfundamental | 基本的 | basic;essential\ngeneral | 一般的；总的 | overall;common\nideal | 理想的 | perfect;optimal\nimmediate | 立即的 | instant;prompt\nimportant | 重要的 | significant;vital\ninitial | 最初的 | first;beginning\nintensive | 密集的；集中的 | concentrated;thorough\nmajor | 主要的 | main;primary\nmaximum | 最大的 | highest;peak\nminimum | 最小的 | lowest;least\nnecessary | 必要的 | essential;required\nnegative | 负面的；消极的 | bad;adverse\nobvious | 明显的 | clear;apparent\nofficial | 官方的 | formal;authorized\noptional | 可选的 | voluntary;not required\noverall | 总体的 | general;total\nparticular | 特定的 | specific;certain\npermanent | 永久的 | lasting;lifelong\npractical | 实用的 | useful;workable\npreliminary | 初步的 | initial;preparatory\nprimary | 主要的 | main;chief\nprofessional | 专业的 | expert;skilled\nproper | 合适的；正确的 | appropriate;correct\nrecent | 最近的 | latest;new\nregular | 定期的；常规的 | routine;standard\nreliable | 可靠的 | dependable;trustworthy\nsignificant | 重大的；显著的 | considerable;notable\nsimilar | 相似的 | alike;comparable\nsuitable | 合适的 | appropriate;fit\ntotal | 总的 | overall;complete\ntypical | 典型的 | representative;common\nurgent | 紧急的 | pressing;critical\nvaluable | 有价值的 | precious;worthwhile\nvarious | 各种各样的 | different;diverse\nvoluntary | 自愿的 | optional;unforced\nwidely | 广泛地 | broadly;extensively\nacknowledgment | 确认；致谢 | recognition;thanks\nadjustment | 调整 | change;modification\nalternative | 替代方案 | option;choice\napproach | 方法；途径 | method;way\napproval | 批准；同意 | consent;agreement\nassistance | 帮助 | help;aid\nattention | 注意；关注 | notice;focus\nauthority | 权威；当局 | power;officials\nbudget | 预算 | funding;allocation\ncapability | 能力 | ability;capacity\ncareer | 职业 | job;profession\nchallenge | 挑战 | difficulty;test\nclient | 客户 | customer;patron\ncomment | 评论 | remark;feedback\ncommitment | 承诺；投入 | promise;dedication\ncommunication | 沟通；交流 | contact;exchange\ncompetition | 竞争 | contest;rivalry\ncomplaint | 投诉 | grievance;objection\nconclusion | 结论 | end;result\ncondition | 条件；状况 | state;requirement\nconsultation | 咨询；磋商 | discussion;meeting\ncontract | 合同 | agreement;deal\ncontribution | 贡献；捐款 | donation;input\nconvenience | 便利 | ease;comfort\ndeadline | 截止日期 | time limit;cut-off date\ndemand | 需求；要求 | need;request\ndepartment | 部门 | division;section\ndevelopment | 发展；开发 | growth;progress\ndisadvantage | 劣势 | drawback;weakness\neffect | 效果；影响 | impact;result\nefficiency | 效率 | productivity;performance\neffort | 努力 | attempt;endeavor\nemployer | 雇主 | boss;company\nenvironment | 环境 | surroundings;atmosphere\nequipment | 设备 | machinery;tools\nevaluation | 评估 | assessment;review\nevent | 活动；事件 | occasion;incident\nevidence | 证据 | proof;documentation\nexpectation | 期望 | hope;anticipation\nexpense | 费用；开支 | cost;charge\nexperience | 经验；经历 | background;practice\nfacility | 设施 | building;equipment\nfeature | 特点；功能 | characteristic;function\ngoal | 目标 | aim;target\nguideline | 指导方针 | rule;recommendation\nimprovement | 改善；提高 | progress;enhancement\ninformation | 信息 | data;details\ninstruction | 指示；说明 | direction;order\nintention | 意图 | purpose;aim\ninventory | 库存 | stock;goods\nissue | 问题；发行 | problem;publication\nitem | 物品；项目 | article;unit\nknowledge | 知识；了解 | understanding;awareness\nleadership | 领导力 | management;guidance\nlevel | 水平；级别 | degree;rank\nmeasure | 措施；测量 | step;assessment\nmeeting | 会议 | conference;gathering\nmethod | 方法 | way;approach\nopportunity | 机会 | chance;possibility\noption | 选择 | choice;alternative\norder | 订单；命令 | request;command\norganization | 组织；机构 | company;institution\noutline | 大纲；概要 | summary;sketch\nperformance | 表现；性能 | achievement;results\npolicy | 政策 | rule;guideline\nposition | 职位；位置 | job;place\npractice | 做法；惯例 | custom;procedure\nprocedure | 程序；步骤 | process;step\nprocess | 过程；流程 | procedure;course\nproduct | 产品 | goods;item\nprofit | 利润 | gain;earnings\nprogress | 进展 | advancement;improvement\nproject | 项目 | plan;scheme\nproposal | 提议；提案 | suggestion;plan\nprovision | 提供；条款 | supply;condition\nquality | 质量 | standard;grade\nquantity | 数量 | amount;number\nrange | 范围；系列 | scope;variety\nrate | 比率；价格 | ratio;price\nreason | 原因；理由 | cause;justification\nrecommendation | 推荐 | suggestion;advice\nrecord | 记录；档案 | document;file\nreference | 参考；提及 | citation;mention\nregulation | 规定；法规 | rule;law\nrelationship | 关系 | connection;association\nreport | 报告 | account;summary\nrequest | 请求 | demand;appeal\nrequirement | 要求 | need;condition\nresearch | 研究 | study;investigation\nresponsibility | 责任 | duty;obligation\nresult | 结果 | outcome;consequence\nrevenue | 收入；收益 | income;earnings\nrisk | 风险 | danger;hazard\nrole | 角色；作用 | part;function\nservice | 服务 | assistance;help\nsituation | 情况 | circumstance;state\nsolution | 解决方案 | answer;resolution\nstandard | 标准 | norm;benchmark\nstrategy | 策略 | plan;approach\nstructure | 结构 | framework;organization\nsuccess | 成功 | achievement;accomplishment\nsupport | 支持；帮助 | aid;backing\nsystem | 系统；体系 | network;method\ntarget | 目标 | goal;objective\ntask | 任务 | assignment;job\nteam | 团队 | group;crew\ntechnology | 技术 | technique;method\ntraining | 培训 | instruction;coaching\ntrend | 趋势 | tendency;movement\ntrouble | 麻烦；问题 | problem;difficulty\nunderstanding | 理解；协议 | comprehension;agreement\nvariety | 多样；种类 | diversity;range\nworkforce | 劳动力 | staff;personnel\nin terms of | 就…… 而言 | regarding;concerning\nin favor of | 支持；赞成 | supporting;for\nin order to | 为了 | so as to;to\nin place of | 代替 | instead of;replacing\nin relation to | 关于；涉及 | regarding;concerning\ninstead of | 而不是 | rather than;in place of\non account of | 由于 | because of;due to\non average | 平均 | typically;normally\non condition that | 条件是 | provided that;if\non purpose | 故意地 | deliberately;intentionally\non the whole | 总体上 | generally;overall\nout of date | 过时的 | old-fashioned;obsolete\nowing to | 由于 | because of;due to\nso as to | 为了 | in order to;to\nso that | 以便 | in order that;thus\ntake advantage of | 利用 | make use of;benefit from\ntake into account | 考虑到 | consider;allow for\ntake place | 发生 | happen;occur\nthanks to | 多亏；由于 | because of;due to\nwith the exception of | 除了…… 之外 | except for;apart from\nwithout delay | 立即 | immediately;promptly';
 
 var GRAMMAR_RAW=[
-{q:'All reports must be submitted ___ Friday afternoon.',opts:['by','until','since','for'],ans:0,ex:'by + 时间点表示不迟于…的截止时间。',tag:'介词'},
-{q:'___ the heavy rain, the outdoor event was held as scheduled.',opts:['Despite','Although','Because','However'],ans:0,ex:'Despite 是介词，后接名词短语。',tag:'连词'},
-{q:'Employees are required to ___ with the company dress code.',opts:['comply','obey','follow','respect'],ans:0,ex:'comply with 是固定搭配。',tag:'动词搭配'},
-{q:'The new software will be ___ next month.',opts:['install','installed','installing','installation'],ans:1,ex:'被动语态 be + 过去分词。',tag:'语态'},
-{q:'Ms. Lee has been working at this firm ___ 2015.',opts:['for','since','during','from'],ans:1,ex:'since + 时间点。',tag:'介词'},
-{q:'The manager asked the staff to ___ their reports by noon.',opts:['submission','submit','submitted','submitting'],ans:1,ex:'ask sb to do sth。',tag:'非谓语'},
-{q:'The company is looking for a ___ candidate to fill the position.',opts:['qualified','qualifying','qualification','qualify'],ans:0,ex:'形容词修饰名词。',tag:'词性'},
-{q:'All visitors must register ___ arrival at the front desk.',opts:['on','in','at','by'],ans:0,ex:'on arrival 是固定搭配。',tag:'介词'},
-{q:'The shipment will be ___ tomorrow morning.',opts:['dispatch','dispatched','dispatching','dispatcher'],ans:1,ex:'被动语态 will be + 过去分词。',tag:'语态'},
-{q:'We need to ___ our expenses to stay within budget.',opts:['reduce','deduce','produce','induce'],ans:0,ex:'reduce 意为减少。',tag:'词汇辨析'},
-{q:'Ms. Park is ___ for the marketing department.',opts:['responsible','responsibility','responsibly','response'],ans:0,ex:'be responsible for 固定搭配。',tag:'固定搭配'},
-{q:'The new policy will take ___ on January 1.',opts:['effect','affect','effort','afford'],ans:0,ex:'take effect 是固定搭配。',tag:'固定搭配'},
-{q:'The elevator is ___ maintenance and cannot be used.',opts:['under','in','on','at'],ans:0,ex:'under maintenance 意为正在维护中。',tag:'介词'},
-{q:'The annual report shows a significant ___ in revenue.',opts:['increase','increasing','increased','increasingly'],ans:0,ex:'形容词修饰名词。',tag:'词性'},
-{q:'The contract must be signed ___ both parties before Friday.',opts:['by','from','with','of'],ans:0,ex:'by 表示动作执行者。',tag:'介词'},
-{q:'___ you have any questions, please contact the IT department.',opts:['If','Unless','Although','Because'],ans:0,ex:'If 表示条件。',tag:'连词'},
-{q:'The company plans to ___ its operations into overseas markets.',opts:['expand','expend','expense','expansion'],ans:0,ex:'expand 意为扩展。',tag:'词汇辨析'},
-{q:'The shipment was delayed ___ the severe weather.',opts:['due to','because','although','so'],ans:0,ex:'due to 后接名词。',tag:'连词'},
-{q:'We are pleased to ___ that your application has been approved.',opts:['announce','announcement','announcing','announced'],ans:0,ex:'be pleased to do sth。',tag:'非谓语'},
-{q:'The manager will ___ the proposal before the meeting.',opts:['review','reviews','reviewed','reviewing'],ans:0,ex:'will + 动词原形。',tag:'时态'}
+{q:'We are grateful to Mr. Stern for ___ our associates.',opts:['welcome','welcoming','welcomed','welcomes'],ans:1,ex:'介词 for 后接动名词 welcoming。',tag:'动名词'},
+{q:'___ the bad location, the management is confident of success.',opts:['Although','Because','Despite','However'],ans:2,ex:'前后句是让步关系；Despite 是介词，后接名词短语。',tag:'连词/介词'},
+{q:'If you are stopped by the police and suspected of drunken driving, you will probably be ___ to take some type of test.',opts:['ask','asking','asks','asked'],ans:3,ex:'被动语态 be + 过去分词；ask sb. to do 变成 be asked to do。',tag:'被动语态'},
+{q:'Political parties are prohibited from accepting ___ of more than 200 dollars.',opts:['donations','donation','donate','donated'],ans:0,ex:'捐款是可数名词，此处应用复数形式表示多笔捐款。',tag:'名词单复数'},
+{q:'The more familiar you become with your classmates, the ___ comfortable you will feel.',opts:['most','more','much','many'],ans:1,ex:'the + 比较级, the + 比较级 结构；comfortable 比较级用 more comfortable。',tag:'比较级结构'},
+{q:'I recommend that the presentation you will give next week be ___ of the overall market trends.',opts:['reflect','reflection','reflective','reflectively'],ans:2,ex:'be reflective of 意为反映...。',tag:'词性'},
+{q:'HPR Press achieved the ___ overall rating from its customers in a recent independent survey.',opts:['high','higher','highly','highest'],ans:3,ex:'在调查中取得最高的评分，用最高级。',tag:'最高级'},
+{q:'Jill Shedd, the financial advisor, has a comprehensive ___ of money management.',opts:['knowledge','opinion','ability','material'],ans:0,ex:'comprehensive knowledge of 意为对...有全面的了解/知识。',tag:'名词辨析'},
+{q:'This summer, ___ high temperatures are expected, so people will be finding ways to stay cool and healthy.',opts:['completely','unbearably','indifferently','presumably'],ans:1,ex:'unbearably 意为难以忍受地，用来修饰形容词 high。',tag:'副词辨析'},
+{q:'The local government should start ___ reforms now; otherwise, the economy in this region is getting worse.',opts:['economy','economist','economic','economically'],ans:2,ex:'修饰名词 reforms 需要用形容词 economic。',tag:'形容词辨析'},
+{q:'The multinational companies offer their employees better ___ than other companies but they are engaged in tasks.',opts:['enthusiasm','value','forces','benefits'],ans:3,ex:'benefits 在此处指福利待遇。',tag:'名词辨析'},
+{q:'The most powerful fiscal action our government can take to stimulate the economy is to ___ taxes.',opts:['lower','lowered','lowering','lowers'],ans:0,ex:'句中已有系动词 is，后面需要用不定式 to do 作表语，所以选动词原形 lower。',tag:'动词形式'},
+{q:'I\'d never ___ studying for an MBA but my boss just offered to help cover the cost of tuition if I do.',opts:['been','considered','thought','contemplating'],ans:1,ex:'consider doing sth. 意为考虑做某事。',tag:'动词辨析'},
+{q:'Should the alarm sound, please ___ make your way to the rallying points.',opts:['usually','inherently','calmly','increasingly'],ans:2,ex:'修饰动词 make，表示冷静地前往。',tag:'副词辨析'},
+{q:'If payment is not received ___ three days of delivery, a 1% late fee per day is charged.',opts:['until','by','during','within'],ans:3,ex:'within + 时间段 表示在...之内，符合语境。',tag:'介词辨析'},
+{q:'If you are looking for a good restaurant in your area, look it up in our ___ directory of local restaurants.',opts:['comprehensive','various','apparent','redundant'],ans:0,ex:'comprehensive 意为全面的、综合的，修饰 directory。',tag:'形容词辨析'},
+{q:'Automakers are recovering from weak results ___ a series of complicated restructuring processes.',opts:['behind','through','above','except'],ans:1,ex:'through 表示通过...方式/途径。',tag:'介词辨析'},
+{q:'___ inclement weather conditions, employees must arrive at the beginning of their work shift.',opts:['Unless','In order to','Despite','Because'],ans:2,ex:'前后是让步关系；Despite 是介词，后接名词短语。',tag:'连词/介词'},
+{q:'The director of the Marketing Department is responsible for ___ the company\'s image.',opts:['promote','promoted','promotes','promoting'],ans:3,ex:'介词 for 后接动名词 promoting。',tag:'动名词'},
+{q:'The presenter ___ mispronounced the name of the author when she gave a speech yesterday.',opts:['accidentally','accident','accidental','accidents'],ans:0,ex:'修饰动词 mispronounced，需要用副词 accidentally。',tag:'副词辨析'},
+{q:'Anyone who develops an effective ___ for reducing production time will be awarded a special bonus.',opts:['response','technique','compensation','goal'],ans:1,ex:'technique 意为技术、方法。',tag:'名词辨析'},
+{q:'Marion Jones had ___ finished her victory lap when Maurice Green joined her as an Olympic 100-meter champion.',opts:['no sooner','rarely','barely','seldom'],ans:2,ex:'had barely done... when... 是固定句型；no sooner 需要搭配 than。',tag:'固定搭配'},
+{q:'Don\'t hesitate. Please notify the front desk ___ the problem reoccurs.',opts:['while','as','as much as','as soon as'],ans:3,ex:'as soon as 意为一...就...，引导时间状语从句。',tag:'连词短语'},
+{q:'Customers who purchase a Z-1000 desktop computer before February 3rd will receive a free printer at no extra ___.',opts:['charge','frequency','value','product'],ans:0,ex:'at no extra charge 是固定搭配，意为无需额外付费。',tag:'名词辨析'},
+{q:'Customers of Kent\'s Hardware have the choice of contacting store locations by phone ___ through the Internet.',opts:['and','or','but','so'],ans:1,ex:'两者选其一，用 or。',tag:'连词'},
+{q:'According to the recent survey, growth of facility investment tends to fall ___ there is a presidential election.',opts:['while','because','when','although'],ans:2,ex:'引导时间状语从句，表示当...的时候。',tag:'连词'},
+{q:'A large number of people living in the countryside depend directly or indirectly ___ the tobacco business.',opts:['in','at','for','on'],ans:3,ex:'depend on 是固定搭配，意为依赖、依靠。',tag:'固定搭配'},
+{q:'Even though the two appliances were not made by the same manufacturers, they are ___ in terms of their quality.',opts:['comparable','compares','comparing','comparison'],ans:0,ex:'comparable 意为可比较的、类似的。',tag:'形容词辨析'},
+{q:'We need more details, ___ who, when, what, and where.',opts:['moreover','for example','however','accordingly'],ans:1,ex:'后面列举了具体细节，是对前面 more details 的举例说明。',tag:'连接词'},
+{q:'Everyone ___ Ms. St. John has submitted an application.',opts:['to','from','but','for'],ans:2,ex:'but 在此处作介词，意为除了...之外。',tag:'连词/介词'},
+{q:'Trying to force one\'s religious beliefs on someone else is futile, for no one can ___ another person believe anything.',opts:['let','have','allow','make'],ans:3,ex:'make sb. do sth. 意为使/让某人做某事。',tag:'动词辨析'},
+{q:'The staff here at Compudesign are ___ to satisfying the needs of all of our computer system purchasers.',opts:['committed','vowed','expected','honored'],ans:0,ex:'be committed to doing sth. 是固定搭配，意为致力于/承诺做某事。',tag:'形容词/分词'},
+{q:'Airline tickets that are not confirmed at least 48 hours before departure carry no ___ of a seat and are subject to involuntary bumping.',opts:['confidence','assurance','location','acceptance'],ans:1,ex:'assurance 意为保证、担保。',tag:'名词辨析'},
+{q:'As a ___ measure, Cordell Financial Fund does not disclose information about its clients unless legally mandated to do so.',opts:['continuous','settled','protective','rival'],ans:2,ex:'protective measure 意为保护措施。',tag:'形容词辨析'},
+{q:'All members of the staff will be ___ with a bonus and two extra vacation days.',opts:['refueled','replenished','restocked','rewarded'],ans:3,ex:'be rewarded with 意为被奖励以...。',tag:'动词辨析'},
+{q:'Please make sure that all the volts in overhead compartments are tightened ___.',opts:['securely','security','secure','securing'],ans:0,ex:'修饰动词 tightened，需要用副词 securely。',tag:'副词辨析'},
+{q:'When I closed the window, all of the files and folders on my desktop computer ___ except for the icon.',opts:['disappeared','had disappeared','have disappeared','will have disappeared'],ans:1,ex:'主句动作发生在从句动作 closed 之前，用过去完成时。',tag:'时态/语态'},
+{q:'Even though there are ___ available, the monthly commuter pass is the most economical way to commute.',opts:['another','the other','others','other'],ans:2,ex:'others 相当于 other ones，泛指其他的选择。',tag:'代词辨析'},
+{q:'The director of the transit authority is looking for the ways to ___ traffic flow especially in a densely populated area.',opts:['regulated','regulating','regulates','regulate'],ans:3,ex:'ways to do sth.，to 后接动词原形 regulate。',tag:'动词形式'},
+{q:'Since Ms. Henderson was out sick that day, Mr. Erickson had to fly to Bangkok to participate in the conference by ___.',opts:['himself','herself','itself','themselves'],ans:0,ex:'by oneself 意为独自地，主语是 Mr. Erickson，故用 himself。',tag:'反身代词'},
+{q:'The award banquet for our faculties will begin ___ at 10 a.m. on Monday.',opts:['precise','precisely','precision','preciseness'],ans:1,ex:'修饰动词 begin，表示确切地、正好在...，需要用副词 precisely。',tag:'副词'},
+{q:'The team members have the same opinions on the matter ___ they shared the same information.',opts:['because','following','unless','although'],ans:0,ex:'前后句是因果关系，because 正确。',tag:'连词/介词'},
+{q:'By using the search function, you can search for words or sets of words ___ a specific article.',opts:['where','within','while','wherever'],ans:1,ex:'在...范围内搜索文章用 within。',tag:'介词辨析'},
+{q:'It\'s important that the clients ___ interested.',opts:['seems','seemed','seem','seeming'],ans:2,ex:'It is important that + 主语 + (should) do，动词用原形 seem。',tag:'虚拟语气'},
+{q:'The room was ___ noisy that no one was able to hear the announcement.',opts:['such','too','very','so'],ans:3,ex:'so + 形容词 + that 引导结果状语从句。',tag:'结果状语从句'},
+{q:'The Chrysler corporation posted ___ profits on Friday 17th of January.',opts:['impressive','impress','impresses','impression'],ans:0,ex:'修饰名词 profits 需要用形容词 impressive。',tag:'词性辨析'},
+{q:'The flight arrived late ___ stormy weather.',opts:['because','because of','although','so'],ans:1,ex:'后接名词短语 stormy weather 表示原因，用 because of。',tag:'介词短语'},
+{q:'Employees who meet their quotas ___ the last week of the month can expect bonuses.',opts:['between','until','by','since'],ans:2,ex:'by + 时间点表示不迟于。',tag:'介词辨析'},
+{q:'As part of our latest marketing strategy, this coupon ___ customers to save more money.',opts:['promotes','prevents','forces','allows'],ans:3,ex:'allow sb. to do sth. 允许某人做某事。',tag:'动词辨析'},
+{q:'All laboratory employees make it a point to take every ___ to avoid potential hazards.',opts:['precaution','advice','rule','idea'],ans:0,ex:'take precaution 是固定搭配，意为采取预防措施。',tag:'名词辨析'},
+{q:'The factory had to be shut down for a week because defective equipment was ___ with new.',opts:['prepared','replaced','derived','revised'],ans:1,ex:'be replaced with 被替换为。',tag:'词义辨析'},
+{q:'If you want to make a reservation by check, it must be received by January 1 and must ___ this form.',opts:['associate','account','accompany','assume'],ans:2,ex:'accompany 意为伴随、附带。',tag:'动词辨析'},
+{q:'For further information on paydays and paid or unpaid vacations, please refer to ___ employee handbook.',opts:['you','yours','yourself','your'],ans:3,ex:'修饰名词 handbook 需要用形容词性物主代词 your。',tag:'代词'},
+{q:'Her speech did not inspire any public support; ___ it made people less sympathetic to her cause.',opts:['indeed','consequently','otherwise','factually'],ans:0,ex:'前后句是递进/强调关系，indeed 表示实际上、甚至。',tag:'连词/副词'},
+{q:'Declines in absenteeism and increased ___ led the company to provide across-the-board pay raises.',opts:['producers','productivity','production','product'],ans:1,ex:'生产力提高 increased productivity 符合逻辑。',tag:'名词辨析'},
+{q:'I ___ him to finish editing the manuscript by Friday.',opts:['said','tell','told','telling'],ans:2,ex:'tell sb. to do sth.；said 不能直接接 sb. to do。',tag:'时态/动词'},
+{q:'The general meeting ___ on June 7, 2005 in the Oak Room at the historic Charlton Mansion.',opts:['held','was holding','has held','was held'],ans:3,ex:'会议是“被举行”，且时间为过去某一天，用一般过去时被动语态。',tag:'时态/语态'},
+{q:'If there are no ___ objections, those plans will become the final plans.',opts:['serious','displaced','minor','strong'],ans:0,ex:'serious objections 意为严重的反对意见。',tag:'词义辨析'},
+{q:'She has not sought employment outside of the local area ___ she lacks transportation.',opts:['that','as','if','unless'],ans:1,ex:'as 在这里引导原因状语从句，由于缺乏交通工具。',tag:'连词'},
+{q:'A private investor purchased the historic castle, which ___ renovations before being opened to public.',opts:['undergoes','underwent','will undergo','will be undergone'],ans:2,ex:'城堡将被翻新，用将来时；undergo 通常不用被动。',tag:'时态/动词'},
+{q:'The main artists ___ paintings are being sold at the Garrett Gallery are Elaine Crick.',opts:['who','which','that','whose'],ans:3,ex:'修饰 artists 的所有格，意为他们的画作被出售的艺术家们。',tag:'定语从句'},
+{q:'Service occupations are prevalent in all sectors of the economy, such as in manufacturing as ___ as in the service sector.',opts:['well','good','better','best'],ans:0,ex:'as well as 是固定短语，意为以及。',tag:'固定搭配'},
+{q:'Mr. Eugene has completely ___ into a happy, self-confident man since he recovered from heart surgery.',opts:['suffered','changed','turned','grown'],ans:1,ex:'change into 意为变成。',tag:'动词辨析'},
+{q:'If Mr. Singh ___ to apply for the position, he would be hired in an instant.',opts:['was','is','were','had'],ans:2,ex:'对现在情况的虚拟条件句，If + 主语 + were to do。',tag:'虚拟语气'},
+{q:'The city council admits that ___ of the new tunnel will seriously disrupt vehicular and pedestrian traffic.',opts:['construct','constructing','constructive','construction'],ans:3,ex:'需要一个名词作主语，construction 是名词。',tag:'名词/动名词'},
+{q:'The additional costs of having a book bound as a library edition are well worth the ___.',opts:['expense','tariff','fare','quantity'],ans:0,ex:'expense 指花费、开支。',tag:'名词辨析'},
+{q:'If you need further information or have any question about ___ your merchandise, please send an e-mail.',opts:['return','returning','returned','returns'],ans:1,ex:'介词 about 后接动名词 returning。',tag:'动名词'},
+{q:'We will help you find ___ and cost-effective solutions to drive your business.',opts:['comprehension','comprehensively','comprehensive','comprehend'],ans:2,ex:'修饰名词 solutions，并与 cost-effective 并列，需要用形容词。',tag:'词性'},
+{q:'The document ___ copied has already been taken to the office by Ms. McCluskey.',opts:['being','been','to being','to be'],ans:3,ex:'to be copied 作后置定语，表示将要被复印的文件。',tag:'不定式/语态'},
+{q:'Many on-line retailers state that it is ___ than they expected to set prices.',opts:['more difficult','difficult','most difficult','difficulty'],ans:0,ex:'句中有 than，需要用比较级；difficult 比较级为 more difficult。',tag:'比较级'},
+{q:'We are not happy to announce that due to recent cutbacks on members, we won\'t be able to accept new projects ___ further notice.',opts:['by','until','since','for'],ans:1,ex:'until further notice 是固定短语，意为直到另行通知。',tag:'介词短语'},
+{q:'If you send the ___ information, I\'ll drop by your area to look for suitable housing.',opts:['serious','enthusiastic','pertinent','appreciative'],ans:2,ex:'pertinent 意为相关的、切题的。',tag:'形容词辨析'},
+{q:'The employees\' responses to the new training seminars have been ___ positive.',opts:['overwhelming','overwhelmed','overwhelm','overwhelmingly'],ans:3,ex:'修饰形容词 positive，需要用副词 overwhelmingly。',tag:'副词修饰'},
+{q:'The individuals working in the Marketing Department of the Million Hotel have worked ___ hard throughout the year.',opts:['exceptionally','exceptional','exception','except'],ans:0,ex:'修饰副词 hard，需要用副词 exceptionally。',tag:'副词修饰'},
+{q:'While on the work site, it is the foreman\'s job to ___ the tasks to be carried out by the individual construction teams.',opts:['associate','assign','appraise','affect'],ans:1,ex:'assign tasks 意为分配任务。',tag:'动词辨析'},
+{q:'Situated within the beautiful Ozark valley, the Endymion Resort is one of the most ___ located conference sites in the state.',opts:['absolutely','willingly','agreeably','certainly'],ans:2,ex:'修饰 located，agreeably 在这里意为令人愉快地/舒适地。',tag:'副词辨析'},
+{q:'Guests are reminded ___ use of this facility is restricted to people over the age of 12.',opts:['which','what','if','that'],ans:3,ex:'remind sb. that... 引导宾语从句。',tag:'连词/宾语从句'},
+{q:'By the time Joan Kroc died in 2003, her contributions ___ one billion dollars to charitable organizations.',opts:['exceeded','conducted','indicated','founded'],ans:0,ex:'exceeded 意为超过数量。',tag:'动词辨析'},
+{q:'Because of the increase in tourism during the winter months, the Ebony Palms Hotel and Resort plans to ___ additional staff for the next three months.',opts:['expand','recruit','revise','converse'],ans:1,ex:'recruit staff 意为招募员工。',tag:'动词辨析'},
+{q:'The cheapest mode of transportation ___ the airport is the shuttle bus.',opts:['on','off','from','next'],ans:2,ex:'from the airport 从机场出发。',tag:'介词短语'},
+{q:'People who love animals always insist that the rights of animals ___ acknowledged and respected.',opts:['are','is','were','be'],ans:3,ex:'insist that + 主语 + (should) do 是虚拟语气，动词用原形 be。',tag:'虚拟语气'},
+{q:'Seven out of 10 teams ___ for Atlanta Dragons submitted written documents.',opts:['except','until','next','responsible'],ans:0,ex:'except for 表示除了...之外。',tag:'连词/介词'}
 ];
-
-function parseWords(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|||');var w=(p[0]||'').trim();var ph='',pos='',cn='',ex='',exCn='';if(p.length>=6){ph=(p[1]||'').trim();pos=(p[2]||'').trim();cn=(p[3]||'').trim();ex=(p[4]||'').trim();exCn=(p[5]||'').trim()}else if(p.length>=4){ph=(p[1]||'').trim();pos=(p[2]||'').trim();cn=(p[3]||'').trim()}else if(p.length>=2){cn=(p[1]||'').trim()}return{id:'w'+(i+1),w:w,ph:ph,pos:pos,cn:cn,ex:ex,exCn:exCn}})}
-function parseSents(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|');return{id:'t'+(i+1),en:(p[0]||'').trim(),cn:(p[1]||'').trim()}})}
-function parseSyns(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|');return{id:'s'+(i+1),w:(p[0]||'').trim(),ph:(p[1]||'').trim(),cn:(p[2]||'').trim(),syns:(p[3]||'').split(/[;；]/).map(function(x){return x.trim()}).filter(Boolean),ex:(p[4]||'').trim()}})}
+function parseWords(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|');var w=(p[0]||'').trim();var cn=(p[1]||'').trim();return{id:'w'+(i+1),w:w,ph:'',pos:'',cn:cn,ex:'',exCn:''}})}
+function parsePhrases(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|');return{id:'p'+(i+1),en:(p[0]||'').trim(),cn:(p[1]||'').trim()}})}
+function parseSents(raw){return raw.split('\n').filter(function(l){return l.trim()&&l.indexOf('###')!==0}).map(function(line,i){var p=line.split('|');return{id:'t'+(i+1),en:(p[0]||'').trim(),cn:(p[1]||'').trim()}})}
+function parseSyns(raw){return raw.split('\n').filter(function(l){return l.trim()}).map(function(line,i){var p=line.split('|');return{id:'s'+(i+1),w:(p[0]||'').trim(),ph:'',cn:(p[1]||'').trim(),syns:(p[2]||'').split(/[;；]/).map(function(x){return x.trim()}).filter(Boolean),ex:''}})}
 
 var SEED_WORDS=parseWords(WORDS_RAW);
+var SEED_PHRASES=parsePhrases(PHRASES_RAW);
 var SEED_SENTS=parseSents(SENT_RAW);
 var SEED_SYNS=parseSyns(SYN_RAW);
 var SEED_GRAMMAR=GRAMMAR_RAW.map(function(g,i){return{id:'g'+(i+1),q:g.q,opts:g.opts,ans:g.ans,ex:g.ex,tag:g.tag}});
 var DB=null;
 
-function defaultDB(){return{current:'A',roles:{A:{srs:{},daily:{},logs:{},wrong:{}},B:{srs:{},daily:{},logs:{},wrong:{}}},content:{words:SEED_WORDS.slice(),sentences:SEED_SENTS.slice(),synonyms:SEED_SYNS.slice(),grammar:SEED_GRAMMAR.slice()},settings:{newPerDay:20,reviewPerDay:20}}}
+function defaultDB(){return{current:'A',roles:{A:{srs:{},daily:{},logs:{},wrong:{},progress:{}},B:{srs:{},daily:{},logs:{},wrong:{},progress:{}}},content:{words:SEED_WORDS.slice(),phrases:SEED_PHRASES.slice(),sentences:SEED_SENTS.slice(),synonyms:SEED_SYNS.slice(),grammar:SEED_GRAMMAR.slice()},settings:{newPerDay:20,reviewPerDay:20}}}
 function loadDB(){try{var raw=localStorage.getItem(KEY);DB=raw?JSON.parse(raw):defaultDB()}catch(e){DB=defaultDB()}fixDB()}
 function fixDB(){
   DB.current=DB.current||'A';
@@ -377,9 +433,10 @@ function fixDB(){
     DB.roles[r].daily=DB.roles[r].daily||{};
     DB.roles[r].logs=DB.roles[r].logs||{};
     DB.roles[r].wrong=DB.roles[r].wrong||{};
+    DB.roles[r].progress=DB.roles[r].progress||{};
   });
   if(!DB.content)DB.content={};
-  ['words','sentences','synonyms','grammar'].forEach(function(k){if(!DB.content[k])DB.content[k]=[]});
+  ['words','phrases','sentences','synonyms','grammar'].forEach(function(k){if(!DB.content[k])DB.content[k]=[]});
   if(!DB.settings)DB.settings={};
   DB.settings.newPerDay=DB.settings.newPerDay||20;
   DB.settings.reviewPerDay=DB.settings.reviewPerDay||20;
@@ -387,15 +444,8 @@ function fixDB(){
 function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){toast('保存失败')}}
 function cur(){return DB.roles[DB.current]}
 
-var ENCOURAGE_STREAK=[
-  {n:3,txt:'🔥 三连对，手感来了'},
-  {n:5,txt:'⚡ 五连对，稳得一批'},
-  {n:8,txt:'🚀 八连对，这状态拉满'},
-  {n:12,txt:'👑 十二连对，太顶了'}
-];
+var ENCOURAGE_STREAK=[{n:3,txt:'🔥 三连对，手感来了'},{n:5,txt:'⚡ 五连对，稳得一批'},{n:8,txt:'🚀 八连对，这状态拉满'},{n:12,txt:'👑 十二连对，太顶了'}];
 var streakRight=0;
-
-/* ===== 情绪价值：文案池 ===== */
 var CHEERS=['太稳了兄弟','这波操作 6','就是这个节奏','牛！','继续保持','✓ 答得漂亮','你是真滴强','这题都没难住你','手起刀落','又对了，稳'];
 var RESULT_QUOTES=['今天的你比昨天更强','坚持就是天赋','别急，慢慢来','错题是最好的老师','进步不需要理由','明天见，别断','一点一点就够了','你已经比昨天厉害了'];
 var WELCOME_MORNING=['🌅 早，今天也要加油','☕ 早安，先刷两关','🌤️ 早上好，状态在线'];
@@ -403,165 +453,33 @@ var WELCOME_AFTERNOON=['☀️ 下午好，刷两关？','🍵 午后时光，�
 var WELCOME_EVENING=['🌙 晚上好，今天进度如何','🌆 晚上也别停','✨ 晚上好，收个尾'];
 var WELCOME_BACK=['👋 好几天没见，回来就好','😊 欢迎回来，继续加油'];
 var welcomeShown=false;
-
-var CONSOLES=[
-  '没关系，下一题',
-  '这题有点绕，记一下就好',
-  '错一次记一辈子，稳赚',
-  '😌 慢一点也没关系',
-  '再来，这次肯定对',
-  '记下来就是收获',
-  '错了才知道重点在哪',
-  '💪 别灰心，题就是用来错的',
-  '这个坑记住了，下次不踩',
-  '🌱 一题而已，继续走',
-  '有错才有进步，加油',
-  '📌 收藏一下，下次就对了'
-];
-var CONSOLES_BREAK=[
-  '连击断了，从头也很酷',
-  '断了就断了，别慌',
-  '一题而已，下一题翻盘',
-  '连击归零，分数重新起飞',
-  '😤 不甘心？再来一题'
-];
-var CONSOLES_LOW=[
-  '🌱 今天有点难，明天再战',
-  '🌧️ 状态不好也没关系，坚持最重要',
-  '💭 错题都是以后的分数',
-  '📈 今天退步明天进步，正常',
-  '☕ 累了就休息一下，别硬撑'
-];
+var CONSOLES=['没关系，下一题','这题有点绕，记一下就好','错一次记一辈子，稳赚','😌 慢一点也没关系','再来，这次肯定对','记下来就是收获','错了才知道重点在哪','💪 别灰心，题就是用来错的','这个坑记住了，下次不踩','🌱 一题而已，继续走','有错才有进步，加油','📌 收藏一下，下次就对了'];
+var CONSOLES_BREAK=['连击断了，从头也很酷','断了就断了，别慌','一题而已，下一题翻盘','连击归零，分数重新起飞','😤 不甘心？再来一题'];
+var CONSOLES_LOW=['🌱 今天有点难，明天再战','🌧️ 状态不好也没关系，坚持最重要','💭 错题都是以后的分数','📈 今天退步明天进步，正常','☕ 累了就休息一下，别硬撑'];
 
 function randOf(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function flashAvatar(){var btn=$('#roles button.on')||$('#roles button');if(!btn)return;btn.classList.remove('flash');void btn.offsetWidth;btn.classList.add('flash');setTimeout(function(){btn.classList.remove('flash')},550)}
+function updateComboBar(){var bar=$('#comboBar'),fill=$('#comboFill');if(!bar||!fill)return;if(streakRight<=0){bar.classList.remove('show');fill.style.width='0%';return}bar.classList.add('show');fill.style.width=Math.min(100,streakRight/12*100)+'%';var grad;if(streakRight<3)grad='linear-gradient(90deg,#cbd5e1,#94a3b8)';else if(streakRight<6)grad='linear-gradient(90deg,#fde68a,#fbbf24)';else if(streakRight<9)grad='linear-gradient(90deg,#fbbf24,#f59e0b)';else if(streakRight<12)grad='linear-gradient(90deg,#f59e0b,#ef4444)';else grad='linear-gradient(90deg,#ef4444,#dc2626)';fill.style.background=grad;fill.style.boxShadow=streakRight>=12?'0 0 10px rgba(220,38,38,.75)':'none'}
+function checkMilestone(){var R=cur();if(!R._ms)R._ms={};var ms=R._ms;var st=roleStats(R);[50,100,200,300,500].forEach(function(n){if(st.mastered>=n&&!ms['m'+n]){ms['m'+n]=1;setTimeout(function(){toast('🎊 已掌握 '+n+' 词，词汇量起飞')},700)}});[7,14,30,60,100].forEach(function(n){if(st.streak>=n&&!ms['s'+n]){ms['s'+n]=1;setTimeout(function(){toast('🔥 连续 '+n+' 天打卡，习惯养成了')},900)}});[7,14,30].forEach(function(n){if(st.completedDays>=n&&!ms['c'+n]){ms['c'+n]=1;setTimeout(function(){toast('🏅 完整通关 '+n+' 天，太顶了')},1100)}});save()}
 
-/* ===== 角色头像闪光 ===== */
-function flashAvatar(){
-  var btn=$('#roles button.on')||$('#roles button');
-  if(!btn)return;
-  btn.classList.remove('flash');
-  void btn.offsetWidth;
-  btn.classList.add('flash');
-  setTimeout(function(){btn.classList.remove('flash')},550);
-}
-
-/* ===== 连击进度条 ===== */
-function updateComboBar(){
-  var bar=$('#comboBar'),fill=$('#comboFill');
-  if(!bar||!fill)return;
-  if(streakRight<=0){bar.classList.remove('show');fill.style.width='0%';return}
-  bar.classList.add('show');
-  fill.style.width=Math.min(100,streakRight/12*100)+'%';
-  var grad;
-  if(streakRight<3)grad='linear-gradient(90deg,#cbd5e1,#94a3b8)';
-  else if(streakRight<6)grad='linear-gradient(90deg,#fde68a,#fbbf24)';
-  else if(streakRight<9)grad='linear-gradient(90deg,#fbbf24,#f59e0b)';
-  else if(streakRight<12)grad='linear-gradient(90deg,#f59e0b,#ef4444)';
-  else grad='linear-gradient(90deg,#ef4444,#dc2626)';
-  fill.style.background=grad;
-  fill.style.boxShadow=streakRight>=12?'0 0 10px rgba(220,38,38,.75)':'none';
-}
-
-/* ===== 里程碑庆祝 ===== */
-function checkMilestone(){
-  var R=cur();
-  if(!R._ms)R._ms={};
-  var ms=R._ms;
-  var st=roleStats(R);
-  [50,100,200,300,500].forEach(function(n){
-    if(st.mastered>=n&&!ms['m'+n]){ms['m'+n]=1;setTimeout(function(){toast('🎊 已掌握 '+n+' 词，词汇量起飞')},700)}
-  });
-  [7,14,30,60,100].forEach(function(n){
-    if(st.streak>=n&&!ms['s'+n]){ms['s'+n]=1;setTimeout(function(){toast('🔥 连续 '+n+' 天打卡，习惯养成了')},900)}
-  });
-  [7,14,30].forEach(function(n){
-    if(st.completedDays>=n&&!ms['c'+n]){ms['c'+n]=1;setTimeout(function(){toast('🏅 完整通关 '+n+' 天，太顶了')},1100)}
-  });
-  save();
-}
-
-/* ===== 每日战报 ===== */
 var REPORT_QUOTES=['今天的你比昨天更强','坚持是最好的天赋','明天见，别断','这一天没白过','继续保持，节奏不要停'];
-function showDailyReport(){
-  var R=cur(),d=todayStr();
-  if(R._reportDay===d)return;
-  R._reportDay=d;
-  if(R._comboDay!==d){R._comboDay=d;R._maxCombo=0}
-  save();
-  var log=R.logs[d]||{answered:0,right:0};
-  var plan=R.daily[d]||{};
-  var doneCount=STAGES.filter(function(s){return plan[s.key]&&plan[s.key].done}).length;
-  var maxCombo=R._maxCombo||0;
-  setTimeout(function(){
-    var el=$('#reportModal');if(!el)return;
-    $('#reportDate').textContent=d;
-    $('#reportStats').innerHTML=
-      '<div><b style="color:#3b6df6">'+log.answered+'</b>答题</div>'+
-      '<div><b style="color:#10b981">'+(log.answered?Math.round(log.right/log.answered*100):0)+'%</b>正确率</div>'+
-      '<div><b style="color:#f59e0b">'+maxCombo+'</b>最长连击</div>'+
-      '<div><b style="color:#8b5cf6">'+doneCount+'/'+STAGES.length+'</b>阶段</div>';
-    $('#reportQuote').textContent='— '+randOf(REPORT_QUOTES);
-    el.classList.add('show');
-  },600);
-}
+function showDailyReport(){var R=cur(),d=todayStr();if(R._reportDay===d)return;R._reportDay=d;if(R._comboDay!==d){R._comboDay=d;R._maxCombo=0}save();var log=R.logs[d]||{answered:0,right:0};var plan=R.daily[d]||{};var doneCount=STAGES.filter(function(s){return plan[s.key]&&plan[s.key].done}).length;var maxCombo=R._maxCombo||0;setTimeout(function(){var el=$('#reportModal');if(!el)return;$('#reportDate').textContent=d;$('#reportStats').innerHTML='<div><b style="color:#3b6df6">'+log.answered+'</b>答题</div>'+'<div><b style="color:#10b981">'+(log.answered?Math.round(log.right/log.answered*100):0)+'%</b>正确率</div>'+'<div><b style="color:#f59e0b">'+maxCombo+'</b>最长连击</div>'+'<div><b style="color:#8b5cf6">'+doneCount+'/'+STAGES.length+'</b>阶段</div>';$('#reportQuote').textContent='— '+randOf(REPORT_QUOTES);el.classList.add('show')},600)}
 
-function onRightAnswer(){
-  streakRight++;
-  var hit=null;
-  for(var i=0;i<ENCOURAGE_STREAK.length;i++){if(ENCOURAGE_STREAK[i].n===streakRight)hit=ENCOURAGE_STREAK[i]}
-  if(hit){
-    toast(hit.txt);
-    flashAvatar();
-  }
-  else if(streakRight>=3&&streakRight%4===0){toast(randOf(CHEERS))}
-  updateComboBar();
-  var R=cur();
-  if(streakRight>(R._maxCombo||0)){R._maxCombo=streakRight;save()}
-}
-function onWrongAnswer(){
-  var broken=(streakRight>=3);
-  streakRight=0;
-  updateComboBar();
-  if(broken){
-    setTimeout(function(){toast(randOf(CONSOLES_BREAK))},300);
-  }else if(Math.random()<0.4){
-    toast(randOf(CONSOLES));
-  }
-}
-function wrongReviewFeedback(){
-  var msg=['📕 这道题不简单，再记一下','错题就是来消灭的，继续','又遇到了，正好加深印象','慢慢来，错题终会被你收服'][Math.floor(Math.random()*4)];
-  toast(msg);
-}
-function stageFeedback(rate){
-  if(rate>=95)return'🎯 近乎完美，今天状态拉满';
-  if(rate>=80)return'💪 稳！继续保持';
-  if(rate>=60)return'📈 达标，错题回炉一下会更好';
-  return'🌱 今天有点难，明天再战';
-}
+function onRightAnswer(){streakRight++;var hit=null;for(var i=0;i<ENCOURAGE_STREAK.length;i++){if(ENCOURAGE_STREAK[i].n===streakRight)hit=ENCOURAGE_STREAK[i]}if(hit){toast(hit.txt);flashAvatar()}else if(streakRight>=3&&streakRight%4===0){toast(randOf(CHEERS))}updateComboBar();var R=cur();if(streakRight>(R._maxCombo||0)){R._maxCombo=streakRight;save()}}
+function onWrongAnswer(){var broken=(streakRight>=3);streakRight=0;updateComboBar();if(broken){setTimeout(function(){toast(randOf(CONSOLES_BREAK))},300)}else if(Math.random()<0.4){toast(randOf(CONSOLES))}}
+function wrongReviewFeedback(){var msg=['📕 这道题不简单，再记一下','错题就是来消灭的，继续','又遇到了，正好加深印象','慢慢来，错题终会被你收服'][Math.floor(Math.random()*4)];toast(msg)}
+function stageFeedback(rate){if(rate>=95)return'🎯 近乎完美，今天状态拉满';if(rate>=80)return'💪 稳！继续保持';if(rate>=60)return'📈 达标，错题回炉一下会更好';return'🌱 今天有点难，明天再战'}
 
 function getWrongList(){var d=todayStr(),R=cur();if(!R.wrong)R.wrong={};if(!R.wrong[d])R.wrong[d]=[];return R.wrong[d]}
 function saveWrongList(list){var d=todayStr(),R=cur();if(!R.wrong)R.wrong={};R.wrong[d]=list;save();publishMyStats()}
 function addWrong(type,id){var list=getWrongList();if(list.some(function(x){return x.type===type&&x.id===id}))return;list.push({type:type,id:id,ts:Date.now()});saveWrongList(list)}
-function removeWrong(type,id){
-  var list=getWrongList();
-  var i=list.findIndex(function(x){return x.type===type&&x.id===id});
-  if(i>=0){
-    list.splice(i,1);
-    saveWrongList(list);
-    if(list.length===0){
-      var d=todayStr(),R=cur();
-      if(R._lastClear!==d){
-        R._lastClear=d;save();
-        setTimeout(function(){toast('🎉 错题清空！今天一题不剩')},400);
-      }
-    }
-  }
-}
+function removeWrong(type,id){var list=getWrongList();var i=list.findIndex(function(x){return x.type===type&&x.id===id});if(i>=0){list.splice(i,1);saveWrongList(list);if(list.length===0){var d=todayStr(),R=cur();if(R._lastClear!==d){R._lastClear=d;save();setTimeout(function(){toast('🎉 错题清空！今天一题不剩')},400)}}}}
 function countWrongToday(){return getWrongList().length}
 
-/* ===== 跨设备同步 ===== */
 var SYNC_TOPIC='toeic_sync_'+TEAM+'_'+SYNC_SECRET;
 var PK_TOPIC_PREFIX='toeic_pk_'+SYNC_SECRET+'_';
+var CONTENT_TOPIC='toeic_content_'+TEAM+'_'+SYNC_SECRET;
+var DEVICE_ID='dev_'+Math.random().toString(36).slice(2,10);
 var PEER_KEY='toeic_peer_v1';
 var syncClient=null;
 var syncTimer=null;
@@ -569,10 +487,26 @@ var peerData={A:null,B:null};
 function loadPeer(){try{var raw=localStorage.getItem(PEER_KEY);if(raw)peerData=JSON.parse(raw)}catch(e){peerData={A:null,B:null}}}
 function savePeer(){try{localStorage.setItem(PEER_KEY,JSON.stringify(peerData))}catch(e){}}
 function updateSyncBadge(ok,text){var el=$('#syncStatus');if(!el)return;el.className='sync-badge'+(ok?'':' off');el.innerHTML='<i></i>'+(text||(ok?'已同步':'未连接'))}
-function publishMyStats(){
-  if(!syncClient||!syncClient.connected)return;
-  var R=cur();
-  try{syncClient.publish(SYNC_TOPIC,JSON.stringify({role:DB.current,name:NAMES[DB.current],stats:roleStats(R),logs:R.logs,daily:R.daily,ts:Date.now()}),{qos:0})}catch(e){}
+function publishMyStats(){if(!syncClient||!syncClient.connected)return;var R=cur();try{syncClient.publish(SYNC_TOPIC,JSON.stringify({role:DB.current,name:NAMES[DB.current],stats:roleStats(R),logs:R.logs,daily:R.daily,ts:Date.now()}),{qos:0})}catch(e){}}
+function publishContent(){if(!syncClient||!syncClient.connected)return;try{syncClient.publish(CONTENT_TOPIC,JSON.stringify({deviceId:DEVICE_ID,from:DB.current,ts:Date.now(),content:DB.content}),{qos:0,retain:true})}catch(e){}}
+function mergeContent(remote){
+  if(!remote)return;
+  var changed=false;
+  var merge=function(localArr,remoteArr,keyFn){
+    var seen={};
+    localArr.forEach(function(x){var k=keyFn(x);if(k)seen[k]=1});
+    (remoteArr||[]).forEach(function(x){
+      var k=keyFn(x);
+      if(!k||seen[k])return;
+      seen[k]=1;localArr.push(x);changed=true;
+    });
+  };
+  merge(DB.content.words,remote.words,function(x){return (x.w||'').toLowerCase()});
+  merge(DB.content.phrases,remote.phrases,function(x){return (x.en||'').toLowerCase()});
+  merge(DB.content.sentences,remote.sentences,function(x){return (x.en||'').toLowerCase()});
+  merge(DB.content.synonyms,remote.synonyms,function(x){return (x.w||'').toLowerCase()});
+  merge(DB.content.grammar,remote.grammar,function(x){return (x.q||'').toLowerCase()});
+  if(changed){save();toast('📡 已同步题库更新');render()}
 }
 function initSync(){
   loadPeer();
@@ -583,9 +517,23 @@ function initSync(){
   var cid='toeic_sync_'+myRole+'_'+Math.random().toString(16).slice(2,8);
   try{
     syncClient=mqtt.connect('wss://broker.emqx.io:8084/mqtt',{clientId:cid,clean:true,connectTimeout:10000,reconnectPeriod:5000});
-    syncClient.on('connect',function(){updateSyncBadge(true,'已连接');syncClient.subscribe(SYNC_TOPIC,{qos:0});publishMyStats()});
+    syncClient.on('connect',function(){
+      updateSyncBadge(true,'已连接');
+      syncClient.subscribe(SYNC_TOPIC,{qos:0});
+      syncClient.subscribe(CONTENT_TOPIC,{qos:0});
+      publishMyStats();
+    });
     syncClient.on('message',function(topic,payload){
-      try{var msg=JSON.parse(payload.toString());if(msg.role===DB.current)return;if(msg.stats){peerData[msg.role]={name:msg.name,stats:msg.stats,logs:msg.logs,daily:msg.daily,ts:msg.ts};savePeer();if(state.view==='compare'||state.view==='calendar'||state.view==='today')render()}}catch(e){}
+      try{
+        var msg=JSON.parse(payload.toString());
+        if(topic===CONTENT_TOPIC){
+          if(msg.deviceId===DEVICE_ID)return;
+          if(msg.content)mergeContent(msg.content);
+          return;
+        }
+        if(msg.role===DB.current)return;
+        if(msg.stats){peerData[msg.role]={name:msg.name,stats:msg.stats,logs:msg.logs,daily:msg.daily,ts:msg.ts};savePeer();if(state.view==='compare'||state.view==='calendar'||state.view==='today')render()}
+      }catch(e){}
     });
     syncClient.on('error',function(){updateSyncBadge(false,'连接失败')});
     syncClient.on('close',function(){updateSyncBadge(false,'已断开')});
@@ -597,14 +545,7 @@ function getPeerLogs(role){if(peerData[role]&&peerData[role].logs)return peerDat
 function getPeerSyncTime(role){if(peerData[role]&&peerData[role].ts){var d=new Date(peerData[role].ts);var mm=('0'+(d.getMonth()+1)).slice(-2);var dd=('0'+d.getDate()).slice(-2);var hh=('0'+d.getHours()).slice(-2);var mi=('0'+d.getMinutes()).slice(-2);return mm+'/'+dd+' '+hh+':'+mi}return '未同步'}
 
 function todayPlan(){var d=todayStr(),R=cur();if(!R.daily[d]){R.daily[d]={};STAGES.forEach(function(s){R.daily[d][s.key]={done:false,right:0,total:0}});save()}return R.daily[d]}
-function markStage(key,right,total){
-  var d=todayStr(),R=cur();
-  R.daily[d]=R.daily[d]||{};
-  R.daily[d][key]={done:true,right:right,total:total,at:Date.now()};
-  save();publishMyStats();checkMilestone();
-  flashAvatar();
-  if(STAGES.every(function(s){return R.daily[d][s.key]&&R.daily[d][s.key].done}))showDailyReport();
-}
+function markStage(key,right,total){var d=todayStr(),R=cur();R.daily[d]=R.daily[d]||{};R.daily[d][key]={done:true,right:right,total:total,at:Date.now()};save();publishMyStats();checkMilestone();flashAvatar();if(STAGES.every(function(s){return R.daily[d][s.key]&&R.daily[d][s.key].done}))showDailyReport()}
 
 var INTERVALS=[0,1,2,4,7,15,30,60];
 function gradeSRS(id,g){var R=cur();var s=R.srs[id]||{stage:0,due:todayStr(),seen:0,right:0};s.seen++;if(g==='good'){s.stage=Math.min(s.stage+1,INTERVALS.length-1);s.right++}else if(g==='fuzzy'){s.right++}else{s.stage=0}s.due=addDays(todayStr(),INTERVALS[s.stage]);s.last=todayStr();R.srs[id]=s;save()}
@@ -619,6 +560,21 @@ function roleStats(role){
   Object.keys(role.logs||{}).forEach(function(d){var lg=role.logs[d];if(lg.answered>0){days++;q+=lg.answered;r+=lg.right}});
   Object.keys(role.daily||{}).forEach(function(d){var p=role.daily[d];if(STAGES.every(function(s){return p[s.key]&&p[s.key].done}))completedDays++});
   return{answered:q,right:r,accuracy:q?Math.round(r/q*100):0,days:days,completedDays:completedDays,streak:streakOf(role),mastered:Object.keys(role.srs||{}).filter(function(k){return role.srs[k].stage>=4}).length,learning:Object.keys(role.srs||{}).length};
+}
+
+function pickSequential(pool,count,progressKey){
+  if(!pool.length)return [];
+  var R=cur();
+  if(!R.progress)R.progress={};
+  var start=R.progress[progressKey]||0;
+  if(start>=pool.length)start=0;
+  var picked=[];
+  for(var i=0;i<count;i++){
+    picked.push(pool[(start+i)%pool.length]);
+  }
+  R.progress[progressKey]=(start+count)%pool.length;
+  save();
+  return picked;
 }
 
 var state={view:'today',session:null,calMonth:todayStr().slice(0,7),calSel:todayStr(),pk:null,onlinePK:null,match:null};
@@ -650,18 +606,11 @@ function renderSession(main){
   else if(s.kind==='synonym')renderSyn(main);
   else if(s.kind==='listen')renderListen(main);
   else if(s.kind==='grammar')renderGrammar(main);
+  else if(s.kind==='phrases')renderPhrases(main);
   else if(s.kind==='wrong')renderWrongSession(main);
 }
 
-function fireLevel(n){
-  if(n<=0)return{icon:'',cls:'',label:'还没开始',bar:0};
-  var bar=Math.min(100,Math.round(n/30*100));
-  if(n<=2)return{icon:'🔥',cls:'fire-1',label:'小火苗',bar:bar};
-  if(n<=6)return{icon:'🔥🔥',cls:'fire-2',label:'在坚持',bar:bar};
-  if(n<=13)return{icon:'🔥🔥🔥',cls:'fire-3',label:'状态好',bar:bar};
-  return{icon:'🔥🔥🔥🔥',cls:'fire-4',label:'王者',bar:bar};
-}
-
+function fireLevel(n){if(n<=0)return{icon:'',cls:'',label:'还没开始',bar:0};var bar=Math.min(100,Math.round(n/30*100));if(n<=2)return{icon:'🔥',cls:'fire-1',label:'小火苗',bar:bar};if(n<=6)return{icon:'🔥🔥',cls:'fire-2',label:'在坚持',bar:bar};if(n<=13)return{icon:'🔥🔥🔥',cls:'fire-3',label:'状态好',bar:bar};return{icon:'🔥🔥🔥🔥',cls:'fire-4',label:'王者',bar:bar}}
 function renderToday(main){
   if(!welcomeShown){
     welcomeShown=true;
@@ -693,8 +642,7 @@ function renderToday(main){
   }
   var html='<div class="card" style="background:linear-gradient(135deg,#1e3a8a,#3b6df6);color:#fff"><div class="row between"><div><div style="font-size:12px;opacity:.85">'+todayStr()+' · '+NAMES[DB.current]+'</div><div style="font-size:24px;font-weight:800;margin-top:2px">今日 '+doneCount+' / '+STAGES.length+' 阶段</div><div style="font-size:12.5px;opacity:.85">答题 '+log.answered+' · 正确率 '+(log.answered?Math.round(log.right/log.answered*100):0)+'%</div></div><div style="text-align:right"><div style="font-size:12px;opacity:.85">连续打卡</div><div style="font-size:24px;font-weight:800">'+sR.streak+'<span style="font-size:12px"> 天</span></div></div></div>';
   if(completed)html+='<div style="margin-top:10px;background:rgba(255,255,255,.2);padding:8px 12px;border-radius:10px;font-size:13px;font-weight:700">🎉 今日全部完成，已自动打卡！</div>';
-  html+='<div class="progress-dots">'+dots+'</div>';
-  html+='</div>';
+  html+='<div class="progress-dots">'+dots+'</div></div>';
   html+='<div class="card"><h2>今日任务流程</h2>';
   STAGES.forEach(function(s,i){
     var st=plan[s.key]||{},isDone=st.done;
@@ -730,7 +678,7 @@ function renderToday(main){
   if(nc)html+='<div style="font-size:13.5px;padding:5px 0;color:#374151">🏅 距完整通关 <b>'+nc+'</b> 天还差 <b style="color:#8b5cf6">'+(nc-sR.completedDays)+'</b> 天</div>';
   else html+='<div style="font-size:13.5px;padding:5px 0;color:#8b5cf6">🏅 完整通关 <b>'+sR.completedDays+'</b> 天，全通关</div>';
   html+='</div>';
-  html+='<div class="card"><h2>玩法说明</h2><div class="tip">· 每天一关，按顺序完成 6 个阶段<br>· 阶段1：学 20 个新词 + 复习 20 个旧词<br>· 阶段2-6：每阶段 20 题<br>· 📕 错题集：答对自动移除<br>· 🎮 消消乐：纯娱乐<br>· 📡 团队「波&娇」数据自动互同步</div></div>';
+  html+='<div class="card"><h2>玩法说明</h2><div class="tip">· 每天一关，按顺序完成 7 个阶段<br>· 阶段1：学 20 个新词 + 复习 20 个旧词（SRS）<br>· 阶段2-7：按顺序出题，题库到末尾自动循环<br>· 📕 错题集：答对自动移除<br>· 🎮 消消乐：纯娱乐<br>· 📡 团队「波&娇」题库自动同步</div></div>';
   main.innerHTML=html;
   $$('[data-stage]',main).forEach(function(el){var key=el.dataset.stage,active=el.dataset.active==='true';el.onclick=function(){if(!active){toast('请先完成前面的阶段');return}startStage(key)}});
   var gw=$('#goWrong',main);if(gw)gw.onclick=function(){state.view='today';startWrongReview()};
@@ -743,6 +691,7 @@ function startStage(key){
   else if(key==='synonym')startSyn();
   else if(key==='listening')startListen();
   else if(key==='grammar')startGrammar();
+  else if(key==='phrases')startPhrases();
 }
 function startLearn(){
   var news=pickNewWords(DB.settings.newPerDay);
@@ -786,8 +735,8 @@ function renderLearnResult(main){
 }
 function startFill(){
   var pool=DB.content.sentences.filter(function(s){return s.en.split(' ').length>=5});
-  var picked=shuffle(pool).slice(0,20);
-  if(!picked.length){toast('例句库为空');return}
+  if(!pool.length){toast('例句库为空');return}
+  var picked=pickSequential(pool,20,'fill');
   streakRight=0;
   var qs=picked.map(function(s){
     var words=s.en.replace(/[.,!?]$/,'').split(/\s+/);
@@ -830,8 +779,8 @@ function renderFillResult(main){
 }
 function startBuild(){
   var pool=DB.content.sentences.filter(function(s){return s.en.split(' ').length>=5});
-  var picked=shuffle(pool).slice(0,20);
-  if(!picked.length){toast('例句库为空');return}
+  if(!pool.length){toast('例句库为空');return}
+  var picked=pickSequential(pool,20,'build');
   streakRight=0;
   var qs=picked.map(function(s){var words=s.en.replace(/[.,!?]$/,'').split(/\s+/);return{target:s.en,cn:s.cn,tokens:shuffle(words),answer:words,speak:s.en,srcId:s.id}});
   state.session={kind:'build',qs:qs,idx:0,right:0,used:{},answer:[],submitted:false,done:false};
@@ -869,7 +818,7 @@ function renderBuildResult(main){
 function startSyn(){
   var pool=DB.content.synonyms;
   if(!pool.length){toast('同义词库为空');return}
-  var picked=shuffle(pool).slice(0,20);
+  var picked=pickSequential(pool,20,'synonym');
   streakRight=0;
   var qs=picked.map(function(it){
     var correct=it.syns[0];if(!correct)return null;
@@ -907,7 +856,7 @@ function renderSynResult(main){
 }
 function startListen(){
   var pool=DB.content.sentences;if(!pool.length){toast('听力库为空');return}
-  var picked=shuffle(pool).slice(0,20);
+  var picked=pickSequential(pool,20,'listening');
   streakRight=0;
   var qs=picked.map(function(it){
     var type=Math.floor(Math.random()*2);
@@ -941,7 +890,6 @@ function renderListen(main){
   main.innerHTML=html;
   $('#spkBtn',main).onclick=function(){speak(q.speak)};
   $('#slowBtn',main).onclick=function(){speak(q.speak,0.65)};
-  /* 补丁3：去掉自动播放语音，iOS 会拦截 */
   if(picked==null){$$('#main .opt',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.i;s.picked=i;var ok=(i===q.ans[0]);if(ok){s.right++;removeWrong('listening',q.srcId);onRightAnswer()}else{addWrong('listening',q.srcId);onWrongAnswer()}logAnswer('listening',ok);render()}})}
   else{$('#nextBtn',main).onclick=function(){s.idx++;s.picked=null;if(s.idx>=total)s.done=true;render()}}
   $('#quitBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
@@ -955,7 +903,7 @@ function renderListenResult(main){
 }
 function startGrammar(){
   var pool=DB.content.grammar;if(!pool.length){toast('语法库为空');return}
-  var picked=shuffle(pool).slice(0,20);
+  var picked=pickSequential(pool,20,'grammar');
   streakRight=0;
   var qs=picked.map(function(it){return{stem:it.q,long:true,sub:'托业 Part 5/6 语法词汇',opts:it.opts,ans:[it.ans],ex:it.tag?'【'+it.tag+'】':'',ex2:it.ex,speak:it.q,srcId:it.id}});
   state.session={kind:'grammar',qs:qs,idx:0,right:0,picked:null,done:false};
@@ -979,7 +927,63 @@ function renderGrammar(main){
 function renderGrammarResult(main){
   var s=state.session;markStage('grammar',s.right,s.qs.length);
   var pct=Math.round(s.right/s.qs.length*100);
-  main.innerHTML='<div class="card result"><div class="big">'+(pct>=80?'🏆':'📚')+'</div><h2>语法词汇完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>正确</div><div><b style="color:#ef4444">'+(s.qs.length-s.right)+'</b>错误</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted" style="margin-top:10px">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="homeBtn">返回今日关卡</button></div>';
+  main.innerHTML='<div class="card result"><div class="big">'+(pct>=80?'🏆':'📚')+'</div><h2>语法词汇完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>正确</div><div><b style="color:#ef4444">'+(s.qs.length-s.right)+'</b>错误</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted" style="margin-top:10px">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="nextStage">进入阶段7 · 词组搭配</button><button class="btn ghost block" id="homeBtn" style="margin-top:9px">返回今日关卡</button></div>';
+  $('#nextStage',main).onclick=function(){state.session=null;startStage('phrases')};
+  $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+
+/* ===== 阶段7：词组搭配填空 ===== */
+function startPhrases(){
+  var pool=DB.content.phrases.filter(function(p){return p.en&&p.cn&&p.en.indexOf(' ')>0});
+  if(!pool.length){toast('词组库为空');return}
+  var picked=pickSequential(pool,20,'phrases');
+  streakRight=0;
+  var allWords={};
+  pool.forEach(function(p){
+    var parts=p.en.split(/\s+/).filter(Boolean);
+    parts.forEach(function(w){
+      var clean=w.replace(/[.,!?()]/g,'').toLowerCase();
+      if(clean.length>2)allWords[clean]=1;
+    });
+  });
+  var wordPool=Object.keys(allWords);
+  var qs=picked.map(function(it){
+    var parts=it.en.split(/\s+/).filter(Boolean);
+    if(parts.length<2)return null;
+    var pivot=Math.floor(Math.random()*parts.length);
+    var key=parts[pivot];
+    var keyClean=key.replace(/[.,!?()]/g,'');
+    var tokens=parts.slice();
+    tokens[pivot]='______';
+    var stem=tokens.join(' ');
+    var wrongs=shuffle(wordPool.filter(function(w){return w!==keyClean.toLowerCase()&&w.length>2})).slice(0,3).map(function(w){return w});
+    while(wrongs.length<3)wrongs.push('other'+wrongs.length);
+    var opts=shuffle([keyClean].concat(wrongs));
+    return{stem:stem,long:false,sub:'选择正确词组补全搭配',opts:opts,ans:[opts.indexOf(keyClean)],ex:it.en,ex2:it.cn,speak:it.en,srcId:it.id};
+  }).filter(Boolean);
+  if(!qs.length){toast('词组数据不足以生成题目');return}
+  state.session={kind:'phrases',qs:qs,idx:0,right:0,picked:null,done:false};
+  render();
+}
+function renderPhrases(main){
+  var s=state.session;
+  if(s.done)return renderPhrasesResult(main);
+  var q=s.qs[s.idx],total=s.qs.length,picked=s.picked;
+  var html='<div class="card"><div class="pbar"><span>📚 词组搭配</span><span>'+(s.idx+1)+' / '+total+'</span></div><div class="bar"><i style="width:'+(s.idx/total*100).toFixed(1)+'%"></i></div><div class="stem" style="font-size:20px">'+esc(q.stem)+'</div><div class="sub left">'+esc(q.sub)+'</div><button class="spk" id="spkBtn" style="margin-bottom:14px">🔊</button><div>';
+  q.opts.forEach(function(o,i){var cls='opt';if(picked!=null){if(i===q.ans[0])cls+=' right';else if(i===picked)cls+=' wrong'}html+='<div class="'+cls+'" data-i="'+i+'"><div class="k">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
+  html+='</div>';
+  if(picked!=null){html+='<div class="explain">'+(picked===q.ans[0]?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+'<br><b>'+esc(q.ex)+'</b><br><span style="opacity:.75">'+esc(q.ex2)+'</span></div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一组')+'</button>'}
+  html+='</div><div class="card" style="padding:11px 17px"><div class="row between"><span style="font-size:13px;color:#6b7280;font-weight:700">✅ '+s.right+'</span><button class="btn ghost" id="quitBtn" style="padding:6px 12px;min-height:36px">退出</button></div></div>';
+  main.innerHTML=html;
+  $('#spkBtn',main).onclick=function(){speak(q.speak)};
+  if(picked==null){$$('#main .opt',main).forEach(function(el){el.onclick=function(){var i=+el.dataset.i;s.picked=i;var ok=(i===q.ans[0]);if(ok){s.right++;removeWrong('phrases',q.srcId);onRightAnswer()}else{addWrong('phrases',q.srcId);onWrongAnswer()}logAnswer('phrases',ok);render()}})}
+  else{$('#nextBtn',main).onclick=function(){s.idx++;s.picked=null;if(s.idx>=total)s.done=true;render()}}
+  $('#quitBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
+}
+function renderPhrasesResult(main){
+  var s=state.session;markStage('phrases',s.right,s.qs.length);
+  var pct=Math.round(s.right/s.qs.length*100);
+  main.innerHTML='<div class="card result"><div class="big">'+(pct>=80?'🎉':'📚')+'</div><h2>词组搭配完成</h2><div class="mini-stats"><div><b style="color:#10b981">'+s.right+'</b>正确</div><div><b style="color:#ef4444">'+(s.qs.length-s.right)+'</b>错误</div><div><b style="color:#3b6df6">'+pct+'%</b>正确率</div></div><div class="muted" style="margin-top:10px">'+stageFeedback(pct)+'</div>'+(pct<60?'<div class="muted" style="margin-top:4px">'+randOf(CONSOLES_LOW)+'</div>':'')+'<div class="muted" style="margin-top:6px;font-style:italic;opacity:.7">— '+randOf(RESULT_QUOTES)+'</div></div><div class="card"><button class="btn primary block" id="homeBtn">返回今日关卡 🎊</button></div>';
   $('#homeBtn',main).onclick=function(){streakRight=0;updateComboBar();state.session=null;render()};
 }
 function startWrongReview(){
@@ -1016,6 +1020,19 @@ function startWrongReview(){
     }else if(item.type==='grammar'){
       var g=DB.content.grammar.find(function(x){return x.id===item.id});if(!g)return;
       qs.push({kind:'grammar',kind2:'grammar',srcId:item.id,stem:g.q,long:true,sub:'错题重练 · 语法词汇',opts:g.opts,ans:[g.ans],ex:g.tag?'【'+g.tag+'】':'',ex2:g.ex,speak:g.q});
+    }else if(item.type==='phrases'){
+      var p=DB.content.phrases.find(function(x){return x.id===item.id});if(!p)return;
+      var parts=p.en.split(/\s+/).filter(Boolean);if(parts.length<2)return;
+      var pivot=Math.floor(Math.random()*parts.length);var key=parts[pivot];
+      var keyClean=key.replace(/[.,!?()]/g,'');
+      var tokens=parts.slice();tokens[pivot]='______';
+      var stem=tokens.join(' ');
+      var wp2={};DB.content.phrases.forEach(function(pp){pp.en.split(/\s+/).forEach(function(w){var c=w.replace(/[.,!?()]/g,'').toLowerCase();if(c.length>2)wp2[c]=1})});
+      var wordPool=Object.keys(wp2);
+      var wrongs4=shuffle(wordPool.filter(function(w){return w!==keyClean.toLowerCase()})).slice(0,3);
+      while(wrongs4.length<3)wrongs4.push('other'+wrongs4.length);
+      var opts4=shuffle([keyClean].concat(wrongs4));
+      qs.push({kind:'phrases',kind2:'phrases',srcId:item.id,stem:stem,long:false,sub:'错题重练 · 词组搭配',opts:opts4,ans:[opts4.indexOf(keyClean)],ex:p.en,ex2:p.cn,speak:p.en});
     }
   });
   if(!qs.length){toast('错题内容已过期');return}
@@ -1043,7 +1060,7 @@ function renderWrongSession(main){
     html+='</div>';
     if(s.picked!=null){html+='<div class="explain">'+(s.lastCorrect?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+'<br><b>'+esc(q.ex)+'</b><br><span style="opacity:.75">'+esc(q.ex2)+'</span></div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一题')+'</button>'}
   }else{
-    html+='<div class="stem '+(q.long?'long':'')+'">'+esc(q.stem)+'</div>'+(q.ph?'<div class="sub">'+esc(q.ph)+'</div>':'')+'<div class="sub left" style="margin-top:-6px">'+esc(q.sub)+'</div><button class="spk center" id="spkBtn">🔊</button><div>';
+    html+='<div class="stem '+(q.long?'long':'')+'" style="'+(q.kind==='phrases'?'font-size:20px':'')+'">'+esc(q.stem)+'</div>'+(q.ph?'<div class="sub">'+esc(q.ph)+'</div>':'')+'<div class="sub left" style="margin-top:-6px">'+esc(q.sub)+'</div><button class="spk center" id="spkBtn">🔊</button><div>';
     q.opts.forEach(function(o,i){var cls='opt';if(s.picked!=null){if(i===q.ans[0])cls+=' right';else if(i===s.picked)cls+=' wrong'}html+='<div class="'+cls+'" data-i="'+i+'"><div class="k">'+'ABCD'[i]+'</div><div>'+esc(o)+'</div></div>'});
     html+='</div>';
     if(s.picked!=null){html+='<div class="explain">'+(s.lastCorrect?'✅ 正确！':'❌ 正确答案：'+'ABCD'[q.ans[0]])+(q.ex?'<br><b>'+esc(q.ex)+'</b>':'')+(q.ex2?'<br>'+esc(q.ex2):'')+'</div><button class="btn primary block" id="nextBtn" style="margin-top:12px">'+(s.idx+1>=total?'查看结果':'下一题')+'</button>'}
@@ -1052,7 +1069,6 @@ function renderWrongSession(main){
   main.innerHTML=html;
   var spk=$('#spkBtn',main);if(spk)spk.onclick=function(){speak(q.speak)};
   var slow=$('#slowBtn',main);if(slow)slow.onclick=function(){speak(q.speak,0.65)};
-  /* 补丁3：去掉错题听力自动播放 */
   if(kind==='build'){
     if(!s.submitted){
       if(!s.used)s.used={};if(!s.answer)s.answer=[];
@@ -1178,9 +1194,9 @@ function renderWordBank(main){
   var due=words.filter(function(w){var s=R.srs[w.id];return s&&s.due<=today}).length;
   var fresh=words.filter(function(w){return !R.srs[w.id]}).length;
   var mastered=words.filter(function(w){var s=R.srs[w.id];return s&&s.stage>=4}).length;
-  var html='<div class="card"><h2>单词库</h2><div class="grid3" style="margin-bottom:14px"><div><div class="stat-num">'+words.length+'</div><div class="stat-lab">总量</div></div><div><div class="stat-num" style="color:#3b6df6">'+fresh+'</div><div class="stat-lab">未学</div></div><div><div class="stat-num" style="color:#f59e0b">'+due+'</div><div class="stat-lab">待复习</div></div></div><div class="grid3"><div><div class="stat-num" style="color:#10b981">'+mastered+'</div><div class="stat-lab">已掌握</div></div><div><div class="stat-num">'+DB.content.sentences.length+'</div><div class="stat-lab">例句</div></div><div><div class="stat-num">'+DB.content.synonyms.length+'</div><div class="stat-lab">同义词组</div></div></div></div>';
+  var html='<div class="card"><h2>单词库</h2><div class="grid3" style="margin-bottom:14px"><div><div class="stat-num">'+words.length+'</div><div class="stat-lab">总量</div></div><div><div class="stat-num" style="color:#3b6df6">'+fresh+'</div><div class="stat-lab">未学</div></div><div><div class="stat-num" style="color:#f59e0b">'+due+'</div><div class="stat-lab">待复习</div></div></div><div class="grid3"><div><div class="stat-num" style="color:#10b981">'+mastered+'</div><div class="stat-lab">已掌握</div></div><div><div class="stat-num">'+DB.content.sentences.length+'</div><div class="stat-lab">例句</div></div><div><div class="stat-num">'+DB.content.synonyms.length+'</div><div class="stat-lab">同义词组</div></div></div><div class="grid3" style="margin-top:10px"><div><div class="stat-num">'+DB.content.phrases.length+'</div><div class="stat-lab">词组</div></div><div><div class="stat-num">'+DB.content.grammar.length+'</div><div class="stat-lab">语法题</div></div><div><div class="stat-num">'+STAGES.length+'</div><div class="stat-lab">阶段数</div></div></div></div>';
   html+='<div class="card"><h2>全部单词（'+words.length+'）</h2>';
-  words.slice(0,200).forEach(function(w){var s=R.srs[w.id];var st=!s?'新':(s.due<=today?'待复习':'S'+s.stage);var stCls=!s?'badge a':(s.due<=today?'badge b':'badge');html+='<div class="list-item"><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:15px">'+esc(w.w)+' <span class="'+stCls+'">'+st+'</span></div><div class="muted" style="font-size:12.5px">'+esc(w.ph||'')+' '+esc(w.pos||'')+' '+esc(w.cn)+'</div></div><button class="spk" data-spk="'+esc(w.w)+'" style="width:36px;height:36px;font-size:15px">🔊</button></div>'});
+  words.slice(0,200).forEach(function(w){var s=R.srs[w.id];var st=!s?'新':(s.due<=today?'待复习':'S'+s.stage);var stCls=!s?'badge a':(s.due<=today?'badge b':'badge');html+='<div class="list-item"><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:15px">'+esc(w.w)+' <span class="'+stCls+'">'+st+'</span></div><div class="muted" style="font-size:12.5px">'+esc(w.cn)+'</div></div><button class="spk" data-spk="'+esc(w.w)+'" style="width:36px;height:36px;font-size:15px">🔊</button></div>'});
   if(words.length>200)html+='<div class="muted" style="margin-top:10px">（仅显示前 200 条，全部 '+words.length+' 条）</div>';
   html+='</div>';
   main.innerHTML=html;
@@ -1289,17 +1305,21 @@ function renderCompare(main){
   main.innerHTML=html;
 }
 function renderData(main){
-  var html='<div class="card"><h2>数据管理</h2><div class="muted" style="margin-bottom:10px">当前：单词 '+DB.content.words.length+' · 例句 '+DB.content.sentences.length+' · 同义词 '+DB.content.synonyms.length+' · 语法 '+DB.content.grammar.length+'</div><div class="grid2"><button class="btn ghost" id="expBtn">导出备份</button><button class="btn ghost" id="impBtn">导入备份</button></div><input type="file" id="fileIn" accept=".json" style="display:none"><button class="btn bad block" id="resetBtn" style="margin-top:10px">清空所有数据</button></div>';
-  html+='<div class="card"><h2>导入单词</h2><div class="muted" style="margin-bottom:10px">每行：单词 | 音标 | 词性 | 中文 | 例句 | 例句中文</div><textarea id="taW" placeholder="applicant | /ˈæplɪkənt/ | n. | 申请人 | ... | ..."></textarea><button class="btn primary block" id="impW" style="margin-top:10px">导入单词</button></div>';
+  var html='<div class="card"><h2>数据管理</h2><div class="muted" style="margin-bottom:10px">当前：单词 '+DB.content.words.length+' · 例句 '+DB.content.sentences.length+' · 同义词 '+DB.content.synonyms.length+' · 语法 '+DB.content.grammar.length+' · 词组 '+DB.content.phrases.length+'</div><div class="grid2"><button class="btn ghost" id="expBtn">导出备份</button><button class="btn ghost" id="impBtn">导入备份</button></div><input type="file" id="fileIn" accept=".json" style="display:none"><button class="btn warn block" id="dedupG" style="margin-top:10px">🧹 清理语法题重复</button><button class="btn primary block" id="pushContent" style="margin-top:10px">📡 推送题库到云端</button><button class="btn bad block" id="resetBtn" style="margin-top:10px">清空所有数据</button></div>';
+  html+='<div class="card"><h2>导入单词</h2><div class="muted" style="margin-bottom:10px">每行：单词 | 中文</div><textarea id="taW" placeholder="applicant | 申请人"></textarea><button class="btn primary block" id="impW" style="margin-top:10px">导入单词</button></div>';
   html+='<div class="card"><h2>导入听力例句</h2><div class="muted" style="margin-bottom:10px">每行：英文原句 | 中文译文</div><textarea id="taT" placeholder="The shipment will be delayed. | 货物将被延迟。"></textarea><button class="btn primary block" id="impT" style="margin-top:10px">导入例句</button></div>';
-  html+='<div class="card"><h2>导入同义词</h2><div class="muted" style="margin-bottom:10px">每行：单词 | 音标 | 中文 | 同义词1;同义词2 | 例句</div><textarea id="taS" placeholder="purchase | /pɜːrtʃəs/ | 购买 | buy;acquire | ..."></textarea><button class="btn primary block" id="impS" style="margin-top:10px">导入同义词</button></div>';
+  html+='<div class="card"><h2>导入同义词</h2><div class="muted" style="margin-bottom:10px">每行：单词 | 中文 | 同义词1;同义词2</div><textarea id="taS" placeholder="purchase | 购买 | buy;acquire"></textarea><button class="btn primary block" id="impS" style="margin-top:10px">导入同义词</button></div>';
+  html+='<div class="card"><h2>导入词组搭配</h2><div class="muted" style="margin-bottom:10px">每行：英文词组 | 中文释义</div><textarea id="taP" placeholder="law internship | 法律实习"></textarea><button class="btn primary block" id="impP" style="margin-top:10px">导入词组</button></div>';
   html+='<div class="card"><h2>导入语法题</h2><div class="muted" style="margin-bottom:10px">每行：题目 | A | B | C | D | 正确序号(1-4) | 解析 | 标签(可选)</div><textarea id="taG" placeholder="All reports must be submitted ___ Friday. | by | until | since | for | 1 | by表示截止时间 | 介词"></textarea><button class="btn primary block" id="impG" style="margin-top:10px">导入语法题</button></div>';
   main.innerHTML=html;
   var uid=function(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
-  $('#impW',main).onclick=function(){var lines=$('#taW',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.words.forEach(function(x){exist[x.w.toLowerCase()]=1});var n=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<2)return;if(exist[p[0].toLowerCase()])return;DB.content.words.push({id:uid('w'),w:p[0],ph:p[1]||'',pos:p[2]||'',cn:p[3]||p[1]||'',ex:p[4]||'',exCn:p[5]||''});exist[p[0].toLowerCase()]=1;n++});save();toast('导入 '+n+' 个单词');render()};
-  $('#impT',main).onclick=function(){var lines=$('#taT',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.sentences.forEach(function(x){exist[x.en.toLowerCase()]=1});var n=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<2)return;if(exist[p[0].toLowerCase()])return;DB.content.sentences.push({id:uid('t'),en:p[0],cn:p[1]});exist[p[0].toLowerCase()]=1;n++});save();toast('导入 '+n+' 条例句');render()};
-  $('#impS',main).onclick=function(){var lines=$('#taS',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.synonyms.forEach(function(x){exist[x.w.toLowerCase()]=1});var n=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<4)return;if(exist[p[0].toLowerCase()])return;DB.content.synonyms.push({id:uid('s'),w:p[0],ph:p[1]||'',cn:p[2],syns:(p[3]||'').split(/[;；、,，]/).map(function(s){return s.trim()}).filter(Boolean),ex:p[4]||''});exist[p[0].toLowerCase()]=1;n++});save();toast('导入 '+n+' 组同义词');render()};
-  $('#impG',main).onclick=function(){var lines=$('#taG',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var n=0,bad=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<6){bad++;return}var ans=Math.max(0,Math.min(3,(+p[5]||1)-1));DB.content.grammar.push({id:uid('g'),q:p[0],opts:[p[1],p[2],p[3],p[4]],ans:ans,ex:p[6]||'',tag:p[7]||''});n++});save();toast('导入 '+n+' 道语法题'+(bad?'（'+bad+' 行格式有误）':''));render()};
+  $('#impW',main).onclick=function(){var lines=$('#taW',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.words.forEach(function(x){exist[x.w.toLowerCase()]=1});var n=0,skip=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<2)return;if(exist[p[0].toLowerCase()]){skip++;return}DB.content.words.push({id:uid('w'),w:p[0],ph:'',pos:'',cn:p[1]||'',ex:'',exCn:''});exist[p[0].toLowerCase()]=1;n++});save();toast('新增 '+n+' 个'+(skip?' · 跳过重复 '+skip+' 个':''));if(n>0)publishContent();render()};
+  $('#impT',main).onclick=function(){var lines=$('#taT',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.sentences.forEach(function(x){exist[x.en.toLowerCase()]=1});var n=0,skip=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<2)return;if(exist[p[0].toLowerCase()]){skip++;return}DB.content.sentences.push({id:uid('t'),en:p[0],cn:p[1]});exist[p[0].toLowerCase()]=1;n++});save();toast('新增 '+n+' 条'+(skip?' · 跳过重复 '+skip+' 条':''));if(n>0)publishContent();render()};
+  $('#impS',main).onclick=function(){var lines=$('#taS',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.synonyms.forEach(function(x){exist[x.w.toLowerCase()]=1});var n=0,skip=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<3)return;if(exist[p[0].toLowerCase()]){skip++;return}DB.content.synonyms.push({id:uid('s'),w:p[0],ph:'',cn:p[1],syns:(p[2]||'').split(/[;；、,，]/).map(function(s){return s.trim()}).filter(Boolean),ex:''});exist[p[0].toLowerCase()]=1;n++});save();toast('新增 '+n+' 组'+(skip?' · 跳过重复 '+skip+' 组':''));if(n>0)publishContent();render()};
+  $('#impP',main).onclick=function(){var lines=$('#taP',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.phrases.forEach(function(x){exist[x.en.toLowerCase()]=1});var n=0,skip=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<2)return;if(exist[p[0].toLowerCase()]){skip++;return}DB.content.phrases.push({id:uid('p'),en:p[0],cn:p[1]});exist[p[0].toLowerCase()]=1;n++});save();toast('新增 '+n+' 组'+(skip?' · 跳过重复 '+skip+' 组':''));if(n>0)publishContent();render()};
+  $('#impG',main).onclick=function(){var lines=$('#taG',main).value.split('\n').map(function(l){return l.trim()}).filter(Boolean);if(!lines.length)return toast('请先粘贴内容');var exist={};DB.content.grammar.forEach(function(x){exist[(x.q||'').toLowerCase()]=1});var n=0,skip=0,bad=0;lines.forEach(function(l){var p=l.split(/[|｜\t]/).map(function(s){return s.trim()});if(p.length<6){bad++;return}var key=(p[0]||'').toLowerCase();if(exist[key]){skip++;return}var ans=Math.max(0,Math.min(3,(+p[5]||1)-1));DB.content.grammar.push({id:uid('g'),q:p[0],opts:[p[1],p[2],p[3],p[4]],ans:ans,ex:p[6]||'',tag:p[7]||''});exist[key]=1;n++});save();toast('新增 '+n+' 道'+(skip?' · 跳过重复 '+skip+' 道':'')+(bad?' · '+bad+' 行格式有误':''));if(n>0)publishContent();render()};
+  $('#dedupG',main).onclick=function(){var seen={},out=[];DB.content.grammar.forEach(function(g){var k=(g.q||'').toLowerCase();if(seen[k])return;seen[k]=1;out.push(g)});var removed=DB.content.grammar.length-out.length;if(!removed){toast('没有发现重复语法题');return}DB.content.grammar=out;save();toast('已清理 '+removed+' 道重复语法题');publishContent();render()};
+  $('#pushContent',main).onclick=function(){if(!syncClient||!syncClient.connected){toast('未连接云端，稍后再试');return}publishContent();toast('📡 已推送，其他设备将自动同步')};
   $('#expBtn',main).onclick=function(){var blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='toeic-backup-'+todayStr()+'.json';a.click();toast('已导出备份')};
   $('#impBtn',main).onclick=function(){$('#fileIn',main).click()};
   $('#fileIn',main).onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var data=JSON.parse(r.result);if(!data.roles||!data.content)throw 0;DB=data;fixDB();save();state.session=null;state.pk=null;state.onlinePK=null;state.match=null;toast('恢复成功');render()}catch(err){toast('文件格式不正确')}};r.readAsText(f)};
@@ -1411,7 +1431,6 @@ function memFlip(i){
   if(first.pair===c.pair){first.matched=true;c.matched=true;if(s.turn==='A')s.scoreA++;else s.scoreB++;s.first=null;render()}
   else{s.lock=true;render();setTimeout(function(){first.flipped=false;c.flipped=false;s.first=null;s.lock=false;s.turn=s.turn==='A'?'B':'A';render()},1000)}
 }
-/* ===== 在线PK ===== */
 function onlinePKInit(){
   state.onlinePK={status:'idle',role:null,roomCode:null,myPlayer:'A',mqttClient:null,words:[],total:0,idx:0,currentQ:null,myAnswer:null,opponentAnswer:null,scoreA:0,scoreB:0,reveal:false};
   render();
@@ -1457,29 +1476,11 @@ function onHostMessage(msg){
 }
 function onClientMessage(msg){
   var s=state.onlinePK;if(!s)return;
-  if(msg.type==='welcome'){
-    render();
-  }else if(msg.type==='start'){
-    s.total=msg.total||0;
-    if(!s.words||!s.words.length)s.words=new Array(s.total);
-    s.status='playing';
-    s.idx=0;s.scoreA=0;s.scoreB=0;
-    render();
-  }else if(msg.type==='question'){
-    s.idx=msg.idx;
-    s.total=s.total||msg.total||0;
-    if(!s.words||!s.words.length)s.words=new Array(s.total||(msg.idx+1));
-    s.currentQ={stem:msg.stem,ph:msg.ph||'',opts:msg.opts,ans:msg.ans,listen:msg.listen,speak:msg.speak};
-    s.myAnswer=null;s.opponentAnswer=null;s.reveal=false;
-    s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;
-    s.status='playing';
-    if(msg.listen)setTimeout(function(){speak(msg.speak)},300);
-    render();
-  }else if(msg.type==='result'){
-    s.reveal=true;s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;render();
-  }else if(msg.type==='finish'){
-    s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;s.status='finished';render();
-  }
+  if(msg.type==='welcome'){render()}
+  else if(msg.type==='start'){s.total=msg.total||0;if(!s.words||!s.words.length)s.words=new Array(s.total);s.status='playing';s.idx=0;s.scoreA=0;s.scoreB=0;render()}
+  else if(msg.type==='question'){s.idx=msg.idx;s.total=s.total||msg.total||0;if(!s.words||!s.words.length)s.words=new Array(s.total||(msg.idx+1));s.currentQ={stem:msg.stem,ph:msg.ph||'',opts:msg.opts,ans:msg.ans,listen:msg.listen,speak:msg.speak};s.myAnswer=null;s.opponentAnswer=null;s.reveal=false;s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;s.status='playing';if(msg.listen)setTimeout(function(){speak(msg.speak)},300);render()}
+  else if(msg.type==='result'){s.reveal=true;s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;render()}
+  else if(msg.type==='finish'){s.scoreA=msg.scoreA;s.scoreB=msg.scoreB;s.status='finished';render()}
 }
 function startOnlineGame(){
   var s=state.onlinePK;var pool=shuffle(DB.content.words).slice(0,50);if(pool.length<4){toast('词库至少需要4个单词');return}
@@ -1500,16 +1501,9 @@ function sendNextOnlineQuestion(){
 function onlineAnswer(player,choice){
   var s=state.onlinePK;if(!s||s.reveal)return;
   var isMe=(player===s.myPlayer);
-  if(isMe){
-    if(s.myAnswer!==null)return;
-    s.myAnswer=choice;
-  }else{
-    if(s.opponentAnswer!==null)return;
-    s.opponentAnswer=choice;
-  }
-  if(s.role==='client' && isMe){
-    sendMsg({type:'answer',idx:s.idx,choice:choice});
-  }
+  if(isMe){if(s.myAnswer!==null)return;s.myAnswer=choice}
+  else{if(s.opponentAnswer!==null)return;s.opponentAnswer=choice}
+  if(s.role==='client' && isMe){sendMsg({type:'answer',idx:s.idx,choice:choice})}
   checkOnlineBothAnswered();
   render();
 }
@@ -1591,14 +1585,12 @@ $$('#roles button').forEach(function(b){b.onclick=function(){
 $$('#tabs button').forEach(function(b){b.onclick=function(){state.view=b.dataset.v;state.session=null;state.pk=null;state.onlinePK=null;state.match=null;render()}});
 $$('#login .player').forEach(function(el){el.onclick=function(){DB.current=el.dataset.r;save();$('#login').style.display='none';render();initSync()}});
 
-/* 战报关闭按钮 */
 document.addEventListener('click',function(e){
   if(e.target&&e.target.id==='reportClose'){
     var el=$('#reportModal');if(el)el.classList.remove('show');
   }
 },true);
 
-/* ===== 启动：每次都显示登录页，让用户选角色 ===== */
 loadDB();
 render();
 initSync();
