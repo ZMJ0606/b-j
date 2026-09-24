@@ -422,7 +422,7 @@ var SEED_SYNS=parseSyns(SYN_RAW);
 var SEED_GRAMMAR=GRAMMAR_RAW.map(function(g,i){return{id:'g'+(i+1),q:g.q,opts:g.opts,ans:g.ans,ex:g.ex,tag:g.tag}});
 var DB=null;
 
-function defaultDB(){return{current:'A',roles:{A:{srs:{},daily:{},logs:{},wrong:{},progress:{}},B:{srs:{},daily:{},logs:{},wrong:{},progress:{}}},content:{words:SEED_WORDS.slice(),phrases:SEED_PHRASES.slice(),sentences:SEED_SENTS.slice(),synonyms:SEED_SYNS.slice(),grammar:SEED_GRAMMAR.slice()},settings:{newPerDay:20,reviewPerDay:20}}}
+function defaultDB(){return{current:'A',roles:{A:{srs:{},daily:{},logs:{},wrong:{},progress:{}},B:{srs:{},daily:{},logs:{},wrong:{},progress:{}}},content:{words:SEED_WORDS.slice(),phrases:SEED_PHRASES.slice(),sentences:SEED_SENTS.slice(),synonyms:SEED_SYNS.slice(),grammar:SEED_GRAMMAR.slice()},settings:{newPerDay:10,reviewPerDay:15}}}
 function loadDB(){try{var raw=localStorage.getItem(KEY);DB=raw?JSON.parse(raw):defaultDB()}catch(e){DB=defaultDB()}fixDB()}
 function fixDB(){
   DB.current=DB.current||'A';
@@ -903,7 +903,7 @@ function renderListenResult(main){
 }
 function startGrammar(){
   var pool=DB.content.grammar;if(!pool.length){toast('语法库为空');return}
-  var picked=pickSequential(pool,20,'grammar');
+  var picked=pickSequential(pool,5,'grammar');
   streakRight=0;
   var qs=picked.map(function(it){return{stem:it.q,long:true,sub:'托业 Part 5/6 语法词汇',opts:it.opts,ans:[it.ans],ex:it.tag?'【'+it.tag+'】':'',ex2:it.ex,speak:it.q,srcId:it.id}});
   state.session={kind:'grammar',qs:qs,idx:0,right:0,picked:null,done:false};
