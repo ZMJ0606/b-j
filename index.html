@@ -422,7 +422,7 @@ var SEED_SYNS=parseSyns(SYN_RAW);
 var SEED_GRAMMAR=GRAMMAR_RAW.map(function(g,i){return{id:'g'+(i+1),q:g.q,opts:g.opts,ans:g.ans,ex:g.ex,tag:g.tag}});
 var DB=null;
 
-function defaultDB(){return{current:'A',roles:{A:{srs:{},daily:{},logs:{},wrong:{},progress:{}},B:{srs:{},daily:{},logs:{},wrong:{},progress:{}}},content:{words:SEED_WORDS.slice(),phrases:SEED_PHRASES.slice(),sentences:SEED_SENTS.slice(),synonyms:SEED_SYNS.slice(),grammar:SEED_GRAMMAR.slice()},settings:{newPerDay:10,reviewPerDay:15}}}
+function defaultDB(){return{current:'A',roles:{A:{srs:{},daily:{},logs:{},wrong:{},progress:{}},B:{srs:{},daily:{},logs:{},wrong:{},progress:{}}},content:{words:SEED_WORDS.slice(),phrases:SEED_PHRASES.slice(),sentences:SEED_SENTS.slice(),synonyms:SEED_SYNS.slice(),grammar:SEED_GRAMMAR.slice()},settings:{newPerDay:20,reviewPerDay:20}}}
 function loadDB(){try{var raw=localStorage.getItem(KEY);DB=raw?JSON.parse(raw):defaultDB()}catch(e){DB=defaultDB()}fixDB()}
 function fixDB(){
   DB.current=DB.current||'A';
@@ -694,8 +694,8 @@ function startStage(key){
   else if(key==='phrases')startPhrases();
 }
 function startLearn(){
-  var news=pickNewWords(DB.settings.newPerDay);
-  var reviews=pickReviewWords(DB.settings.reviewPerDay);
+  var news=pickNewWords(10);
+  var reviews=pickReviewWords(10);
   if(!news.length&&!reviews.length){toast('词库为空');return}
   streakRight=0;
   state.session={kind:'learn',phase:news.length?'preview':'review',newWords:news,reviewQueue:reviews.slice(),previewIdx:0,reviewIdx:0,revealed:false,right:0,fuzzy:0,wrong:0,total:0,done:false};
@@ -736,7 +736,7 @@ function renderLearnResult(main){
 function startFill(){
   var pool=DB.content.sentences.filter(function(s){return s.en.split(' ').length>=5});
   if(!pool.length){toast('例句库为空');return}
-  var picked=pickSequential(pool,20,'fill');
+  var picked=pickSequential(pool,10,'fill');
   streakRight=0;
   var qs=picked.map(function(s){
     var words=s.en.replace(/[.,!?]$/,'').split(/\s+/);
@@ -780,7 +780,7 @@ function renderFillResult(main){
 function startBuild(){
   var pool=DB.content.sentences.filter(function(s){return s.en.split(' ').length>=5});
   if(!pool.length){toast('例句库为空');return}
-  var picked=pickSequential(pool,20,'build');
+  var picked=pickSequential(pool,10,'build');
   streakRight=0;
   var qs=picked.map(function(s){var words=s.en.replace(/[.,!?]$/,'').split(/\s+/);return{target:s.en,cn:s.cn,tokens:shuffle(words),answer:words,speak:s.en,srcId:s.id}});
   state.session={kind:'build',qs:qs,idx:0,right:0,used:{},answer:[],submitted:false,done:false};
@@ -818,7 +818,7 @@ function renderBuildResult(main){
 function startSyn(){
   var pool=DB.content.synonyms;
   if(!pool.length){toast('同义词库为空');return}
-  var picked=pickSequential(pool,20,'synonym');
+  var picked=pickSequential(pool,10,'synonym');
   streakRight=0;
   var qs=picked.map(function(it){
     var correct=it.syns[0];if(!correct)return null;
@@ -856,7 +856,7 @@ function renderSynResult(main){
 }
 function startListen(){
   var pool=DB.content.sentences;if(!pool.length){toast('听力库为空');return}
-  var picked=pickSequential(pool,20,'listening');
+  var picked=pickSequential(pool,10,'listening');
   streakRight=0;
   var qs=picked.map(function(it){
     var type=Math.floor(Math.random()*2);
@@ -936,7 +936,7 @@ function renderGrammarResult(main){
 function startPhrases(){
   var pool=DB.content.phrases.filter(function(p){return p.en&&p.cn&&p.en.indexOf(' ')>0});
   if(!pool.length){toast('词组库为空');return}
-  var picked=pickSequential(pool,20,'phrases');
+  var picked=pickSequential(pool,10,'phrases');
   streakRight=0;
   var allWords={};
   pool.forEach(function(p){
