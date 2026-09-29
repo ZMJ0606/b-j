@@ -1323,8 +1323,7 @@ function renderData(main){
   $('#expBtn',main).onclick=function(){var blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='toeic-backup-'+todayStr()+'.json';a.click();toast('已导出备份')};
   $('#impBtn',main).onclick=function(){$('#fileIn',main).click()};
   $('#fileIn',main).onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var data=JSON.parse(r.result);if(!data.roles||!data.content)throw 0;DB=data;fixDB();save();state.session=null;state.pk=null;state.onlinePK=null;state.match=null;toast('恢复成功');render()}catch(err){toast('文件格式不正确')}};r.readAsText(f)};
-  $('#resetBtn',main).onclick=function(){if(!confirm('⚠️ 警告：此操作将清空所有题库、进度和错题，且不可恢复！确定继续吗？'))return;if(!confirm('⚠️ 再次确认：真的要清空所有数据l;state.pk=null;state.onlinePK=null;state.match=null;toast('已重置');render()};
-}
+  $('#resetBtn',main).onclick=function(){if(!confirm('⚠️ 警告：此操作将清空所有题库、进度和错题，且不可恢复！确定继续吗？'))return;if(!confirm('⚠️ 再次确认：真的要清空所有数据吗？'))return;if(prompt('请输入“清空”两个字以最终确认：')!=='清空'){toast('输入错误，已取消');return}localStorage.removeItem(KEY);loadDB();state.session=null;state.pk=null;state.onlinePK=null;state.match=null;toast('已重置');render()};
 function renderPK(main){
   if(state.pk)return renderPKGame(main);
   var onlineCard='<div class="stage" data-online-pk="1" style="background:linear-gradient(135deg,#10b981,#059669);border-color:#10b981;color:#fff"><div class="ic" style="background:#fff">🌐</div><div class="tx"><b style="color:#fff">跨设备在线PK</b><span style="color:rgba(255,255,255,.85)">两台设备，一房间，实时抢答</span></div><div class="st" style="background:#fff;color:#059669">新</div></div>';
