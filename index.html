@@ -678,7 +678,7 @@ function renderToday(main){
   if(nc)html+='<div style="font-size:13.5px;padding:5px 0;color:#374151">🏅 距完整通关 <b>'+nc+'</b> 天还差 <b style="color:#8b5cf6">'+(nc-sR.completedDays)+'</b> 天</div>';
   else html+='<div style="font-size:13.5px;padding:5px 0;color:#8b5cf6">🏅 完整通关 <b>'+sR.completedDays+'</b> 天，全通关</div>';
   html+='</div>';
-  html+='<div class="card"><h2>玩法说明</h2><div class="tip">· 每天一关，按顺序完成 7 个阶段<br>· 阶段1：学 20 个新词 + 复习 20 个旧词（SRS）<br>· 阶段2-7：按顺序出题，题库到末尾自动循环<br>· 📕 错题集：答对自动移除<br>· 🎮 消消乐：纯娱乐<br>· 📡 团队「波&娇」题库自动同步</div></div>';
+  html+='<div class="card"><h2>玩法说明</h2><div class="tip">· 每天一关，按顺序完成 7 个阶段<br>· 阶段1：学 10 个新词 + 复习 10 个旧词（SRS）<br>· 阶段2-7：按顺序出题，题库到末尾自动循环<br>· 📕 错题集：答对自动移除<br>· 🎮 消消乐：纯娱乐<br>· 📡 团队「波&娇」题库自动同步</div></div>';
   main.innerHTML=html;
   $$('[data-stage]',main).forEach(function(el){var key=el.dataset.stage,active=el.dataset.active==='true';el.onclick=function(){if(!active){toast('请先完成前面的阶段');return}startStage(key)}});
   var gw=$('#goWrong',main);if(gw)gw.onclick=function(){state.view='today';startWrongReview()};
@@ -1324,6 +1324,7 @@ function renderData(main){
   $('#impBtn',main).onclick=function(){$('#fileIn',main).click()};
   $('#fileIn',main).onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var data=JSON.parse(r.result);if(!data.roles||!data.content)throw 0;DB=data;fixDB();save();state.session=null;state.pk=null;state.onlinePK=null;state.match=null;toast('恢复成功');render()}catch(err){toast('文件格式不正确')}};r.readAsText(f)};
   $('#resetBtn',main).onclick=function(){if(!confirm('⚠️ 警告：此操作将清空所有题库、进度和错题，且不可恢复！确定继续吗？'))return;if(!confirm('⚠️ 再次确认：真的要清空所有数据吗？'))return;if(prompt('请输入“清空”两个字以最终确认：')!=='清空'){toast('输入错误，已取消');return}localStorage.removeItem(KEY);loadDB();state.session=null;state.pk=null;state.onlinePK=null;state.match=null;toast('已重置');render()};
+}
 function renderPK(main){
   if(state.pk)return renderPKGame(main);
   var onlineCard='<div class="stage" data-online-pk="1" style="background:linear-gradient(135deg,#10b981,#059669);border-color:#10b981;color:#fff"><div class="ic" style="background:#fff">🌐</div><div class="tx"><b style="color:#fff">跨设备在线PK</b><span style="color:rgba(255,255,255,.85)">两台设备，一房间，实时抢答</span></div><div class="st" style="background:#fff;color:#059669">新</div></div>';
